@@ -5,9 +5,10 @@
 //   bun add @electric-sql/pglite
 //   bun /path/to/docs/verify-003.mjs
 //
-// 它从空库依次执行 001、002、003，然后按 N01–N07 与 V13/V20 逐项断言。
+// 它从空库依次执行 001、002、003，然后按 N01–N07 与 V13、V20–V21 逐项断言。
 // 模拟 Supabase 的 auth.users、auth.uid()、authenticated 角色与表级授权；
 // 不启动 Realtime，也没有多连接并发，这两项必须在线上补测。
+// 并发配对（V13）这里只覆盖顺序复用同一码，不代表并发通过。
 
 import { PGlite } from '@electric-sql/pglite';
 import fs from 'node:fs';
@@ -113,7 +114,18 @@ await asUser(A, () => db.query(`select public.report_usage($1::date,$2::jsonb,$3
 ok('N01 未配对读 get_status', (await err(() => asUser(C, () => db.query('select * from public.get_status($1)', [A])))) === 'not_allowed', 'not_allowed');
 ok('N01 未配对读 get_usage', (await err(() => asUser(C, () => db.query('select * from public.get_usage($1)', [A])))) === 'not_allowed', 'not_allowed');
 ok('N01 已配对读陌生人', (await err(() => asUser(B, () => db.query('select * from public.get_status($1)', [D])))) === 'not_allowed', 'not_allowed');
-ok('N01 未配对可读自己', (await asUser(C, () => db.query('select * from public.get_status()'))).rows.length === 0, 'empty ok');
+// 缺省参数 = 读对象。未配对时没有对象，返回空集，不是报错
+const cDefault = (await asUser(C, () => db.query('select * from public.get_status()'))).rows;
+ok('N01 未配对缺省返回空', cDefault.length === 0, { rows: cDefault.length });
+// 显式传自己：未配对也能读，返回自己那一行（还没上报，所以坐标为空）
+let cSelf = null;
+let cSelfErr = null;
+try {
+  cSelf = (await asUser(C, () => db.query('select user_id, lat from public.get_status($1)', [C]))).rows;
+} catch (e) {
+  cSelfErr = String(e.message).split('\n')[0];
+}
+ok('N01 未配对显式读自己', cSelfErr === null && cSelf?.length === 1 && cSelf[0].user_id === C, cSelf ?? cSelfErr);
 
 // ---------- 正常可见 ----------
 const bStatus = (await asUser(B, () => db.query('select * from public.get_status()'))).rows[0];
@@ -124,8 +136,13 @@ ok('正常用机可见', bUsage.length === 1 && bUsage[0].apps?.length === 1, { 
 // ---------- N04 ----------
 const forgeErr = await err(() => asUser(C, () => db.query('insert into public.couple_members (user_id, couple_id) values ($1,$2)', [C, coupleId])));
 ok('N04 不能伪造成员', forgeErr !== null && /row-level security|permission denied/.test(forgeErr), forgeErr ?? 'unexpected success');
-const cPartner = (await asUser(C, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
-ok('N04 孤儿成员不返回对象', cPartner === null, cPartner);
+// 普通用户写不进，但管理员能绕过 RLS。伪造行真实存在时，成员查询仍要不认
+await db.query('insert into public.couple_members (user_id, couple_id) values ($1,$2)', [C, coupleId]);
+const cPartnerForged = (await asUser(C, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
+ok('N04 管理员注入伪造行后仍不认', cPartnerForged === null, cPartnerForged);
+const cForgedRead = await err(() => asUser(C, () => db.query('select * from public.get_status($1)', [A])));
+ok('N04 伪造行不放开对象读取', cForgedRead === 'not_allowed', cForgedRead ?? 'unexpected success');
+await db.query('delete from public.couple_members where user_id = $1', [C]);
 const aPartner = (await asUser(A, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
 const bPartner = (await asUser(B, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
 ok('N04 两侧互为对象', aPartner === B && bPartner === A, { aPartner, bPartner });
@@ -186,15 +203,18 @@ await asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSO
 const afterBacklog = (await asUser(B, () => db.query('select lat, lng from public.get_status()'))).rows[0];
 ok('N06 补传更旧的点不回退状态', afterBacklog.lat === 25.02, afterBacklog);
 
-// 暂停期间采集、恢复后才补传：入库，但恢复后仍不可见
+// 真实时序：暂停 → 期间采集并记下时刻 → 恢复 → 恢复后才把这段点补传上来
+// 入库成功，但恢复后仍不可见（resumed_at 晚于这些点）
 await asUser(A, () => db.query(`select public.set_pause(now() + interval '1 hour')`));
-const pausedPointAt = new Date(Date.now() - 1000).toISOString();
-await asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSON.stringify([
-  { lat: 25.05, lng: 121.55, accuracy: 15, provider: 'gps', battery: 62, charging: false, recorded_at: pausedPointAt },
-])]));
+const pausedPointAt = new Date().toISOString();
+// 等过毫秒边界再恢复，避免 resumed_at 与采集时刻落在同一毫秒导致断不出来
+await new Promise((r) => setTimeout(r, 50));
 await asUser(A, () => db.query('select public.set_pause(null)'));
+const pausedBacklogSend = await err(() => asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSON.stringify([
+  { lat: 25.05, lng: 121.55, accuracy: 15, provider: 'gps', battery: 62, charging: false, recorded_at: pausedPointAt },
+])])));
 const afterPausedBacklog = (await asUser(B, () => db.query('select lat, lng from public.get_status()'))).rows[0];
-ok('N06 恢复后补传的旧点仍遮蔽', afterPausedBacklog.lat === null, afterPausedBacklog);
+ok('N06 暂停期间的点恢复后补传仍遮蔽', pausedBacklogSend === null && afterPausedBacklog.lat === null, { send: pausedBacklogSend ?? 'ok', afterPausedBacklog });
 
 await asUser(A, () => db.query(`select public.set_pause(now() + interval '1 second')`));
 await new Promise((r) => setTimeout(r, 1600));
@@ -208,7 +228,8 @@ const afterExpiryNew = (await asUser(B, () => db.query('select lat from public.g
 ok('N06 到期后新点可见', afterExpiryNew.lat === 25.03, afterExpiryNew);
 
 // ---------- N05 ----------
-const day = '2026-10-26';
+// 用独立日期，避免和“今天的初始日报”撞车；时刻固定，不依赖运行时钟
+const day = '2026-09-01';
 const snap = (v, t, pkg) => asUser(A, () => db.query(`select public.report_usage($1::date,$2::jsonb,$3::jsonb,$4::timestamptz) as r`, [
   day, JSON.stringify({ screen_on_ms: v }), JSON.stringify([{ package_name: pkg, foreground_ms: v }]), t,
 ]));
@@ -231,20 +252,46 @@ await asUser(E, () => db.query(`select public.set_pause(now() + interval '1 hour
 const eTouched = (await db.query(`select updated_at > now() - interval '1 minute' as t from public.presence where user_id=$1`, [E])).rows[0].t;
 ok('N07 新用户有 presence 且能发信号', ePresence === 1 && eTouched === true, { ePresence, eTouched });
 
-// ---------- V20 纯查看 ----------
+// ---------- V20 关闭采集 ----------
+// 只关采集：共享没动，旧数据对对方仍可见，这是设计
+await asUser(A, () => db.query('select public.set_sharing(true,true,true)'));
 await asUser(A, () => db.query('select public.set_collect_enabled(false)'));
 const locOff = await err(() => asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSON.stringify([
   { lat: 1, lng: 1, recorded_at: new Date().toISOString() },
 ])])));
 const usageOff = await err(() => asUser(A, () => db.query(`select public.report_usage($1::date,$2::jsonb,null,now())`, [today, JSON.stringify({ screen_on_ms: 1 })])));
-ok('V20 纯查看拒绝上报', locOff === 'collect_disabled' && usageOff === 'collect_disabled', { locOff, usageOff });
+ok('V20 关闭采集拒绝上报', locOff === 'collect_disabled' && usageOff === 'collect_disabled', { locOff, usageOff });
+const stillVisible = (await asUser(B, () => db.query('select lat, battery from public.get_status()'))).rows[0];
+const stillUsage = (await asUser(B, () => db.query('select * from public.get_usage()'))).rows;
+ok('V20 只关采集时旧数据仍按共享可见', stillVisible.lat === 25.03 && stillVisible.battery !== null && stillUsage.length === 1,
+  { stillVisible, usageRows: stillUsage.length });
+await asUser(A, () => db.query('select public.set_collect_enabled(true)'));
+const reopened = (await asUser(A, () => db.query('select public.report_locations($1::jsonb) as r', [JSON.stringify([
+  { lat: 25.04, lng: 121.54, accuracy: 11, provider: 'gps', battery: 70, charging: false, recorded_at: new Date().toISOString() },
+])]))).rows[0].r;
+ok('V20 重开采集后恢复上报', reopened?.received === 1, reopened);
+
+// ---------- V21 纯查看模式 ----------
+// 一键顺序：先关采集，再关三类共享；两步都成功才叫纯查看
+await asUser(A, () => db.query('select public.set_collect_enabled(false)'));
+await asUser(A, () => db.query('select public.set_sharing(false,false,false)'));
+const hiddenStatus = (await asUser(B, () => db.query('select lat, battery from public.get_status()'))).rows[0];
+const hiddenUsage = (await asUser(B, () => db.query('select * from public.get_usage()'))).rows;
+ok('V21 两步都做完后对方看不到旧数据', hiddenStatus.lat === null && hiddenStatus.battery === null && hiddenUsage.length === 0,
+  { hiddenStatus, usageRows: hiddenUsage.length });
+// 两步各自幂等，重试只补没完成的那一步
+const repeatCollect = await err(() => asUser(A, () => db.query('select public.set_collect_enabled(false)')));
+const repeatSharing = await err(() => asUser(A, () => db.query('select public.set_sharing(false,false,false)')));
+ok('V21 重复执行幂等', repeatCollect === null && repeatSharing === null, { repeatCollect, repeatSharing });
+await asUser(A, () => db.query('select public.set_sharing(true,true,true)'));
 await asUser(A, () => db.query('select public.set_collect_enabled(true)'));
 
-// ---------- V13 同码二次使用 ----------
+// ---------- V13 顺序复用配对码 ----------
+// 只证明同一码顺序用两次只成功一次；并发两项在线上两个连接验，本机不覆盖
 const codeD = (await asUser(D, () => db.query('select public.generate_pair_code() as code'))).rows[0].code;
 const firstAccept = await asUser(E, () => db.query('select public.accept_pair_code($1) as id', [codeD]));
 const secondAccept = await err(() => asUser(C, () => db.query('select public.accept_pair_code($1) as id', [codeD])));
-ok('V13 同码只成功一次', !!firstAccept.rows[0].id && secondAccept === 'invalid_code', { secondAccept });
+ok('V13 顺序复用同码只成功一次', !!firstAccept.rows[0].id && secondAccept === 'invalid_code', { secondAccept });
 
 // ---------- 签名 ----------
 const sigs = (await db.query(`

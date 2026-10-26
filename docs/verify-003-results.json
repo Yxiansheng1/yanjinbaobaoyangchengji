@@ -1,6 +1,6 @@
 {
   "environment": "PGlite 0.5.11，干净库 001→002→003；模拟 auth.uid/authenticated/表级授权；无 Realtime、无多连接",
-  "passed": 31,
+  "passed": 37,
   "failed": 0,
   "checks": [
     {
@@ -31,9 +31,21 @@
       "observed": "not_allowed"
     },
     {
-      "name": "N01 未配对可读自己",
+      "name": "N01 未配对缺省返回空",
       "pass": true,
-      "observed": "empty ok"
+      "observed": {
+        "rows": 0
+      }
+    },
+    {
+      "name": "N01 未配对显式读自己",
+      "pass": true,
+      "observed": [
+        {
+          "user_id": "00000000-0000-0000-0000-000000000003",
+          "lat": null
+        }
+      ]
     },
     {
       "name": "正常状态可见",
@@ -56,9 +68,14 @@
       "observed": "new row violates row-level security policy for table \"couple_members\""
     },
     {
-      "name": "N04 孤儿成员不返回对象",
+      "name": "N04 管理员注入伪造行后仍不认",
       "pass": true,
       "observed": null
+    },
+    {
+      "name": "N04 伪造行不放开对象读取",
+      "pass": true,
+      "observed": "not_allowed"
     },
     {
       "name": "N04 两侧互为对象",
@@ -114,7 +131,7 @@
         "place_name": null,
         "battery": null,
         "charging": null,
-        "paused_until": "2026-10-26T05:06:37.940Z"
+        "paused_until": "2026-10-26T05:45:33.818Z"
       }
     },
     {
@@ -149,11 +166,14 @@
       }
     },
     {
-      "name": "N06 恢复后补传的旧点仍遮蔽",
+      "name": "N06 暂停期间的点恢复后补传仍遮蔽",
       "pass": true,
       "observed": {
-        "lat": null,
-        "lng": null
+        "send": "ok",
+        "afterPausedBacklog": {
+          "lat": null,
+          "lng": null
+        }
       }
     },
     {
@@ -210,7 +230,7 @@
       }
     },
     {
-      "name": "V20 纯查看拒绝上报",
+      "name": "V20 关闭采集拒绝上报",
       "pass": true,
       "observed": {
         "locOff": "collect_disabled",
@@ -218,7 +238,45 @@
       }
     },
     {
-      "name": "V13 同码只成功一次",
+      "name": "V20 只关采集时旧数据仍按共享可见",
+      "pass": true,
+      "observed": {
+        "stillVisible": {
+          "lat": 25.03,
+          "battery": 64
+        },
+        "usageRows": 1
+      }
+    },
+    {
+      "name": "V20 重开采集后恢复上报",
+      "pass": true,
+      "observed": {
+        "inserted": 1,
+        "received": 1
+      }
+    },
+    {
+      "name": "V21 两步都做完后对方看不到旧数据",
+      "pass": true,
+      "observed": {
+        "hiddenStatus": {
+          "lat": null,
+          "battery": null
+        },
+        "usageRows": 0
+      }
+    },
+    {
+      "name": "V21 重复执行幂等",
+      "pass": true,
+      "observed": {
+        "repeatCollect": null,
+        "repeatSharing": null
+      }
+    },
+    {
+      "name": "V13 顺序复用同码只成功一次",
       "pass": true,
       "observed": {
         "secondAccept": "invalid_code"

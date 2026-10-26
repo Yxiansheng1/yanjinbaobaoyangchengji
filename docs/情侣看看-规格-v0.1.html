@@ -83,7 +83,7 @@
 <header class="doc">
   <h1>情侣看看 规格 v0.1</h1>
   <div class="meta">
-    <span><b>版本</b> 1.4</span>
+    <span><b>版本</b> 1.5</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 设计冻结；003 已上线，行为校验待做</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
@@ -231,7 +231,7 @@
     <tr><td class="mono">user_id + date + package_name</td><td class="mono">uuid + date + text</td><td>联合主键</td><td></td></tr>
     <tr><td class="mono">app_label / foreground_ms / launch_count</td><td class="mono">text / bigint / int</td><td>非空，默认 0</td><td></td></tr>
 
-    <tr class="group"><td colspan="4">user_status 当前状态，本人可读写，对象不可读</td></tr>
+    <tr class="group"><td colspan="4">user_status 当前状态，本人可读，写入走函数，对象不可读</td></tr>
     <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
     <tr><td class="mono">lat / lng / accuracy / place_name</td><td class="mono">double / double / real / text</td><td>可空</td><td>最新一点</td></tr>
     <tr><td class="mono">battery / charging</td><td class="mono">smallint / boolean</td><td>可空</td><td></td></tr>
@@ -310,7 +310,7 @@
     <tr><td class="mono">report_usage</td><td class="mono">(p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz)</td><td class="mono">int</td><td>写入的应用行数；返回 -1 表示旧快照被丢弃；同版本重发按幂等成功处理</td></tr>
     <tr><td class="mono">set_pause</td><td class="mono">(p_until timestamptz)</td><td class="mono">void</td><td>同一事务写暂停时刻并触发刷新信号；传 null 即恢复，并记 <code>resumed_at</code></td></tr>
     <tr><td class="mono">set_sharing</td><td class="mono">(p_location boolean, p_usage boolean, p_battery boolean)</td><td class="mono">void</td><td>改三个分项开关并触发刷新信号</td></tr>
-    <tr><td class="mono">set_collect_enabled</td><td class="mono">(p_enabled boolean)</td><td class="mono">void</td><td>纯查看模式开关；只影响本机采集，不改共享</td></tr>
+    <tr><td class="mono">set_collect_enabled</td><td class="mono">(p_enabled boolean)</td><td class="mono">void</td><td>纯查看模式开关；只影响本机采集，不改共享。要同时撤掉对方可见性，另调 <code>set_sharing(false,false,false)</code></td></tr>
     <tr><td class="mono">purge_old_locations</td><td class="mono">()</td><td class="mono">void</td><td>删 7 天前的位置点；需要 pg_cron 才会自动执行</td></tr>
   </tbody>
 </table>
@@ -351,7 +351,7 @@
     <tr><td>位置批量</td><td>断网恢复后的补传单次最多 50 点，超过拆分</td></tr>
     <tr><td>用机频次</td><td>每 15 分钟一次，另在次日 00:05 补一次前一日终态快照</td></tr>
     <tr><td>用机语义</td><td>全量快照，服务端整日替换；请求必须带 <code>captured_at</code>，它是唯一版本号</td></tr>
-    <tr><td>纯查看设备</td><td><code>collect_enabled = false</code> 时服务端直接拒绝上报，客户端不应起采集与上报循环</td></tr>
+    <tr><td>纯查看设备</td><td><code>collect_enabled = false</code> 时服务端直接拒绝上报，客户端不应起采集与上报循环。这只停上报，不改三类共享；旧数据是否可见仍由 <code>share_*</code> 决定</td></tr>
     <tr><td>写入通道</td><td>只能调两个上报函数。四张数据表对 <code>authenticated</code> 没有写权限，直接 INSERT / UPDATE 报 42501，绕不过 <code>collect_disabled</code> 与版本比较</td></tr>
     <tr><td>成功判据</td><td>HTTP 2xx 且返回的 <code>received</code> 等于提交条数。不看 <code>inserted</code>，重发时它是 0</td></tr>
     <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code>，同版本重发是幂等成功</td></tr>
@@ -634,13 +634,13 @@ interface Clock {
     <tr><td class="num">W-09</td><td>订阅 presence、断线重连、兜底轮询</td><td>界面</td><td>W-02、W-04</td><td>V5</td></tr>
     <tr><td class="num">W-10</td><td>首页地图与状态卡</td><td>界面</td><td>W-09</td><td>V5</td></tr>
     <tr><td class="num">W-11</td><td>用机详情页</td><td>界面</td><td>W-09</td><td>V6</td></tr>
-    <tr><td class="num">W-12</td><td>设置页、分项开关与纯查看模式（<code>collect_enabled</code>）</td><td>界面</td><td>W-09</td><td>V7 前置、V15、V20</td></tr>
+    <tr><td class="num">W-12</td><td>设置页、分项开关与纯查看模式（<code>collect_enabled</code>）</td><td>界面</td><td>W-09</td><td>V7 前置、V15、V20、V21</td></tr>
     <tr><td class="num">W-13</td><td>暂停三档、恢复、断网暂停</td><td>界面</td><td>W-12</td><td>V7、V8、V15</td></tr>
     <tr><td class="num">W-14</td><td>权限引导三屏与缺失提示条</td><td>引导</td><td>W-03</td><td>可补授权</td></tr>
     <tr><td class="num">W-15</td><td>保活引导，OPPO 与 ColorOS 路径优先</td><td>引导</td><td>W-14</td><td>V4</td></tr>
     <tr><td class="num">W-16</td><td>地名解析，只做逆地理编码</td><td>采集</td><td>W-06</td><td>首页显示中文地名</td></tr>
     <tr><td class="num">W-17</td><td>异常态：无网、无权限、被暂停、无数据、过期</td><td>界面</td><td>W-10</td><td>九态全覆盖</td></tr>
-    <tr><td class="num">W-18</td><td>验收脚本与七天实测记录</td><td>验收</td><td>W-10、W-11、W-13、W-15、W-16、W-17</td><td>V1 到 V20</td></tr>
+    <tr><td class="num">W-18</td><td>验收脚本与七天实测记录</td><td>验收</td><td>W-10、W-11、W-13、W-15、W-16、W-17</td><td>V1 到 V21</td></tr>
     <tr><td class="num">W-19</td><td>正式签名、打包、安装说明</td><td>底座</td><td>W-18</td><td>装到真机能用</td></tr>
     <tr><td class="num">W-20</td><td>独立复核，逐条对照本规格</td><td>验收</td><td>W-19</td><td>复核报告</td></tr>
   </tbody>
@@ -675,14 +675,15 @@ interface Clock {
     <tr><td class="num">V10</td><td>耗电</td><td>按第 12 节的两天对照测，增量不超过 8 个百分点；两天亮屏差超过 30 分钟则重测</td></tr>
     <tr><td class="num">V11</td><td>分项遮蔽</td><td>已配对但 A 关闭位置共享时，B 调 <code>get_status</code> 拿到的坐标、精度、地名为 null，电量仍可见；关闭电量共享时电量与充电为 null，位置仍可见；关闭用机共享时 <code>get_usage</code> 返回空</td></tr>
     <tr><td class="num">V12</td><td>日切正确</td><td>23:50 到 00:10 连续亮屏，两日各计本日部分，之和等于实际时长</td></tr>
-    <tr><td class="num">V13</td><td>并发配对</td><td>B 接受 A 的码、C 接受 B 的码并发执行，B 最多进入一段关系；同码并发只成功一次</td></tr>
-    <tr><td class="num">V14</td><td>旧快照不回退</td><td>先发 10:15 快照再发 10:00 快照，第二次返回 -1，库里数据仍为 10:15 版本</td></tr>
+    <tr><td class="num">V13</td><td>配对并发</td><td>B 接受 A 的码、C 接受 B 的码并发执行，B 最多进入一段关系；同码并发只成功一次。本机脚本只覆盖同码顺序复用，并发两项在线上用两个连接执行</td></tr>
+    <tr><td class="num">V14</td><td>旧快照不回退</td><td>顺序：先发 10:15 快照再发 10:00 快照，第二次返回 -1，库里仍是 10:15 版本。并发：已有当天日报与当天尚无日报两种初始状态，各由两个连接同时提交不同 <code>captured_at</code>，日汇总与应用明细最终都属于较新版本</td></tr>
     <tr><td class="num">V15</td><td>断网暂停</td><td>断网点暂停，界面显示「正在同步暂停」；此时对方仍可能读到旧点，联网同步后立即不可读</td></tr>
     <tr><td class="num">V16</td><td>未配对隔离</td><td>未配对 C 指定 A 的 ID 调 <code>get_status</code> 与 <code>get_usage</code> 均得 <code>not_allowed</code>；无参调用返回空集；直接查四张原表为空集；查对方 <code>presence</code> 也是空集；已配对 B 指定无关 D 同样被拒</td></tr>
     <tr><td class="num">V17</td><td>暂停全入口</td><td>暂停后，对象直查 <code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code> 全部为空；<code>get_usage</code> 返回空；不能只验 <code>get_status</code></td></tr>
     <tr><td class="num">V18</td><td>恢复不返旧点</td><td>手动恢复、定时到期、恢复后立即新开查看端三种路径，服务端都返回 null，直到新点到达；暂停期间采集、恢复后才补传的点同样不显示，补传比当前点更旧的点也不回退状态</td></tr>
     <tr><td class="num">V19</td><td>发布集合与消息体</td><td><code>pg_publication_tables</code> 里只有 <code>presence</code>；抓一条真实 Realtime 消息，字段仅 <code>presence</code> 的列；新注册用户在首次定位前切暂停，查看端也能收到信号</td></tr>
-    <tr><td class="num">V20</td><td>纯查看模式</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；用普通 JWT 直写四张数据表报 42501；对方看到的是「未共享」而不是旧位置；重开采集后恢复上报</td></tr>
+    <tr><td class="num">V20</td><td>关闭采集</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；三类共享仍开时，对方仍能读到旧位置与旧用机（这是设计，不是缺陷）；用普通 JWT 直写四张数据表报 42501；重开采集后恢复上报</td></tr>
+    <tr><td class="num">V21</td><td>纯查看模式</td><td>一键进入时先关采集再关三类共享，两步都成功后对方调 <code>get_status</code> 拿到的坐标、电量全为 null，<code>get_usage</code> 返回空；第二步失败时界面显示「部分完成」，重试只补未完成的那一步；两步都幂等，重复执行不报错</td></tr>
   </tbody>
 </table>
 
@@ -707,6 +708,9 @@ interface Clock {
   <p>v0.1 用两台安卓。她的真我 GT8 采集全部数据并查看；你的备用机只作查看端，关闭自身三类共享并把 <code>collect_enabled</code> 设为 false，不上报位置、电量与用机。</p>
   <p>备用机关闭共享的原因是位置诚实：那台机不随身，开着共享会让对方看到一个人停在某处不动，比看不到更误导。等 iOS 端上线再打开。</p>
   <p>关闭采集不是只靠界面约束：服务端在 <code>collect_enabled = false</code> 时直接拒绝两个上报函数，队列里残留的旧点也传不上去。</p>
+  <p><b>进入纯查看模式是两步，不是一步。</b>先关采集，再关三类共享。官方理由是位置诚实：先停上报，避免在关共享的瞬间还有新点落库；反过来先关共享、后关采集，中间那段时间对方看不到，但本机仍在产生数据，属于白采集。</p>
+  <p>两步都成功才算进入纯查看模式。界面一键操作时按上面顺序串行执行；第二步失败就停在「部分完成：已停止采集，仍在共享」，并留一个只重试第二步的按钮。不要回滚第一步，也不要把两步合成一个服务端函数——<code>set_collect_enabled</code> 与 <code>set_sharing</code> 各自幂等，重试只补没成的那一步即可。</p>
+  <p>这也解释了为什么 V20 与 V21 分开验：只关采集时对方仍看得到旧数据，是设计行为；两步都做完才要求看不到。把两件事写进同一条验收，会逼着实现去改接口语义。</p>
   <p>这条同时解决 PRD 验收第 1 条：两台真机注册配对即可完成。</p>
 </div>
 
@@ -717,9 +721,9 @@ interface Clock {
 <table>
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
-    <tr><td>设计</td><td>规格 1.4 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
+    <tr><td>设计</td><td>规格 1.5 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
     <tr><td>已部署</td><td>001、002、003 均已执行；2026-10-26 校验查询七行全 <code>ok</code></td><td>已达成</td></tr>
-    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 31 项断言全过，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V20，并抓一条真实消息</td></tr>
+    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 全过，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V21，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -754,11 +758,12 @@ interface Clock {
     <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.3</td><td>按 N01–N09 加固：身份判断改 NULL 安全写法；对象对四张原表一律不可读，新增 get_usage；历史电量随原表关闭；成员表只允许函数写入；快照版本比较并入 UPSERT；恢复后旧点由 resumed_at 与 paused_until 遮蔽；发布集合只剩 presence；新增 collect_enabled 纯查看模式；补算法单测向量与排名容差；验收扩到 V20；修正留存与版本号事实</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.4</td><td>补两处复核未编号项：成员表回填遇到不一致时列出明细并报错，不再静默跳过；四张数据表收回直写权限，客户端只能走上报函数，纯查看与快照版本无法绕过。校验查询增到七行，验证脚本扩到 31 项断言</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.5</td><td>按三次复核 T01–T04 改：V20 拆成「关闭采集」与「纯查看模式」两条，写明一键操作的顺序、部分失败与重试；R04 同步说明为什么分两步；V13 注明本机只覆盖顺序复用、并发在线上验；V14 补两种初始状态的并发；修正第 4 节 user_status 标题与 README 部署状态</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.4 · 设计冻结 · 003 已上线 · 2026-10-26
+  情侣看看 规格 v0.1.5 · 设计冻结 · 003 已上线 · 2026-10-26
 </footer>
 
 </div>
