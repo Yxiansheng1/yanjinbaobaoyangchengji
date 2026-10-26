@@ -706,6 +706,7 @@ interface Clock {
 <div class="note">
   <div class="h">R04 结论</div>
   <p>v0.1 用两台安卓。她的真我 GT8 采集全部数据并查看；你的备用机只作查看端，关闭自身三类共享并把 <code>collect_enabled</code> 设为 false，不上报位置、电量与用机。</p>
+  <p>备用机系统已确认为最新 Android（不低于 9），<code>minSdk</code> 保持 28，三项用机指标不需要降级。</p>
   <p>备用机关闭共享的原因是位置诚实：那台机不随身，开着共享会让对方看到一个人停在某处不动，比看不到更误导。等 iOS 端上线再打开。</p>
   <p>关闭采集不是只靠界面约束：服务端在 <code>collect_enabled = false</code> 时直接拒绝两个上报函数，队列里残留的旧点也传不上去。</p>
   <p><b>进入纯查看模式是两步，不是一步。</b>先关采集，再关三类共享。官方理由是位置诚实：先停上报，避免在关共享的瞬间还有新点落库；反过来先关共享、后关采集，中间那段时间对方看不到，但本机仍在产生数据，属于白采集。</p>
@@ -731,7 +732,7 @@ interface Clock {
 <table>
   <thead><tr><th>缺什么</th><th>影响</th><th>什么时候要</th></tr></thead>
   <tbody>
-    <tr><td>备用机的型号与 Android 版本</td><td>低于 Android 9 时要回退 minSdk 并降级三项指标</td><td>开工前</td></tr>
+    <tr><td>备用机的型号与 Android 版本</td><td><b>已确认</b>：用户回复「也是最新的」，即系统为最新 Android，不低于 9。minSdk 保持 28，三项用机指标不降级。具体型号未记录，不影响开工</td><td>已解决</td></tr>
     <tr><td>正式签名 keystore</td><td>高德发布版 SHA1 要补录</td><td>W-19 之前</td></tr>
     <tr><td>pg_cron 是否启用</td><td>不启用就没有任何自动清理，位置点不会过期；只有每日任务持续成功执行，才会形成约 7 天的留存窗口，漏跑一天就更长</td><td>W-18 之前</td></tr>
   </tbody>
@@ -758,7 +759,7 @@ interface Clock {
     <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.3</td><td>按 N01–N09 加固：身份判断改 NULL 安全写法；对象对四张原表一律不可读，新增 get_usage；历史电量随原表关闭；成员表只允许函数写入；快照版本比较并入 UPSERT；恢复后旧点由 resumed_at 与 paused_until 遮蔽；发布集合只剩 presence；新增 collect_enabled 纯查看模式；补算法单测向量与排名容差；验收扩到 V20；修正留存与版本号事实</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.4</td><td>补两处复核未编号项：成员表回填遇到不一致时列出明细并报错，不再静默跳过；四张数据表收回直写权限，客户端只能走上报函数，纯查看与快照版本无法绕过。校验查询增到七行，验证脚本扩到 31 项断言</td></tr>
-    <tr><td class="num">2026-10-26</td><td class="num">1.5</td><td>按三次复核 T01–T04 改：V20 拆成「关闭采集」与「纯查看模式」两条，写明一键操作的顺序、部分失败与重试；R04 同步说明为什么分两步；V13 注明本机只覆盖顺序复用、并发在线上验；V14 补两种初始状态的并发；修正第 4 节 user_status 标题与 README 部署状态</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.5</td><td>按三次复核 T01–T04 改：V20 拆成「关闭采集」与「纯查看模式」两条，写明一键操作的顺序、部分失败与重试；R04 同步说明为什么分两步；V13 注明本机只覆盖顺序复用、并发在线上验；V14 补两种初始状态的并发；修正第 4 节 user_status 标题与 README 部署状态；确认备用机系统不低于 Android 9，minSdk 28 不变</td></tr>
   </tbody>
 </table>
 
