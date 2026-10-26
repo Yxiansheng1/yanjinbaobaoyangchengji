@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情侣看看 产品需求文档 v1.0</title>
+<style>
+  :root{
+    --ink:#1c1b19;
+    --muted:#6b6762;
+    --line:#e4e0da;
+    --bg:#f5f3f0;
+    --card:#ffffff;
+    --accent:#a63d5f;
+    --soft:#faf8f6;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;
+    font-size:15px;
+    line-height:1.78;
+    letter-spacing:.01em;
+  }
+  .page{
+    max-width:880px;
+    margin:40px auto 80px;
+    background:var(--card);
+    padding:64px 72px 80px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.05);
+  }
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:24px;margin-bottom:36px;}
+  header.doc h1{
+    font-size:30px;line-height:1.3;margin:0 0 14px;font-weight:700;letter-spacing:.02em;
+  }
+  .meta{
+    display:flex;flex-wrap:wrap;gap:8px 28px;
+    font-size:12.5px;color:var(--muted);
+  }
+  .meta b{color:var(--ink);font-weight:600;}
+
+  nav.toc{
+    background:var(--soft);
+    border:1px solid var(--line);
+    padding:20px 24px;
+    margin-bottom:48px;
+    font-size:13.5px;
+  }
+  nav.toc .t{font-weight:700;font-size:12px;letter-spacing:.14em;color:var(--muted);margin-bottom:10px;}
+  nav.toc ol{margin:0;padding:0;list-style:none;columns:2;column-gap:32px;}
+  nav.toc li{margin:0 0 6px;break-inside:avoid;}
+  nav.toc a{color:var(--ink);text-decoration:none;border-bottom:1px solid transparent;}
+  nav.toc a:hover{border-bottom-color:var(--accent);}
+  nav.toc .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:8px;font-size:12px;}
+
+  h2{
+    font-size:21px;margin:56px 0 18px;padding-bottom:10px;
+    border-bottom:1px solid var(--line);font-weight:700;
+    display:flex;align-items:baseline;gap:12px;
+  }
+  h2 .idx{
+    font-size:12px;color:var(--accent);font-variant-numeric:tabular-nums;
+    letter-spacing:.1em;font-weight:700;
+  }
+  h3{font-size:15.5px;margin:30px 0 10px;font-weight:700;}
+  h4{font-size:14px;margin:22px 0 6px;font-weight:700;color:var(--ink);}
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin:0 0 6px;}
+  strong{font-weight:700;}
+  code{
+    font-family:ui-monospace,"SF Mono",Consolas,monospace;
+    font-size:12.5px;background:#f2efec;padding:1px 5px;border-radius:3px;
+  }
+  small{font-size:12px;color:var(--muted);}
+
+  table{
+    width:100%;border-collapse:collapse;margin:18px 0 22px;font-size:13.5px;
+    font-variant-numeric:tabular-nums;
+  }
+  th{
+    text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);
+    border-bottom:1px solid var(--ink);padding:8px 10px;white-space:nowrap;
+  }
+  td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top;}
+  tr.group td{
+    background:var(--soft);font-weight:700;font-size:12.5px;letter-spacing:.08em;
+    color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--line);
+  }
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted);font-size:12.5px;}
+  .tag{
+    display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:10px;
+    background:#f0ece8;color:var(--muted);white-space:nowrap;
+  }
+  .tag.v1{background:#f7e9ee;color:var(--accent);font-weight:700;}
+
+  .note{
+    border-left:3px solid var(--accent);
+    background:var(--soft);
+    padding:14px 20px;margin:20px 0;font-size:13.5px;
+  }
+  .note .h{font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;}
+  .note p:last-child{margin-bottom:0;}
+
+  .kv{margin:0 0 16px;}
+  .kv .k{font-weight:700;font-size:13px;margin-top:12px;}
+  .kv .v{font-size:13.5px;color:#3a3733;}
+
+  .flow{
+    border:1px solid var(--line);background:var(--soft);padding:16px 20px;
+    font-size:13px;font-family:ui-monospace,Consolas,monospace;line-height:2;
+    margin:16px 0 22px;overflow-x:auto;
+  }
+
+  footer{
+    margin-top:64px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--muted);
+  }
+
+  @media print{
+    body{background:#fff;}
+    .page{box-shadow:none;margin:0;padding:0;max-width:none;}
+    nav.toc{break-inside:avoid;}
+    h2{break-after:avoid;}
+    table{break-inside:auto;}
+    tr{break-inside:avoid;}
+  }
+  @media (max-width:760px){
+    .page{padding:32px 22px 48px;margin:0;}
+    nav.toc ol{columns:1;}
+    header.doc h1{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <h1>情侣看看 产品需求文档</h1>
+  <div class="meta">
+    <span><b>版本</b> 1.0</span>
+    <span><b>日期</b> 2026-10-26</span>
+    <span><b>状态</b> 待确认</span>
+    <span><b>范围</b> 全量 64 项，分期交付</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="t">目录</div>
+  <ol>
+    <li><span class="n">01</span><a href="#s1">产品定位</a></li>
+    <li><span class="n">02</span><a href="#s2">市场空档</a></li>
+    <li><span class="n">03</span><a href="#s3">用户与场景</a></li>
+    <li><span class="n">04</span><a href="#s4">设计原则</a></li>
+    <li><span class="n">05</span><a href="#s5">功能全景</a></li>
+    <li><span class="n">06</span><a href="#s6">v0.1 详细需求</a></li>
+    <li><span class="n">07</span><a href="#s7">页面与流程</a></li>
+    <li><span class="n">08</span><a href="#s8">数据模型</a></li>
+    <li><span class="n">09</span><a href="#s9">技术架构</a></li>
+    <li><span class="n">10</span><a href="#s10">非功能要求</a></li>
+    <li><span class="n">11</span><a href="#s11">里程碑</a></li>
+    <li><span class="n">12</span><a href="#s12">风险与待定</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="idx">01</span>产品定位</h2>
+
+<p>一个只给两个人在用的 App。她打开能看见你在哪，你打开能看见她今天怎么用手机的。没有订阅，没有广告，数据存在自己的库里。</p>
+
+<p>它的重心不是数据，是<strong>一句话说清对方现在怎么样</strong>。「她 21:40 到家，刷了四十分钟抖音，23:10 锁屏」比十条折线图有用。</p>
+
+<div class="note">
+  <div class="h">能力不对称</div>
+  <p>她用的是安卓，你用的是 iPhone。iOS 不给第三方读应用使用和屏幕时间，所以你能看见她的全部，她只能看见你的位置和电量。这个不对称是系统限制，改不了，写在需求里作为前提。</p>
+</div>
+
+<h2 id="s2"><span class="idx">02</span>市场空档</h2>
+
+<p>现有产品分两类，各自都缺一块。</p>
+
+<table>
+  <thead>
+    <tr><th>类别</th><th>代表</th><th>做了什么</th><th>缺什么</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>定位类</td><td>Bump、whoo、Life360、时刻守护</td><td>实时位置、停留时长、电量、幽灵模式、到离提醒</td><td>不碰用机数据</td></tr>
+    <tr><td>情侣类</td><td>小恩爱、恋爱记</td><td>定位、纪念日、相册、养成、商城</td><td>用机记录做得浅，商业化过重</td></tr>
+    <tr><td>自律类</td><td>Jolt、Habi、LockPact</td><td>互相监督专注</td><td>不做位置</td></tr>
+  </tbody>
+</table>
+
+<p>价格是这个市场里最明显的痛点。小恩爱 25 元一个月、198 元一年；时刻守护的双人年费约 45 欧元；恋爱记的补签卡单卖 25 到 208 元，公开报道里有用户为了一次打卡续到 2026 年的会员。</p>
+
+<p>要做的事很简单：<strong>把定位和用机这两件事做透，其余一律不加价</strong>。</p>
+
+<h2 id="s3"><span class="idx">03</span>用户与场景</h2>
+
+<h3>主用户</h3>
+<p>两个人。一个安卓一个 iPhone。有稳定的关系，愿意互相看见，但都不想被当成被监控的对象。</p>
+
+<h3>三个场景决定产品形态</h3>
+
+<table>
+  <thead><tr><th>场景</th><th>用户想知道</th><th>产品要给</th></tr></thead>
+  <tbody>
+    <tr><td>早上</td><td>她到公司了吗</td><td>一条位置变化，加一个地点名</td></tr>
+    <tr><td>晚上</td><td>她今天在手机上干嘛了</td><td>屏幕时间、Top 应用、解锁次数</td></tr>
+    <tr><td>半夜</td><td>她睡了没</td><td>最近一次解锁时间</td></tr>
+  </tbody>
+</table>
+
+<h3>不做的用户</h3>
+<p>不做多人、不做家人、不做孩子、不做陌生人。一个账号只能绑定一个人，绑了就锁死，解绑要双方都看到。</p>
+
+<h2 id="s4"><span class="idx">04</span>设计原则</h2>
+
+<ol>
+  <li><strong>看得见，但能退出。</strong>暂停共享必须一步可达，暂停时对方看到的是「已暂停」，不是假装还在。</li>
+  <li><strong>给结论，不给原始数据。</strong>默认展示一句话总结，明细折叠在下一层。</li>
+  <li><strong>后台不吵。</strong>常驻服务只在状态异常时打扰人，平时安静。</li>
+  <li><strong>省电优先于精度。</strong>位置按移动状态变速采集，静止时降频。</li>
+  <li><strong>数据可带走。</strong>用标准 Postgres，随时能整库导出搬走。</li>
+</ol>
+
+<h2 id="s5"><span class="idx">05</span>功能全景</h2>
+
+<p>全量 64 项，分六期交付。期次不是优先级排序，是<strong>依赖顺序</strong>：后面的功能要用到前面的数据结构。</p>
+
+<table>
+  <thead><tr><th>编号</th><th>功能</th><th>期次</th><th>备注</th></tr></thead>
+  <tbody>
+    <tr class="group"><td colspan="4">A 定位与位置</td></tr>
+    <tr><td class="num">A1</td><td>实时位置</td><td><span class="tag v1">v0.1</span></td><td>核心</td></tr>
+    <tr><td class="num">A2</td><td>地点语义</td><td><span class="tag v1">v0.1</span></td><td>家、公司、学校自动识别</td></tr>
+    <tr><td class="num">A3</td><td>停留时长</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">A4</td><td>移动状态</td><td><span class="tag">v0.6</span></td><td>走路、骑行、驾车</td></tr>
+    <tr><td class="num">A5</td><td>历史轨迹</td><td><span class="tag">v0.3</span></td><td>数据从 v0.1 就开始存</td></tr>
+    <tr><td class="num">A6</td><td>到达离开提醒</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">A7</td><td>自定义围栏</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">A8</td><td>相距距离</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">A9</td><td>电量与充电</td><td><span class="tag v1">v0.1</span></td><td></td></tr>
+    <tr><td class="num">A10</td><td>幽灵模式·精确</td><td><span class="tag v1">v0.1</span></td><td>默认档</td></tr>
+    <tr><td class="num">A11</td><td>幽灵模式·模糊</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">A12</td><td>幽灵模式·冻结</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">A13</td><td>位置留言</td><td><span class="tag">v0.5</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">B 用机与数字生活</td></tr>
+    <tr><td class="num">B1</td><td>今日屏幕时间</td><td><span class="tag v1">v0.1</span></td><td>核心</td></tr>
+    <tr><td class="num">B2</td><td>应用使用排行</td><td><span class="tag v1">v0.1</span></td><td>Top 5 到 15</td></tr>
+    <tr><td class="num">B3</td><td>打开次数</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">B4</td><td>解锁与锁屏次数</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">B5</td><td>首次与末次解锁</td><td><span class="tag v1">v0.1</span></td><td></td></tr>
+    <tr><td class="num">B6</td><td>当前前台应用</td><td><span class="tag">v0.2</span></td><td>近似值</td></tr>
+    <tr><td class="num">B7</td><td>应用分类统计</td><td><span class="tag">v0.3</span></td><td>社交、视频、游戏</td></tr>
+    <tr><td class="num">B8</td><td>趋势对比</td><td><span class="tag">v0.3</span></td><td>与昨天、与上周</td></tr>
+    <tr><td class="num">B9</td><td>应用隐藏</td><td><span class="tag">v0.4</span></td><td>不统计、不上报</td></tr>
+    <tr><td class="num">B10</td><td>睡眠推断</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">B11</td><td>专注模式</td><td><span class="tag">v0.5</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">C 提醒与通知</td></tr>
+    <tr><td class="num">C1</td><td>到达离开推送</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">C2</td><td>电量低提醒</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">C3</td><td>长时间没动静</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">C4</td><td>深夜用机提醒</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">C5</td><td>每日日报</td><td><span class="tag">v0.2</span></td><td>一句话总结</td></tr>
+    <tr><td class="num">C6</td><td>远程闹钟</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">C7</td><td>自定义提醒规则</td><td><span class="tag">v0.6</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">D 社交互动</td></tr>
+    <tr><td class="num">D1</td><td>私密聊天</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">D2</td><td>贴纸互动</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">D3</td><td>震动与拍一拍</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">D4</td><td>语音消息</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">D5</td><td>照片与视频</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">D6</td><td>已读回执</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">D7</td><td>我在想你</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">D8</td><td>一起听歌</td><td><span class="tag">v0.6</span></td><td>依赖第三方版权</td></tr>
+    <tr><td class="num">D9</td><td>状态与心情</td><td><span class="tag">v0.3</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">E 记录与记忆</td></tr>
+    <tr><td class="num">E1</td><td>恋爱天数</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">E2</td><td>纪念日</td><td><span class="tag">v0.4</span></td><td></td></tr>
+    <tr><td class="num">E3</td><td>共享相册</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">E4</td><td>共享日记</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">E5</td><td>我们的时间线</td><td><span class="tag">v0.4</span></td><td>位置加照片串起来</td></tr>
+    <tr><td class="num">E6</td><td>100 件小事</td><td><span class="tag">v0.5</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">F 养成与游戏化</td></tr>
+    <tr><td class="num">F1</td><td>一起养宠物</td><td><span class="tag">v0.6</span></td><td></td></tr>
+    <tr><td class="num">F2</td><td>一起种树</td><td><span class="tag">v0.6</span></td><td></td></tr>
+    <tr><td class="num">F3</td><td>连续打卡</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">F4</td><td>共同任务</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">F5</td><td>积分与等级</td><td><span class="tag">v0.5</span></td><td></td></tr>
+    <tr><td class="num">F6</td><td>情侣小屋</td><td><span class="tag">v0.6</span></td><td></td></tr>
+    <tr><td class="num">F7</td><td>攒钱目标</td><td><span class="tag">v0.6</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">G 隐私与控制</td></tr>
+    <tr><td class="num">G1</td><td>一键暂停共享</td><td><span class="tag v1">v0.1</span></td><td></td></tr>
+    <tr><td class="num">G2</td><td>分项开关</td><td><span class="tag">v0.2</span></td><td>位置、用机、电量各自可控</td></tr>
+    <tr><td class="num">G3</td><td>数据保留期限</td><td><span class="tag">v0.3</span></td><td></td></tr>
+    <tr><td class="num">G4</td><td>访问日志</td><td><span class="tag">v0.3</span></td><td>她今天看了我几次</td></tr>
+    <tr><td class="num">G5</td><td>夜间静默</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">G6</td><td>解绑与数据处置</td><td><span class="tag">v0.4</span></td><td></td></tr>
+
+    <tr class="group"><td colspan="4">H 底座</td></tr>
+    <tr><td class="num">H1</td><td>注册登录</td><td><span class="tag v1">v0.1</span></td><td>邮箱加密码</td></tr>
+    <tr><td class="num">H2</td><td>配对绑定</td><td><span class="tag v1">v0.1</span></td><td>六位配对码</td></tr>
+    <tr><td class="num">H3</td><td>消息推送</td><td><span class="tag">v0.2</span></td><td></td></tr>
+    <tr><td class="num">H4</td><td>服务器</td><td><span class="tag v1">v0.1</span></td><td>Supabase</td></tr>
+    <tr><td class="num">H5</td><td>安卓后台常驻</td><td><span class="tag v1">v0.1</span></td><td>前台服务加保活引导</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s6"><span class="idx">06</span>v0.1 详细需求</h2>
+
+<p>第一版 12 项，目标 2 到 3 周。判断标准是能不能每天用，不是好看。</p>
+
+<h3>H1 注册登录</h3>
+<div class="kv">
+  <div class="k">流程</div>
+  <div class="v">邮箱、密码、昵称三项。注册后自动登录，token 存本地，30 天免登录。</div>
+  <div class="k">边界</div>
+  <div class="v">不做邮箱验证、不做找回密码、不做第三方登录。密码至少 8 位。登录失败 5 次锁 10 分钟。</div>
+</div>
+
+<h3>H2 配对绑定</h3>
+<div class="kv">
+  <div class="k">流程</div>
+  <div class="v">A 点「生成配对码」得到六位数字，10 分钟有效。B 输入后写入 couples 表，双方进入已绑定状态。</div>
+  <div class="k">边界</div>
+  <div class="v">一人只能绑一个。已绑定时不能再生成码。解绑不在一版范围内。</div>
+</div>
+
+<h3>H4 服务器</h3>
+<div class="kv">
+  <div class="k">范围</div>
+  <div class="v">Supabase 免费档，区域选新加坡。用 Auth 管账号，Postgres 存数据，Realtime 推位置变化，Row Level Security 保证只能读到自己和对象的数据。</div>
+</div>
+
+<h3>H5 安卓后台常驻</h3>
+<div class="kv">
+  <div class="k">做什么</div>
+  <div class="v">前台服务常驻，通知栏一条不可关闭的低优先级通知。位置按移动状态采集：静止 5 分钟一次，移动 30 秒一次。</div>
+  <div class="k">保活</div>
+  <div class="v">首次启动引导用户完成四项设置：电池优化白名单、自启动、后台无限制、锁屏保持运行。按品牌给不同的跳转路径，小米、华为、OPPO、vivo 各一套。</div>
+  <div class="k">验收</div>
+  <div class="v">锁屏 30 分钟后位置仍在更新。24 小时耗电增量不超过 8%。</div>
+</div>
+
+<h3>A1 实时位置</h3>
+<div class="kv">
+  <div class="k">展示</div>
+  <div class="v">主页地图上一枚头像。上方一行字写「现在在公司，2 分钟前更新」。点开看详情。</div>
+  <div class="k">刷新</div>
+  <div class="v">对方 App 在前台时常驻长连接，秒级。后台时靠推送，30 秒到 5 分钟一次，取决于移动状态。</div>
+  <div class="k">降级</div>
+  <div class="v">超过 10 分钟没更新，头像变灰，文案改成「最后位置，10 分钟前」。超过 2 小时显示「长时间未更新」。</div>
+</div>
+
+<h3>A2 地点语义</h3>
+<div class="kv">
+  <div class="k">做什么</div>
+  <div class="v">把坐标变成地名。两种来源：常去点的聚类结果（家、公司、学校），以及逆地理编码拿到的具体地址。</div>
+  <div class="k">规则</div>
+  <div class="v">在她停留超过 30 分钟、且在 200 米范围内反复出现的位置，第七天标记为候选常去点。双方都可以手动命名和删除。</div>
+</div>
+
+<h3>A9 电量与充电</h3>
+<div class="kv">
+  <div class="k">展示</div>
+  <div class="v">头像旁一个小电池，低于 20% 变红，充电时显示闪电。随位置一起上报，不单独轮询。</div>
+</div>
+
+<h3>A10 幽灵模式·精确</h3>
+<div class="kv">
+  <div class="k">说明</div>
+  <div class="v">默认状态，就是正常共享。一版不做模糊和冻结，但设置项的位置先留出来。</div>
+</div>
+
+<h3>G1 一键暂停共享</h3>
+<div class="kv">
+  <div class="k">交互</div>
+  <div class="v">主页右上角一个按钮，点开选时长：1 小时、今晚、手动恢复。暂停期间头像位置不再更新。</div>
+  <div class="k">对方看到什么</div>
+  <div class="v">明确的「她已暂停共享，22:00 恢复」。不能显示成离线或最后位置，那等于骗人。</div>
+  <div class="k">数据</div>
+  <div class="v">暂停期间不上报位置，用机数据照常（可单独关，属于 G2）。</div>
+</div>
+
+<h3>B1 今日屏幕时间</h3>
+<div class="kv">
+  <div class="k">口径</div>
+  <div class="v">当天零点到现在，屏幕亮着的累计时长。用 UsageEvents 的亮屏、灭屏事件累加，当前屏还亮着就补到此刻。</div>
+  <div class="k">展示</div>
+  <div class="v">大字号显示，配一句与昨天同期的对比。</div>
+</div>
+
+<h3>B2 应用使用排行</h3>
+<div class="kv">
+  <div class="k">口径</div>
+  <div class="v">每个应用当天前台累计时长，超过 1 分钟的才计入，按降序取前 15。排除本 App 自己。</div>
+  <div class="k">展示</div>
+  <div class="v">列表，图标、名称、时长。默认展示前 5，点「展开」看全部。</div>
+</div>
+
+<h3>B5 首次与末次解锁</h3>
+<div class="kv">
+  <div class="k">口径</div>
+  <div class="v">当天第一个和最后一个 KEYGUARD_HIDDEN 事件的时间。</div>
+  <div class="k">展示</div>
+  <div class="v">「今天 7:12 拿起手机，23:40 最后一次放下」。</div>
+</div>
+
+<h2 id="s7"><span class="idx">07</span>页面与流程</h2>
+
+<h3>首次启动</h3>
+<div class="flow">
+欢迎页 → 登录或注册 → 生成或输入配对码 → 权限引导（三屏）→ 主页
+</div>
+
+<p>权限引导分三屏，每屏只讲一件事，讲完给一个明确按钮。三屏分别是使用情况访问、定位、后台保活。用户跳过任何一屏，主页顶部挂一条黄色提示条，点进去可以补。</p>
+
+<h3>主页</h3>
+<ul>
+  <li>上半屏地图，一个头像</li>
+  <li>下方卡片：地点、更新时间、电量、相距距离</li>
+  <li>再下方：今日屏幕时间、Top 5 应用、首末次解锁</li>
+  <li>右上角：暂停按钮。右下角：设置</li>
+</ul>
+
+<h3>用机详情</h3>
+<ul>
+  <li>屏幕时间大字，配昨日对比</li>
+  <li>应用排行完整列表</li>
+  <li>解锁次数和时间分布</li>
+</ul>
+
+<h3>设置</h3>
+<ul>
+  <li>共享开关：位置、用机、电量的分项控制</li>
+  <li>暂停共享</li>
+  <li>常去点管理</li>
+  <li>账号与解绑</li>
+</ul>
+
+<h2 id="s8"><span class="idx">08</span>数据模型</h2>
+
+<table>
+  <thead><tr><th>表</th><th>字段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>users</code></td><td>id, email, nickname, avatar, created_at</td><td>密码由 Supabase Auth 托管</td></tr>
+    <tr><td><code>couples</code></td><td>id, user_a, user_b, status, created_at</td><td>status 只允许 active</td></tr>
+    <tr><td><code>devices</code></td><td>id, user_id, platform, push_token, app_version, last_seen_at</td><td></td></tr>
+    <tr><td><code>pair_codes</code></td><td>code, user_id, expires_at, used</td><td>十分钟过期</td></tr>
+    <tr><td><code>location_points</code></td><td>id, user_id, lat, lng, accuracy, speed, provider, battery, charging, recorded_at</td><td>只留 7 天，按 user_id 加 recorded_at 建索引</td></tr>
+    <tr><td><code>daily_usage</code></td><td>id, user_id, date, screen_on_ms, unlock_count, lock_count, first_unlock_at, last_unlock_at</td><td>一天一行</td></tr>
+    <tr><td><code>app_usage</code></td><td>id, user_id, date, package_name, app_label, foreground_ms, launch_count</td><td>只存 Top 20，避免爆量</td></tr>
+    <tr><td><code>user_status</code></td><td>user_id, lat, lng, place_name, battery, charging, online, paused_until, updated_at</td><td>反范式，主页只查这一张</td></tr>
+    <tr><td><code>settings</code></td><td>user_id, share_location, share_usage, share_battery</td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <div class="h">为什么要有 user_status</div>
+  <p>主页每次刷新都去聚合 location_points，会扫掉几十万行。把最新状态反范式写进一张单行表，读一次就够。写入由 App 上报时顺带更新。</p>
+</div>
+
+<h2 id="s9"><span class="idx">09</span>技术架构</h2>
+
+<table>
+  <thead><tr><th>层</th><th>选型</th><th>理由</th></tr></thead>
+  <tbody>
+    <tr><td>后端</td><td>Supabase 免费档，区域新加坡</td><td>Auth、数据库、实时推送、行级权限一次到位，零运维</td></tr>
+    <tr><td>安卓</td><td>Kotlin + Jetpack Compose</td><td>功能会长期增加，声明式 UI 维护成本低</td></tr>
+    <tr><td>安卓定位</td><td>高德定位 SDK</td><td>比系统 API 省电，自带逆地理编码</td></tr>
+    <tr><td>安卓地图</td><td>高德地图 SDK</td><td>国内可用，个人开发者免费额度足够</td></tr>
+    <tr><td>安卓存储</td><td>Room</td><td>做离线补传队列</td></tr>
+    <tr><td>安卓网络</td><td>Retrofit + OkHttp + Realtime 客户端</td><td></td></tr>
+    <tr><td>iOS</td><td>SwiftUI + CLLocationManager + CoreMotion</td><td>只上报位置、电量、步数</td></tr>
+    <tr><td>iOS 分发</td><td>GitHub Actions 云编译，AltStore 侧载</td><td>没有 Mac，七天一签</td></tr>
+  </tbody>
+</table>
+
+<h3>Supabase 免费档够不够</h3>
+<p>够。两个人每天按 2880 个位置点估算，一个月不到 20 万行，远低于 500 MB 的库容量。实时消息按 30 秒一次推算，每月约 35 万条，免费档上限 200 万条。带宽同样在额度内。</p>
+
+<h3>国内访问的风险</h3>
+<p>Supabase 的节点在境外，国内访问延迟不稳定，实时位置可能出现几秒到十几秒的滞后。缓解办法有三条：区域选新加坡而不是美西；客户端做本地缓存，断网不丢数据；数据模型用标准 Postgres，随时能整体导出搬到自己的服务器。</p>
+
+<div class="note">
+  <div class="h">迁移预案</div>
+  <p>如果实测延迟无法接受，把 Supabase 换成「香港 VPS + Postgres + 自建 WebSocket」，App 侧只改配置里的地址，业务代码不动。这是选 Supabase 时就要留好的余地。</p>
+</div>
+
+<h2 id="s10"><span class="idx">10</span>非功能要求</h2>
+
+<table>
+  <thead><tr><th>项</th><th>指标</th></tr></thead>
+  <tbody>
+    <tr><td>耗电</td><td>24 小时增量不超过 8%</td></tr>
+    <tr><td>位置延迟</td><td>前台 5 秒内，后台 30 秒内</td></tr>
+    <tr><td>离线容忍</td><td>断网 30 分钟后恢复，数据完整补传</td></tr>
+    <tr><td>首屏</td><td>冷启动到看见对方状态不超过 2 秒</td></tr>
+    <tr><td>数据保留</td><td>位置点 7 天，日汇总永久</td></tr>
+    <tr><td>安全</td><td>行级权限，任何账号读不到别人的数据</td></tr>
+    <tr><td>透明</td><td>暂停、关闭分项共享时，对方必须看到真实状态</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s11"><span class="idx">11</span>里程碑</h2>
+
+<table>
+  <thead><tr><th>阶段</th><th>内容</th><th>周期</th><th>交付物</th></tr></thead>
+  <tbody>
+    <tr><td>M1</td><td>Supabase 建库、鉴权、配对、实时通道</td><td>第 1 周</td><td>能用 curl 走通注册、配对、上报、读取</td></tr>
+    <tr><td>M2</td><td>安卓采集：定位、后台常驻、用机统计、离线队列</td><td>第 2 周</td><td>安装包在她手机上跑满 24 小时不掉</td></tr>
+    <tr><td>M3</td><td>安卓界面：地图、卡片、用机详情、设置</td><td>第 2 到 3 周</td><td>装到手机上能看懂</td></tr>
+    <tr><td>M4</td><td>联调与验收</td><td>第 3 周</td><td>第 6 节七条验收全过</td></tr>
+  </tbody>
+</table>
+
+<h3>v0.1 验收清单</h3>
+<ol>
+  <li>两台手机注册、配对成功</li>
+  <li>她锁屏 30 分钟后，位置仍在更新</li>
+  <li>他打开 App，1 分钟内看到她的最新位置、地点名、电量</li>
+  <li>能看到今日屏幕时间、Top 5 应用、首次和末次解锁</li>
+  <li>她点暂停，他那边立刻显示已暂停，位置停止更新</li>
+  <li>断网 30 分钟再恢复，期间轨迹补传完整</li>
+  <li>连续运行 24 小时，耗电增量不超过 8%</li>
+</ol>
+
+<h2 id="s12"><span class="idx">12</span>风险与待定</h2>
+
+<table>
+  <thead><tr><th>风险</th><th>影响</th><th>应对</th></tr></thead>
+  <tbody>
+    <tr><td>国产 ROM 杀后台</td><td>锁屏后数据中断，产品失效</td><td>保活引导做细，按品牌分别跳转；实测至少覆盖小米和华为</td></tr>
+    <tr><td>Supabase 国内延迟</td><td>实时位置体验差</td><td>新加坡节点，本地缓存，保留迁移到 VPS 的路径</td></tr>
+    <tr><td>高德 SDK 需实名申请</td><td>卡住地图开发</td><td>第一周就注册，个人开发者免费</td></tr>
+    <tr><td>iOS 七天一签</td><td>你那边 App 会过期</td><td>排在 v0.2 之后，先不做</td></tr>
+    <tr><td>范围过大</td><td>做不完</td><td>严格按期次推进，v0.1 不加功能</td></tr>
+  </tbody>
+</table>
+
+<h3>待确认</h3>
+<ul>
+  <li>高德开放平台的 key 由谁注册，什么时候能拿到</li>
+  <li>Supabase 账号用你的还是我的</li>
+  <li>常去点识别在 v0.1 是否必须，如果砍掉，A2 退化为只显示逆地理编码地址</li>
+</ul>
+
+<footer>
+  情侣看看 产品需求文档 · v1.0 · 2026-10-26
+</footer>
+
+</div>
+</body>
+</html>
