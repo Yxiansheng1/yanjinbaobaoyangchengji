@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>情侣看看 · 契约 schema v0.1</title>
+<style>
+:root{
+  --bg:#faf9f6; --ink:#24211d; --muted:#6b6762; --line:#e3ded5;
+  --accent:#a4553a; --accent-soft:#f3e7e1; --code:#f3f1ec; --ok:#3f6b4a; --warn:#8a5a1f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
+.wrap{max-width:1040px;margin:0 auto;padding:56px 28px 90px}
+header.doc{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:34px}
+header.doc h1{font-size:30px;line-height:1.3;margin:0 0 14px;font-weight:700;letter-spacing:.02em}
+.meta{display:flex;flex-wrap:wrap;gap:8px 26px;color:var(--muted);font-size:13.5px}
+.meta b{color:var(--ink);font-weight:600}
+h2{font-size:22px;margin:44px 0 14px;padding-top:14px;border-top:1px solid var(--line);font-weight:700}
+h2 .idx{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.12em;display:block;margin-bottom:4px}
+h3{font-size:17px;margin:28px 0 10px;font-weight:650}
+h4{font-size:15px;margin:20px 0 8px;font-weight:650;color:var(--accent)}
+p{margin:10px 0}
+ul,ol{margin:10px 0;padding-left:22px}
+li{margin:5px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:13.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f1ede6;font-weight:650}
+td.mono,code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12.8px}
+pre{background:#2b2823;color:#f3efe7;padding:16px 18px;border-radius:6px;overflow:auto;font-size:12.6px;line-height:1.65}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.note{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;border-radius:0 5px 5px 0}
+.note .h{font-weight:700;margin-bottom:6px;color:var(--accent)}
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:10px;background:#e8e3da;color:var(--muted);margin-left:6px;vertical-align:1px}
+.tag.no{background:#f6ded6;color:#8d3a22}
+.tag.yes{background:#e2ecdf;color:var(--ok)}
+.tag.later{background:#f4e7cf;color:var(--warn)}
+footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+@media print{body{background:#fff}.wrap{padding:0}pre{white-space:pre-wrap}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>情侣看看 · 契约 schema</h1>
+  <div class="meta">
+    <span><b>版本</b> 0.1</span>
+    <span><b>日期</b> 2026-10-26</span>
+    <span><b>状态</b> 冻结 · 施工依据</span>
+    <span><b>依据</b> SQL 001 / 002 / 003（均已部署）· 规格 v1.5</span>
+  </div>
+</header>
+
+<p>这份文件把「客户端能碰什么、怎么碰、拿到什么形状」定死。规格讲产品语义，这份讲字段与调用。实现期改这里等于改契约，必须回阶段二，不能边写边改。</p>
+
+<div class="note">
+  <div class="h">冲突时以谁为准</div>
+  <p><b>SQL 大于本文，本文大于规格，规格大于 PRD。</b>本文是从已部署的 001–003 反向写出来的；如果本文与线上行为对不上，先信 SQL，再把本文改对。</p>
+  <p>本文只描述 v0.1 已部署的东西。规格里有、SQL 里没有的（夜间免打扰、常去点、解绑），本文一律不写，避免客户端提前依赖。</p>
+</div>
+
+<h2 id="s1"><span class="idx">01</span>总览</h2>
+
+<p>库里有 11 张表。客户端能直接读的只有一部分，写全部走函数。</p>
+
+<table>
+  <thead><tr><th>表</th><th>用途</th><th>客户端读</th><th>客户端写</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">profiles</td><td>昵称头像，auth.users 的镜像</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只能改自己的昵称头像，见下</td></tr>
+    <tr><td class="mono">couples</td><td>关系，一人最多一段 active</td><td>自己参与的</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
+    <tr><td class="mono">couple_members</td><td>关系成员，一人一行</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
+    <tr><td class="mono">devices</td><td>设备与推送令牌</td><td>自己的</td><td>自己的整行</td></tr>
+    <tr><td class="mono">pair_codes</td><td>六位配对码，十分钟有效</td><td>自己的</td><td><span class="tag no">否</span> 只走两个配对函数</td></tr>
+    <tr><td class="mono">settings</td><td>共享开关与纯查看开关</td><td>自己 + 对象</td><td><span class="tag no">否</span> 走 set_sharing / set_collect_enabled</td></tr>
+    <tr><td class="mono">user_status</td><td>当前状态，反范式</td><td>只有自己</td><td><span class="tag no">否</span> 走两个上报函数</td></tr>
+    <tr><td class="mono">location_points</td><td>位置点，保留约 7 天</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_locations</td></tr>
+    <tr><td class="mono">daily_usage</td><td>每日用机汇总</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_usage</td></tr>
+    <tr><td class="mono">app_usage</td><td>每应用每日一行，只存 Top 20</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_usage</td></tr>
+    <tr><td class="mono">presence</td><td>存在与刷新信号，Realtime 唯一发布表</td><td>自己 + 对象</td><td>自己的心跳列</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <div class="h">对象的四张数据表，一行都读不到</div>
+  <p><code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code> 对 <code>authenticated</code> 只保留「读自己」的 SELECT 策略，没有写策略，写权限也收回了。对象的当前状态只能走 <code>get_status</code>，用机只能走 <code>get_usage</code>。</p>
+</div>
+
+<h2 id="s2"><span class="idx">02</span>表结构</h2>
+
+<p>「可空」列在 JSON 里始终出现，值为 <code>null</code>，不要靠缺字段判断。类型按 PostgREST 返回的 JSON 写，Kotlin 映射见第 6 节。</p>
+
+<h3>profiles</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>等于 <code>auth.users.id</code></td></tr>
+    <tr><td class="mono">email</td><td class="mono">text</td><td>是</td><td>—</td><td>注册时从 auth 带过来</td></tr>
+    <tr><td class="mono">nickname</td><td class="mono">text</td><td>否</td><td><code>''</code></td><td>注册时默认取邮箱前缀</td></tr>
+    <tr><td class="mono">avatar_url</td><td class="mono">text</td><td>是</td><td>—</td><td>v0.1 不做上传，只存外链</td></tr>
+    <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td></td></tr>
+  </tbody>
+</table>
+
+<h3>couples</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">id</td><td class="mono">uuid</td><td>否</td><td><code>gen_random_uuid()</code></td><td></td></tr>
+    <tr><td class="mono">user_a</td><td class="mono">uuid</td><td>否</td><td>—</td><td>码的拥有者</td></tr>
+    <tr><td class="mono">user_b</td><td class="mono">uuid</td><td>否</td><td>—</td><td>输码的人</td></tr>
+    <tr><td class="mono">status</td><td class="mono">text</td><td>否</td><td><code>'active'</code></td><td>只允许 <code>active</code> / <code>ended</code></td></tr>
+    <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td></td></tr>
+  </tbody>
+</table>
+<p>约束：<code>user_a &lt;&gt; user_b</code>；<code>user_a</code> 与 <code>user_b</code> 各有「active 时唯一」的部分索引，所以一人同时只能有一段关系。</p>
+
+<h3>couple_members</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>主键，一人一行</td></tr>
+    <tr><td class="mono">couple_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>指向 <code>couples.id</code></td></tr>
+    <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td></td></tr>
+  </tbody>
+</table>
+<p>没有 INSERT / UPDATE / DELETE 策略。只有 <code>accept_pair_code</code> 这个 SECURITY DEFINER 函数能写。</p>
+
+<h3>devices</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">id</td><td class="mono">uuid</td><td>否</td><td><code>gen_random_uuid()</code></td><td></td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td></td></tr>
+    <tr><td class="mono">platform</td><td class="mono">text</td><td>否</td><td>—</td><td><code>android</code> / <code>ios</code></td></tr>
+    <tr><td class="mono">push_token</td><td class="mono">text</td><td>是</td><td>—</td><td>v0.1 不发推送，可空</td></tr>
+    <tr><td class="mono">app_version</td><td class="mono">text</td><td>是</td><td>—</td><td></td></tr>
+    <tr><td class="mono">last_seen_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td></td></tr>
+  </tbody>
+</table>
+
+<h3>pair_codes</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">code</td><td class="mono">text</td><td>否</td><td>—</td><td>六位数字，主键</td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>码的拥有者</td></tr>
+    <tr><td class="mono">expires_at</td><td class="mono">timestamptz</td><td>否</td><td>—</td><td>生成时 +10 分钟</td></tr>
+    <tr><td class="mono">used_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>非空即已用或已作废</td></tr>
+  </tbody>
+</table>
+
+<h3>location_points</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">id</td><td class="mono">bigint</td><td>否</td><td>自增</td><td>客户端不用它做幂等</td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>函数内取 <code>auth.uid()</code></td></tr>
+    <tr><td class="mono">lat</td><td class="mono">double precision</td><td>否</td><td>—</td><td>GCJ-02</td></tr>
+    <tr><td class="mono">lng</td><td class="mono">double precision</td><td>否</td><td>—</td><td>GCJ-02</td></tr>
+    <tr><td class="mono">accuracy</td><td class="mono">real</td><td>是</td><td>—</td><td>米</td></tr>
+    <tr><td class="mono">speed</td><td class="mono">real</td><td>是</td><td>—</td><td>米每秒，未知就传 null</td></tr>
+    <tr><td class="mono">provider</td><td class="mono">text</td><td>是</td><td>—</td><td><code>gps</code> / <code>network</code> / <code>fused</code></td></tr>
+    <tr><td class="mono">battery</td><td class="mono">smallint</td><td>是</td><td>—</td><td>0–100</td></tr>
+    <tr><td class="mono">charging</td><td class="mono">boolean</td><td>是</td><td>—</td><td></td></tr>
+    <tr><td class="mono">recorded_at</td><td class="mono">timestamptz</td><td>否</td><td>—</td><td>采集时刻，幂等键的一半</td></tr>
+  </tbody>
+</table>
+<p>唯一索引 <code>(user_id, recorded_at)</code>：同一用户同一采集时刻只留一行，断网补传重发不会重复。</p>
+
+<h3>daily_usage</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>联合主键</td></tr>
+    <tr><td class="mono">date</td><td class="mono">date</td><td>否</td><td>—</td><td>按 <code>Asia/Shanghai</code> 日切</td></tr>
+    <tr><td class="mono">screen_on_ms</td><td class="mono">bigint</td><td>否</td><td><code>0</code></td><td>亮屏累计毫秒</td></tr>
+    <tr><td class="mono">unlock_count</td><td class="mono">int</td><td>否</td><td><code>0</code></td><td>3 秒内连击合并</td></tr>
+    <tr><td class="mono">lock_count</td><td class="mono">int</td><td>否</td><td><code>0</code></td><td></td></tr>
+    <tr><td class="mono">first_unlock_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>当天第一次解锁</td></tr>
+    <tr><td class="mono">last_unlock_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>当天最后一次解锁</td></tr>
+    <tr><td class="mono">captured_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>003 新增。快照唯一版本号</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td>服务端接收时刻</td></tr>
+  </tbody>
+</table>
+
+<h3>app_usage</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>联合主键</td></tr>
+    <tr><td class="mono">date</td><td class="mono">date</td><td>否</td><td>—</td><td>联合主键</td></tr>
+    <tr><td class="mono">package_name</td><td class="mono">text</td><td>否</td><td>—</td><td>联合主键</td></tr>
+    <tr><td class="mono">app_label</td><td class="mono">text</td><td>否</td><td><code>''</code></td><td>展示名，取不到就传包名</td></tr>
+    <tr><td class="mono">foreground_ms</td><td class="mono">bigint</td><td>否</td><td><code>0</code></td><td>前台累计毫秒</td></tr>
+    <tr><td class="mono">launch_count</td><td class="mono">int</td><td>否</td><td><code>0</code></td><td></td></tr>
+  </tbody>
+</table>
+
+<h3>user_status</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>主键</td></tr>
+    <tr><td class="mono">lat / lng</td><td class="mono">double precision</td><td>是</td><td>—</td><td>GCJ-02，最新一点</td></tr>
+    <tr><td class="mono">place_name</td><td class="mono">text</td><td>是</td><td>—</td><td>逆地理编码结果</td></tr>
+    <tr><td class="mono">accuracy</td><td class="mono">real</td><td>是</td><td>—</td><td>米</td></tr>
+    <tr><td class="mono">battery</td><td class="mono">smallint</td><td>是</td><td>—</td><td>0–100</td></tr>
+    <tr><td class="mono">charging</td><td class="mono">boolean</td><td>是</td><td>—</td><td></td></tr>
+    <tr><td class="mono">online</td><td class="mono">boolean</td><td>否</td><td><code>false</code></td><td>保留兼容，新鲜度看 presence</td></tr>
+    <tr><td class="mono">paused_until</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>大于当前时刻即暂停；手动暂停用哨兵 <code>9999-12-31T00:00:00Z</code></td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td><b>最后一点的采集时刻</b>，暂停恢复都不改它</td></tr>
+  </tbody>
+</table>
+
+<h3>settings</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>主键</td></tr>
+    <tr><td class="mono">share_location</td><td class="mono">boolean</td><td>否</td><td><code>true</code></td><td>对象能否看到位置</td></tr>
+    <tr><td class="mono">share_usage</td><td class="mono">boolean</td><td>否</td><td><code>true</code></td><td>对象能否看到用机</td></tr>
+    <tr><td class="mono">share_battery</td><td class="mono">boolean</td><td>否</td><td><code>true</code></td><td>对象能否看到电量</td></tr>
+    <tr><td class="mono">collect_enabled</td><td class="mono">boolean</td><td>否</td><td><code>true</code></td><td>本机是否采集。false 时服务端拒绝上报</td></tr>
+    <tr><td class="mono">night_silence_start</td><td class="mono">time</td><td>是</td><td>—</td><td>v0.2 才启用</td></tr>
+    <tr><td class="mono">night_silence_end</td><td class="mono">time</td><td>是</td><td>—</td><td>v0.2 才启用</td></tr>
+  </tbody>
+</table>
+
+<h3>presence</h3>
+<table>
+  <thead><tr><th>列</th><th>SQL 类型</th><th>可空</th><th>默认</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>否</td><td>—</td><td>主键</td></tr>
+    <tr><td class="mono">online</td><td class="mono">boolean</td><td>否</td><td><code>false</code></td><td>上报后置 true</td></tr>
+    <tr><td class="mono">last_report_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td><b>null 表示从未上报</b>，无数据状态的唯一判据</td></tr>
+    <tr><td class="mono">resumed_at</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>手动恢复时刻；早于它的点被遮蔽</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td>暂停、改开关也会碰它，用来触发刷新</td></tr>
+  </tbody>
+</table>
+<p>这张表是 Realtime 唯一的发布表，没有坐标与电量字段。订阅消息只当「该刷新了」的信号。</p>
+
+<h2 id="s3"><span class="idx">03</span>读入口</h2>
+
+<p>两个函数。都带默认参数：不传就读对象。</p>
+
+<h3>get_status(p_user_id uuid default null) → table</h3>
+<table>
+  <thead><tr><th>返回列</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td></td></tr>
+    <tr><td class="mono">lat / lng</td><td class="mono">double precision</td><td>暂停、关位置共享、恢复后没有新点时均为 null</td></tr>
+    <tr><td class="mono">accuracy</td><td class="mono">real</td><td>与坐标同遮蔽</td></tr>
+    <tr><td class="mono">place_name</td><td class="mono">text</td><td>与坐标同遮蔽</td></tr>
+    <tr><td class="mono">battery</td><td class="mono">smallint</td><td>暂停或关电量共享时为 null</td></tr>
+    <tr><td class="mono">charging</td><td class="mono">boolean</td><td>与电量同遮蔽</td></tr>
+    <tr><td class="mono">online</td><td class="mono">boolean</td><td>来自 presence，缺行时为 false</td></tr>
+    <tr><td class="mono">paused_until</td><td class="mono">timestamptz</td><td>null 表示没暂停</td></tr>
+    <tr><td class="mono">last_report_at</td><td class="mono">timestamptz</td><td>从未上报为 null，用它判「无数据」</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>最后一点的采集时刻</td></tr>
+    <tr><td class="mono">share_location / share_usage / share_battery</td><td class="mono">boolean</td><td>对象的三项开关，用来解释为什么看不到</td></tr>
+    <tr><td class="mono">server_now</td><td class="mono">timestamptz</td><td><b>状态判定只信它</b>，不用手机时钟</td></tr>
+  </tbody>
+</table>
+
+<h3>get_usage(p_user_id uuid default null, p_date date default null) → table</h3>
+<table>
+  <thead><tr><th>返回列</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td></td></tr>
+    <tr><td class="mono">date</td><td class="mono">date</td><td>缺省为 <code>Asia/Shanghai</code> 的今天</td></tr>
+    <tr><td class="mono">screen_on_ms</td><td class="mono">bigint</td><td></td></tr>
+    <tr><td class="mono">unlock_count / lock_count</td><td class="mono">int</td><td></td></tr>
+    <tr><td class="mono">first_unlock_at / last_unlock_at</td><td class="mono">timestamptz</td><td>可空</td></tr>
+    <tr><td class="mono">captured_at</td><td class="mono">timestamptz</td><td>快照版本</td></tr>
+    <tr><td class="mono">apps</td><td class="mono">jsonb</td><td>数组，按 <code>foreground_ms</code> 降序，最多 20 条；没有就是 <code>[]</code></td></tr>
+  </tbody>
+</table>
+<p>暂停中或对象关闭用机共享时返回 <b>0 行</b>，不是空对象。</p>
+
+<h2 id="s4"><span class="idx">04</span>写入口</h2>
+
+<table>
+  <thead><tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">generate_pair_code</td><td>—</td><td class="mono">text</td><td>六位码，十分钟有效。生成新码会作废自己所有未用码。已配对时报 <code>already_paired</code></td></tr>
+    <tr><td class="mono">accept_pair_code</td><td class="mono">p_code text</td><td class="mono">uuid</td><td>返回 <code>couples.id</code>。锁码行与双方档案行，锁内重查</td></tr>
+    <tr><td class="mono">report_locations</td><td class="mono">p_points jsonb</td><td class="mono">jsonb</td><td><code>{"received": n, "inserted": m}</code>。单次最多 50 点</td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz</td><td class="mono">int</td><td>写入的应用行数；<b>-1 表示旧快照被丢弃</b>；同版本重发按幂等成功</td></tr>
+    <tr><td class="mono">set_pause</td><td class="mono">p_until timestamptz</td><td class="mono">void</td><td>传 null 即恢复，并写 <code>resumed_at</code></td></tr>
+    <tr><td class="mono">set_sharing</td><td class="mono">p_location boolean, p_usage boolean, p_battery boolean</td><td class="mono">void</td><td>改三个分项开关，不碰采集</td></tr>
+    <tr><td class="mono">set_collect_enabled</td><td class="mono">p_enabled boolean</td><td class="mono">void</td><td>只停本机采集，不改共享</td></tr>
+    <tr><td class="mono">purge_old_locations</td><td>—</td><td class="mono">void</td><td>删 7 天前的点。只给定时任务用，客户端不要调</td></tr>
+  </tbody>
+</table>
+
+<h3>纯查看模式的正确顺序</h3>
+<ol>
+  <li>先 <code>set_collect_enabled(false)</code>，停掉未来上报。</li>
+  <li>再 <code>set_sharing(false,false,false)</code>，撤掉对方可见性。</li>
+  <li>两步都成功才算进入纯查看模式。第二步失败就停在「已停止采集，仍在共享」，只重试第二步。</li>
+  <li>两步都幂等，重复调用不报错。</li>
+</ol>
+
+<h2 id="s5"><span class="idx">05</span>JSON 载荷</h2>
+
+<h3>report_locations 的 p_points</h3>
+<pre><code>[
+  {
+    "lat": 25.0143,
+    "lng": 121.5121,
+    "accuracy": 12.5,
+    "speed": null,
+    "provider": "fused",
+    "battery": 66,
+    "charging": true,
+    "place_name": "台北市大安区",
+    "recorded_at": "2026-10-26T04:00:00Z"
+  }
+]</code></pre>
+<p><code>lat</code>、<code>lng</code>、<code>recorded_at</code> 必填。其余可空或可缺。<code>place_name</code> 会写进 <code>user_status</code>，位置点表本身不存。</p>
+
+<h3>report_usage 的三个载荷</h3>
+<pre><code>p_daily = {
+  "screen_on_ms": 900000,
+  "unlock_count": 5,
+  "lock_count": 4,
+  "first_unlock_at": "2026-10-26T00:12:00Z",
+  "last_unlock_at": "2026-10-26T03:40:00Z"
+}
+
+p_apps = [
+  { "package_name": "com.tencent.mm",
+    "app_label": "微信",
+    "foreground_ms": 800000,
+    "launch_count": 3 }
+]
+
+p_captured_at = "2026-10-26T04:05:00Z"</code></pre>
+<p><code>p_apps</code> 传 <code>null</code> 表示这次不动应用明细；传 <code>[]</code> 表示当天没有应用数据，会把旧明细清空。这个区别必须保留。</p>
+
+<h3>get_status 一行</h3>
+<pre><code>{
+  "user_id": "00000000-0000-0000-0000-000000000002",
+  "lat": null,
+  "lng": null,
+  "accuracy": null,
+  "place_name": null,
+  "battery": 64,
+  "charging": false,
+  "online": true,
+  "paused_until": null,
+  "last_report_at": "2026-10-26T04:00:00Z",
+  "updated_at": "2026-10-26T04:00:00Z",
+  "share_location": true,
+  "share_usage": true,
+  "share_battery": true,
+  "server_now": "2026-10-26T04:00:05Z"
+}</code></pre>
+
+<h3>get_usage 一行</h3>
+<pre><code>{
+  "user_id": "00000000-0000-0000-0000-000000000002",
+  "date": "2026-10-26",
+  "screen_on_ms": 900000,
+  "unlock_count": 5,
+  "lock_count": 4,
+  "first_unlock_at": "2026-10-26T00:12:00Z",
+  "last_unlock_at": "2026-10-26T03:40:00Z",
+  "captured_at": "2026-10-26T04:05:00Z",
+  "apps": [
+    { "package_name": "com.tencent.mm", "app_label": "微信",
+      "foreground_ms": 800000, "launch_count": 3 }
+  ]
+}</code></pre>
+
+<h2 id="s6"><span class="idx">06</span>错误形状</h2>
+
+<p>PostgREST 统一返回 <code>{"code","message","details","hint"}</code>。业务错误写在 <code>message</code> 里，HTTP 状态码不作业务判定依据。</p>
+
+<table>
+  <thead><tr><th>message</th><th>触发</th><th>客户端动作</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">not_authenticated</td><td>没有有效 JWT</td><td>清 token，回登录</td></tr>
+    <tr><td class="mono">not_allowed</td><td>读的不是自己也不是对象</td><td>回落到读对象，不重试</td></tr>
+    <tr><td class="mono">invalid_payload</td><td>必填字段缺失或类型不对</td><td>记日志丢弃，不重试</td></tr>
+    <tr><td class="mono">batch_too_large</td><td>位置超 50 点，应用超 20 行</td><td>拆包重发</td></tr>
+    <tr><td class="mono">invalid_code</td><td>码不存在、已用、已过期</td><td>提示重新输入，不清输入框</td></tr>
+    <tr><td class="mono">cannot_pair_self</td><td>输了自己的码</td><td>提示换对方的码</td></tr>
+    <tr><td class="mono">already_paired</td><td>自己已有关系</td><td>刷新进主页</td></tr>
+    <tr><td class="mono">partner_already_paired</td><td>对方已有关系</td><td>提示让对方先解绑（v0.1 用暂停兜底）</td></tr>
+    <tr><td class="mono">collect_disabled</td><td>纯查看设备调上报</td><td>停上报循环，不改共享</td></tr>
+    <tr><td class="mono">permission denied for table …</td><td>绕过函数直写四张数据表</td><td>不允许发生，属实现缺陷</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s7"><span class="idx">07</span>Kotlin 线格式</h2>
+
+<p>客户端只在网络层用这些类型。JSON 键保持 snake_case，Kotlin 属性用 camelCase 配 <code>@SerialName</code>。时间在线上统一是 ISO-8601 UTC 字符串，进业务层再解析成 <code>Instant</code>；这样序列化器不依赖额外的时间库。</p>
+
+<pre><code>@Serializable
+data class StatusDto(
+    @SerialName("user_id") val userId: String,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val accuracy: Float? = null,
+    @SerialName("place_name") val placeName: String? = null,
+    val battery: Short? = null,
+    val charging: Boolean? = null,
+    val online: Boolean,
+    @SerialName("paused_until") val pausedUntil: String? = null,
+    @SerialName("last_report_at") val lastReportAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String,
+    @SerialName("share_location") val shareLocation: Boolean,
+    @SerialName("share_usage") val shareUsage: Boolean,
+    @SerialName("share_battery") val shareBattery: Boolean,
+    @SerialName("server_now") val serverNow: String
+)
+
+@Serializable
+data class AppUsageDto(
+    @SerialName("package_name") val packageName: String,
+    @SerialName("app_label") val appLabel: String,
+    @SerialName("foreground_ms") val foregroundMs: Long,
+    @SerialName("launch_count") val launchCount: Int
+)
+
+@Serializable
+data class UsageDto(
+    @SerialName("user_id") val userId: String,
+    val date: String,
+    @SerialName("screen_on_ms") val screenOnMs: Long,
+    @SerialName("unlock_count") val unlockCount: Int,
+    @SerialName("lock_count") val lockCount: Int,
+    @SerialName("first_unlock_at") val firstUnlockAt: String? = null,
+    @SerialName("last_unlock_at") val lastUnlockAt: String? = null,
+    @SerialName("captured_at") val capturedAt: String? = null,
+    val apps: List&lt;AppUsageDto&gt; = emptyList()
+)
+
+@Serializable
+data class LocationPointDto(
+    val lat: Double,
+    val lng: Double,
+    val accuracy: Float? = null,
+    val speed: Float? = null,
+    val provider: String? = null,
+    val battery: Short? = null,
+    val charging: Boolean? = null,
+    @SerialName("place_name") val placeName: String? = null,
+    @SerialName("recorded_at") val recordedAt: String
+)
+
+@Serializable
+data class ReportLocationsResult(
+    val received: Int,
+    val inserted: Int
+)</code></pre>
+
+<p>SQL 类型到 Kotlin 的固定映射：</p>
+<table>
+  <thead><tr><th>SQL</th><th>线上 JSON</th><th>Kotlin</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">uuid</td><td>string</td><td class="mono">String</td></tr>
+    <tr><td class="mono">text</td><td>string / null</td><td class="mono">String / String?</td></tr>
+    <tr><td class="mono">timestamptz</td><td>ISO-8601 带 Z</td><td class="mono">String，业务层转 Instant</td></tr>
+    <tr><td class="mono">date</td><td><code>yyyy-MM-dd</code></td><td class="mono">String，业务层转 LocalDate</td></tr>
+    <tr><td class="mono">bigint</td><td>number</td><td class="mono">Long</td></tr>
+    <tr><td class="mono">int</td><td>number</td><td class="mono">Int</td></tr>
+    <tr><td class="mono">smallint</td><td>number</td><td class="mono">Short</td></tr>
+    <tr><td class="mono">real</td><td>number</td><td class="mono">Float</td></tr>
+    <tr><td class="mono">double precision</td><td>number</td><td class="mono">Double</td></tr>
+    <tr><td class="mono">boolean</td><td>true / false</td><td class="mono">Boolean</td></tr>
+    <tr><td class="mono">jsonb</td><td>object / array</td><td class="mono">具体 DTO，不用 JsonElement</td></tr>
+    <tr><td class="mono">time</td><td><code>HH:mm:ss</code></td><td class="mono">String，v0.2 再用</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s8"><span class="idx">08</span>口径</h2>
+
+<table>
+  <thead><tr><th>项</th><th>定死的口径</th></tr></thead>
+  <tbody>
+    <tr><td>坐标</td><td>全链路 GCJ-02。高德回调直接上报，不做 WGS-84 转换；显示也只按 GCJ-02 用</td></tr>
+    <tr><td>时区</td><td>日切按 <code>Asia/Shanghai</code>；线上时间戳一律 UTC 带 <code>Z</code></td></tr>
+    <tr><td>时长单位</td><td>一律毫秒，字段名带 <code>_ms</code></td></tr>
+    <tr><td>电量</td><td>整数百分比 0–100</td></tr>
+    <tr><td>精度</td><td>米，<code>accuracy</code> 越小越准；未知传 null</td></tr>
+    <tr><td>状态判定</td><td>只用 <code>server_now</code> 与 <code>paused_until</code> 比较，不用手机时钟</td></tr>
+    <tr><td>无数据</td><td><code>last_report_at is null</code> 才是「从未上报」；坐标 null 只代表被遮蔽</td></tr>
+    <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code></td></tr>
+    <tr><td>成功判据</td><td>位置看 <code>received == 提交条数</code>，不看 <code>inserted</code>；用机看返回值 ≥ 0，-1 是旧快照</td></tr>
+    <tr><td>订阅</td><td>只订 <code>presence</code>，过滤 <code>user_id=eq.&lt;对象id&gt;</code>；收到后重新拉 <code>get_status</code> 与 <code>get_usage</code></td></tr>
+  </tbody>
+</table>
+
+<h2 id="s9"><span class="idx">09</span>客户端不能做的事</h2>
+
+<ul>
+  <li>不能直接 INSERT / UPDATE / DELETE 四张数据表。没有写策略，也没有表级写权限，会直接报 42501。</li>
+  <li>不能直接读对象的 <code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code>。查出来是空集，不是报错。</li>
+  <li>不能自己写 <code>couple_members</code> 或 <code>couples</code>。配对只走两个函数。</li>
+  <li>不能把 <code>captured_at</code> 设成未来时间。未来快照会长期占住版本号，后续真实快照全被当成旧的丢弃。</li>
+  <li>不能把「恢复」当成「清空数据」。恢复只清 <code>paused_until</code> 并写 <code>resumed_at</code>，旧点还在库里，靠遮蔽不让看。</li>
+  <li>不能把纯查看模式理解成「关采集就隐身」。要两步：关采集 + 关三类共享。</li>
+</ul>
+
+<h2 id="s10"><span class="idx">10</span>变更记录</h2>
+
+<table>
+  <thead><tr><th>日期</th><th>版本</th><th>改动</th></tr></thead>
+  <tbody>
+    <tr><td class="num">2026-10-26</td><td class="num">0.1</td><td>首次冻结。按已部署的 001–003 反向写：11 张表、2 个读入口、8 个写入口、错误形状、Kotlin 线格式、坐标与时区口径、客户端禁区</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  情侣看看 契约 schema v0.1 · 冻结 · 依据 SQL 001–003 与规格 v1.5 · 2026-10-26
+</footer>
+
+</div>
+</body>
+</html>
