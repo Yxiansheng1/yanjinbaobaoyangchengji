@@ -50,16 +50,16 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
     <span><b>版本</b> 0.3.1</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 冻结 · 施工依据</span>
-    <span><b>依据</b> SQL 001–005（已部署）· 006（待上线）· 规格 v1.8</span>
+    <span><b>依据</b> SQL 001–006（均已部署）· 规格 v1.8</span>
   </div>
 </header>
 
 <p>这份文件把「客户端能碰什么、怎么碰、拿到什么形状」定死。规格讲产品语义，这份讲字段与调用。实现期改这里等于改契约，必须回阶段二，不能边写边改。</p>
 
 <div class="note">
-  <div class="h">004、005 已上线，006 还没有</div>
-  <p>004 于 2026-10-26 线上执行，末尾自检通过，七项权限与索引核对符合预期。005 同日执行，自检会读函数体，证明线上跑的确实是 005 版本。006 是第三轮复核 E01 的修正：整数性检查通过后仍拿原始文本转型，导致 <code>66.0</code> 这种写法漏 <code>22P02</code>；本地 15/15 通过，<b>线上还没执行</b>。</p>
-  <p>已上线的部分仍只证明<b>结构</b>：函数体换了、权限收了、索引建了。<b>行为一条都没在线验过</b>——越界拒绝、未来时间拒绝、直写报 42501、用机刷新信号，都要真实 JWT 才跑得出来。</p>
+  <div class="h">001–006 全部上线</div>
+  <p>004 于 2026-10-26 线上执行，七项权限与索引核对符合预期；005 同日执行，自检读函数体，证明线上跑的是 005 版本；006 同日执行，自检额外核对 <code>::numeric::smallint</code> 等三处转换标记，证明整数写法带小数点的问题已在线上修掉。</p>
+  <p>但上线只证明<b>结构</b>：函数体换了、权限收了、索引建了。<b>行为一条都没在线验过</b>——越界拒绝、未来时间拒绝、直写报 42501、用机刷新信号，都要真实 JWT 才跑得出来。</p>
 </div>
 
 <div class="note">
@@ -610,7 +610,7 @@ data class ReportLocationsResult(
 <table>
   <thead><tr><th>日期</th><th>版本</th><th>改动</th></tr></thead>
   <tbody>
-    <tr><td class="num">2026-10-26</td><td class="num">0.3.1</td><td>按《契约 schema 第三轮定稿复核》E01 修订：整数性检查通过后统一走 <code>numeric::目标类型</code> 转换，<code>66.0</code>／<code>1000.0</code> 这类「整数值、小数写法」不再漏 <code>22P02</code>，真小数与越界仍被拒；补「这类写法算合法」的口径</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">0.3.1</td><td>按《契约 schema 第三轮定稿复核》E01 修订：整数性检查通过后统一走 <code>numeric::目标类型</code> 转换，<code>66.0</code>／<code>1000.0</code> 这类「整数值、小数写法」不再漏 <code>22P02</code>，真小数与越界仍被拒；补「这类写法算合法」的口径；006 于 2026-10-26 线上执行，自检通过</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.3</td><td>按《契约 schema 第二轮复核》D01–D06 修订：补整数性、类型容量与重复包名校验（005）；用机上报成功后推进 <code>presence.updated_at</code>（005）；RPC 响应形状按返回类型分列，void 不再写死 200 与 <code>Content-Length</code>，无权访问明确返回 <code>not_allowed</code> 而非空集；<code>Instant.parse</code> 的说法按 JDK 17 实测更正；权限摘要与 <code>profiles</code>、<code>devices</code> 可写边界改准；对称索引作用不再夸大；005 于 2026-10-26 线上执行，自检通过</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.2</td><td>按《契约 schema 审查意见》C01–C08 修订：<code>p_apps</code> 改必填（null 不再清空明细）、应用超限禁止拆包并新增 <code>apps_too_many</code>、<code>get_status.updated_at</code> 改述为刷新信号、可写范围区分「数据库强制」与「仅约定」、时间戳不再承诺 Z 后缀、<code>couples</code> 改对称唯一、新增 <code>future_timestamp</code> 与 SQLSTATE 说明、补完整 RPC 请求体示例。配套 004 修正脚本，本地 25/25 通过；<b>2026-10-26 线上执行，自检通过，七项权限与索引核对符合预期</b></td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.1</td><td>首次冻结。按已部署的 001–003 反向写：11 张表、2 个读入口、8 个写入口、错误形状、Kotlin 线格式、坐标与时区口径、客户端禁区</td></tr>
@@ -618,7 +618,7 @@ data class ReportLocationsResult(
 </table>
 
 <footer>
-  情侣看看 契约 schema v0.3.1 · 冻结 · 依据 SQL 001–005（已部署）· 006（待上线）· 规格 v1.8 · 2026-10-26
+  情侣看看 契约 schema v0.3.1 · 冻结 · 依据 SQL 001–006（均已部署）· 规格 v1.8 · 2026-10-26
 </footer>
 
 </div>
