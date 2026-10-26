@@ -47,35 +47,35 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
 <header class="doc">
   <h1>情侣看看 · 契约 schema</h1>
   <div class="meta">
-    <span><b>版本</b> 0.2</span>
+    <span><b>版本</b> 0.3</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 冻结 · 施工依据</span>
-    <span><b>依据</b> SQL 001 / 002 / 003 / 004（均已部署）· 规格 v1.6</span>
+    <span><b>依据</b> SQL 001–004（已部署）· 005（本地验过，待上线）· 规格 v1.7</span>
   </div>
 </header>
 
 <p>这份文件把「客户端能碰什么、怎么碰、拿到什么形状」定死。规格讲产品语义，这份讲字段与调用。实现期改这里等于改契约，必须回阶段二，不能边写边改。</p>
 
 <div class="note">
-  <div class="h">004 已上线，本文与线上一致</div>
-  <p>004 修正脚本于 2026-10-26 在线上执行，末尾自检通过，七项权限与索引核对全部符合预期。所以本文写的写权限、校验、错误码与唯一索引，现在都是线上真实行为。</p>
-  <p>仍然只在本机验过、线上没验的是<b>行为侧</b>：V22–V24 的越界拒绝、未来时间拒绝、直写报 42501，需要真实 JWT 才能跑。结构对了不等于行为对了。</p>
+  <div class="h">004 已上线，005 还没有</div>
+  <p>004 于 2026-10-26 线上执行，末尾自检通过，七项权限与索引核对符合预期。005 是第二轮复核的修正，本地 17/17 通过，<b>线上尚未执行</b>；标了「待 005」的条款现在还不生效。</p>
+  <p>即便 004 已上线，能说的也只是「权限与索引结构对了」。<b>行为侧全部没在线验过</b>：越界拒绝、未来时间拒绝、直写报 42501、用机刷新信号，都要真实 JWT 才跑得出来。结构对了不等于行为对了，别把这条读成「功能已验证」。</p>
 </div>
 
 <div class="note">
   <div class="h">冲突时以谁为准</div>
-  <p><b>SQL 大于本文，本文大于规格，规格大于 PRD。</b>本文是从已部署的 001–003 反向写出来的；如果本文与线上行为对不上，先信 SQL，再把本文改对。</p>
+  <p><b>SQL 大于本文，本文大于规格，规格大于 PRD。</b>本文是从已部署的 001–004 反向写出来的，005 按第二轮复核修正；如果本文与线上行为对不上，先信 SQL，再把本文改对。</p>
   <p>本文只描述 v0.1 已部署的东西。规格里有、SQL 里没有的（夜间免打扰、常去点、解绑），本文一律不写，避免客户端提前依赖。</p>
 </div>
 
 <h2 id="s1"><span class="idx">01</span>总览</h2>
 
-<p>库里有 11 张表。客户端能直接读的只有一部分，写全部走函数。</p>
+<p>库里有 11 张表。客户端能直接读的只有一部分；写大部分走函数，两处例外：<code>profiles</code> 只开放 <code>nickname</code>、<code>avatar_url</code> 两列，<code>devices</code> 开放本人整行。这两处是数据库真允许的，不是约定。</p>
 
 <table>
   <thead><tr><th>表</th><th>用途</th><th>客户端读</th><th>客户端写</th></tr></thead>
   <tbody>
-    <tr><td class="mono">profiles</td><td>昵称头像，auth.users 的镜像</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只给 <code>nickname</code>、<code>avatar_url</code> 两列的更新权，其余列由列级授权挡住</td></tr>
+    <tr><td class="mono">profiles</td><td>昵称头像，auth.users 的镜像</td><td>自己 + 对象</td><td><span class="tag yes">是</span> 只有 <code>nickname</code>、<code>avatar_url</code> 两列可写，其余列由列级授权挡住</td></tr>
     <tr><td class="mono">couples</td><td>关系，一人最多一段 active</td><td>自己参与的</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
     <tr><td class="mono">couple_members</td><td>关系成员，一人一行</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
     <tr><td class="mono">devices</td><td>设备与推送令牌</td><td>自己的</td><td>自己的整行 <span class="tag later">唯一例外</span> 数据库只限本人行，不限列</td></tr>
@@ -299,8 +299,8 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
   <tbody>
     <tr><td class="mono">generate_pair_code</td><td>—</td><td class="mono">text</td><td>六位码，十分钟有效。生成新码会作废自己所有未用码。已配对时报 <code>already_paired</code></td></tr>
     <tr><td class="mono">accept_pair_code</td><td class="mono">p_code text</td><td class="mono">uuid</td><td>返回 <code>couples.id</code>。锁码行与双方档案行，锁内重查</td></tr>
-    <tr><td class="mono">report_locations</td><td class="mono">p_points jsonb</td><td class="mono">jsonb</td><td><code>{"received": n, "inserted": m}</code>。单次最多 50 点，超了拆批。逐点校验坐标、电量、精度与采集时刻，任一点不合格整批拒绝</td></tr>
-    <tr><td class="mono">report_usage</td><td class="mono">p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz</td><td class="mono">int</td><td><b>四个参数全必填</b>。<code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>；超过 20 行报 <code>apps_too_many</code>。返回写入的应用行数，<b>-1 表示旧快照被丢弃</b>；同版本重发按幂等成功</td></tr>
+    <tr><td class="mono">report_locations</td><td class="mono">p_points jsonb</td><td class="mono">jsonb</td><td><code>{"received": n, "inserted": m}</code>。单次最多 50 点，超了拆批。逐点校验坐标范围、电量（必须是 <b>0–100 的整数</b>）、精度与速度（0–1e7）、采集时刻，任一点不合格整批拒绝</td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz</td><td class="mono">int</td><td><b>四个参数全必填</b>。<code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>；超过 20 行报 <code>apps_too_many</code>；同一批包名重复也报 <code>invalid_payload</code>。计数与时长必须是整数且在目标类型范围内。返回写入的应用行数，<b>-1 表示旧快照被丢弃</b>；同版本重发按幂等成功。成功写入会推进 <code>presence.updated_at</code>，供实时刷新 <span class="tag later">待 005</span></td></tr>
     <tr><td class="mono">set_pause</td><td class="mono">p_until timestamptz</td><td class="mono">void</td><td>传 null 即恢复，并写 <code>resumed_at</code></td></tr>
     <tr><td class="mono">set_sharing</td><td class="mono">p_location boolean, p_usage boolean, p_battery boolean</td><td class="mono">void</td><td>改三个分项开关，不碰采集</td></tr>
     <tr><td class="mono">set_collect_enabled</td><td class="mono">p_enabled boolean</td><td class="mono">void</td><td>只停本机采集，不改共享</td></tr>
@@ -392,7 +392,22 @@ p_captured_at = "2026-10-26T04:05:00Z"</code></pre>
 
 <h3>完整请求与响应</h3>
 
-<p>上面是行对象示例。真实的 RPC 响应永远是数组，<b>0 行时是 <code>[]</code></b>，不是 <code>null</code>，也不是空对象。</p>
+<p><b>响应形状跟着函数返回类型走，不是一律数组。</b></p>
+
+<table>
+  <thead><tr><th>函数</th><th>返回类型</th><th>成功响应体</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">get_status</td><td class="mono">table</td><td>数组；0 行时是 <code>[]</code></td></tr>
+    <tr><td class="mono">get_usage</td><td class="mono">table</td><td>数组；0 行时是 <code>[]</code></td></tr>
+    <tr><td class="mono">report_locations</td><td class="mono">jsonb</td><td>对象 <code>{"received":n,"inserted":m}</code></td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">int</td><td>裸数字，例如 <code>1</code>、<code>0</code>、<code>-1</code></td></tr>
+    <tr><td class="mono">generate_pair_code</td><td class="mono">text</td><td>JSON 字符串，例如 <code>"384102"</code></td></tr>
+    <tr><td class="mono">accept_pair_code</td><td class="mono">uuid</td><td>JSON 字符串，例如 <code>"a1b2…"</code></td></tr>
+    <tr><td class="mono">set_pause / set_sharing / set_collect_enabled</td><td class="mono">void</td><td>空响应体</td></tr>
+  </tbody>
+</table>
+
+<p>上面那些示例都是行对象。判断成功用 HTTP 2xx + 能按上表解码，<b>不要写死 200，也不要校验 <code>Content-Length</code></b>：PostgREST 对 void 函数通常回 <code>204</code>，线上网关也可能追加响应头。真实状态码要等真机联调时抓一次再写死。</p>
 
 <pre><code>POST /rest/v1/rpc/report_locations
 apikey: sb_publishable_xELrqAejvAmCVInr-LsQLw_Dh06TkIu
@@ -403,7 +418,7 @@ Content-Type: application/json
                   "accuracy": 12.5, "battery": 66,
                   "recorded_at": "2026-10-26T04:00:00Z" } ] }
 
-200 → { "received": 1, "inserted": 1 }</code></pre>
+2xx → { "received": 1, "inserted": 1 }</code></pre>
 
 <pre><code>POST /rest/v1/rpc/report_usage
 
@@ -415,20 +430,23 @@ Content-Type: application/json
                 "foreground_ms": 800000, "launch_count": 3 } ],
   "p_captured_at": "2026-10-26T04:05:00Z" }
 
-200 → 1     写入 1 行应用明细
-200 → 0     应用数组为空，只更新了日汇总
-200 → -1    旧快照，被丢弃，立刻停止重试</code></pre>
+2xx → 1     写入 1 行应用明细
+2xx → 0     应用数组为空，只更新了日汇总
+2xx → -1    旧快照，被丢弃，立刻停止重试</code></pre>
 
 <pre><code>POST /rest/v1/rpc/set_sharing     （返回 void 的 RPC 都是这样）
 { "p_location": true, "p_usage": true, "p_battery": true }
 
-200 → 空响应体，Content-Length: 0</code></pre>
+2xx → 空响应体（PostgREST 13 通常回 204，线上实测后回填）</code></pre>
 
 <pre><code>POST /rest/v1/rpc/get_status
 {}
 
-200 → [ { "user_id": "...", "lat": 25.01, "server_now": "..." } ]
-200 → []     未配对，或 p_user_id 指向不存在的人</code></pre>
+2xx → [ { "user_id": "...", "lat": 25.01, "server_now": "..." } ]
+2xx → []     未配对且不指定目标时（此时没有可读对象）
+错误 → not_allowed   指定了一个非本人、非对象的 UUID，即使这个人不存在也先拒</code></pre>
+
+<p><b>无权访问返回错误，不是空集。</b><code>get_status</code> 会先判权限再查数据：传一个既不是自己也不是对象的 UUID，得到 <code>not_allowed</code>；只有「自己还没配对、又没指定目标」这种情况才返回 <code>[]</code>。界面要把这两种情况分开处理——前者是越权或参数错，后者是「还没绑定」。</p>
 
 <p><b>拿到 -1 必须停。</b>它表示服务端已有更新的版本，继续重发只会一直被拒。等下一次采集产生新的 <code>captured_at</code> 再报，不要把这一条留在重试队列里。</p>
 
@@ -457,8 +475,9 @@ Content-Type: application/json
 
 <div class="note">
   <div class="h">SQLSTATE 会漏出来，别只认 business code</div>
-  <p>函数内部的业务错误统一是 <code>P0001</code>，<code>message</code> 就是上表那些词。但函数里读不到的路径仍可能抛出原生错误：类型转换失败 <code>22P02</code>、日期格式错 <code>22007</code>、非空约束 <code>23502</code>、整数越界 <code>22003</code>。客户端按 <b>message 精确匹配 → 未命中就走「未知错误」分支</b>，不要把 HTTP 404/400 当业务判据。</p>
-  <p>004 之后，校验类错误已经全部转成 <code>invalid_payload</code>；仍看到 <code>22P02</code>／<code>23502</code> 说明有字段没进校验，属于要回来补校验的缺陷，不是正常分支。</p>
+  <p>函数内部的业务错误统一是 <code>P0001</code>，<code>message</code> 就是上表那些词。客户端按 <b>message 精确匹配 → 未命中就走「未知错误」分支</b>，不要把 HTTP 404/400 当业务判据。</p>
+  <p><b>原生错误分两类，不要混。</b>第一类是函数体里的取值错误（小数塞进整数列、数值超出类型范围、同批包名重复）——004/005 已经把这几条都拦在转型之前，转成 <code>invalid_payload</code>。第二类是<b>参数绑定阶段</b>就失败的：<code>p_date</code> 不是合法日期报 <code>22007</code>，请求体不是合法 JSON 直接 400。这一类走不到函数里，转换不了，只能按 SQLSTATE 处理。</p>
+  <p>所以规则是：<code>P0001</code> 看 message；<code>22007</code>／<code>22P02</code> 这类只可能是参数本身写坏（客户端 bug），记日志丢弃，不要重试；仍看到本该被拦下的 <code>23502</code>／<code>22003</code>／<code>21000</code>，说明函数里还有没校验到的字段，属于要回来补的缺陷。</p>
 </div>
 
 <div class="note">
@@ -469,7 +488,8 @@ Content-Type: application/json
 <h2 id="s7"><span class="idx">07</span>Kotlin 线格式</h2>
 
 <p>客户端只在网络层用这些类型。JSON 键保持 snake_case，Kotlin 属性用 camelCase 配 <code>@SerialName</code>。</p>
-<p><b>时间不能假设 Z 后缀。</b>请求侧我们统一发 <code>2026-10-26T04:00:00Z</code>；响应侧由 PostgreSQL 按会话时区序列化，实测会拿到 <code>2026-10-26T00:00:00+00:00</code> 甚至 <code>+08:00</code>。所以 DTO 里保持 <code>String</code>，业务层用 <code>OffsetDateTime.parse</code> 再转 <code>Instant</code>；<b>不要用 <code>Instant.parse</code></b>（它只吃 <code>Z</code>），也不要用字符串比较判断时间先后。</p>
+<p><b>时间不能假设 Z 后缀。</b>请求侧我们统一发 <code>2026-10-26T04:00:00Z</code>；响应侧由 PostgreSQL 按会话时区序列化，实测会拿到 <code>2026-10-26T00:00:00+00:00</code> 甚至 <code>+08:00</code>。所以 DTO 里保持 <code>String</code>，业务层统一用 <code>OffsetDateTime.parse</code> 再转 <code>Instant</code>。</p>
+<p>关于 <code>Instant.parse</code>：在桌面的 JDK 17.0.2 上实测，它能接受 <code>+08:00</code> 这类偏移，所以「<code>Instant.parse</code> 只吃 Z」这个说法不成立，不要照抄。之所以仍推荐 <code>OffsetDateTime</code>：它对偏移的支持是规格里写明的，不依赖运行库版本；安卓上的实际行为没在目标机型验过，不拿桌面 JDK 的结果代替手机兼容测试。两种写法都要拒绝不带时区的 <code>2026-10-26T00:00:00</code>（实测抛 <code>DateTimeParseException</code>），并且不要用字符串比较时间先后。</p>
 
 <pre><code>@Serializable
 data class StatusDto(
@@ -536,7 +556,7 @@ data class ReportLocationsResult(
   <tbody>
     <tr><td class="mono">uuid</td><td>string</td><td class="mono">String</td></tr>
     <tr><td class="mono">text</td><td>string / null</td><td class="mono">String / String?</td></tr>
-    <tr><td class="mono">timestamptz</td><td>ISO-8601 带 Z</td><td class="mono">String，业务层转 Instant</td></tr>
+    <tr><td class="mono">timestamptz</td><td>ISO-8601，带 <code>Z</code> 或有效偏移</td><td class="mono">String，业务层转 Instant</td></tr>
     <tr><td class="mono">date</td><td><code>yyyy-MM-dd</code></td><td class="mono">String，业务层转 LocalDate</td></tr>
     <tr><td class="mono">bigint</td><td>number</td><td class="mono">Long</td></tr>
     <tr><td class="mono">int</td><td>number</td><td class="mono">Int</td></tr>
@@ -565,7 +585,7 @@ data class ReportLocationsResult(
     <tr><td>无数据</td><td><code>last_report_at is null</code> 才是「从未上报」；坐标 null 只代表被遮蔽</td></tr>
     <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code></td></tr>
     <tr><td>成功判据</td><td>位置看 <code>received == 提交条数</code>，不看 <code>inserted</code>；用机看返回值 ≥ 0，-1 是旧快照</td></tr>
-    <tr><td>订阅</td><td>只订 <code>presence</code>，过滤 <code>user_id=eq.&lt;对象id&gt;</code>；收到后重新拉 <code>get_status</code> 与 <code>get_usage</code></td></tr>
+    <tr><td>订阅</td><td>只订 <code>presence</code>，过滤 <code>user_id=eq.&lt;对象id&gt;</code>；收到后重新拉 <code>get_status</code> 与 <code>get_usage</code>。位置上报与用机上报都会推进 <code>presence.updated_at</code>，设置变化与暂停也会 <span class="tag later">待 005</span></td></tr>
   </tbody>
 </table>
 
@@ -590,13 +610,14 @@ data class ReportLocationsResult(
 <table>
   <thead><tr><th>日期</th><th>版本</th><th>改动</th></tr></thead>
   <tbody>
+    <tr><td class="num">2026-10-26</td><td class="num">0.3</td><td>按《契约 schema 第二轮复核》D01–D06 修订：补整数性、类型容量与重复包名校验（005）；用机上报成功后推进 <code>presence.updated_at</code>（005）；RPC 响应形状按返回类型分列，void 不再写死 200 与 <code>Content-Length</code>，无权访问明确返回 <code>not_allowed</code> 而非空集；<code>Instant.parse</code> 的说法按 JDK 17 实测更正；权限摘要与 <code>profiles</code>、<code>devices</code> 可写边界改准；对称索引作用不再夸大</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.2</td><td>按《契约 schema 审查意见》C01–C08 修订：<code>p_apps</code> 改必填（null 不再清空明细）、应用超限禁止拆包并新增 <code>apps_too_many</code>、<code>get_status.updated_at</code> 改述为刷新信号、可写范围区分「数据库强制」与「仅约定」、时间戳不再承诺 Z 后缀、<code>couples</code> 改对称唯一、新增 <code>future_timestamp</code> 与 SQLSTATE 说明、补完整 RPC 请求体示例。配套 004 修正脚本，本地 25/25 通过；<b>2026-10-26 线上执行，自检通过，七项权限与索引核对符合预期</b></td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.1</td><td>首次冻结。按已部署的 001–003 反向写：11 张表、2 个读入口、8 个写入口、错误形状、Kotlin 线格式、坐标与时区口径、客户端禁区</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 契约 schema v0.2 · 冻结 · 依据 SQL 001–004（均已部署）与规格 v1.6 · 2026-10-26
+  情侣看看 契约 schema v0.3 · 冻结 · 依据 SQL 001–004（已部署）与 005（待上线）· 规格 v1.7 · 2026-10-26
 </footer>
 
 </div>

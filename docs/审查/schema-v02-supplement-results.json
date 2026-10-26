@@ -1,0 +1,141 @@
+{
+  "environment": "PGlite 0.5.11, synthetic Auth, no live HTTP",
+  "passed": 7,
+  "total": 15,
+  "results": [
+    {
+      "name": "D01 decimal battery uses invalid_payload",
+      "passed": false,
+      "detail": {
+        "code": "22P02",
+        "message": "invalid input syntax for type smallint: \"66.5\""
+      }
+    },
+    {
+      "name": "D01 decimal daily count uses invalid_payload",
+      "passed": false,
+      "detail": {
+        "code": "22P02",
+        "message": "invalid input syntax for type integer: \"1.5\""
+      }
+    },
+    {
+      "name": "D01 int overflow uses invalid_payload",
+      "passed": false,
+      "detail": {
+        "code": "22003",
+        "message": "value \"2147483648\" is out of range for type integer"
+      }
+    },
+    {
+      "name": "D01 real overflow uses invalid_payload",
+      "passed": false,
+      "detail": {
+        "code": "22003",
+        "message": "\"10000000000000000000000000000000000000000\" is out of range for type real"
+      }
+    },
+    {
+      "name": "D01 duplicate package uses invalid_payload",
+      "passed": false,
+      "detail": {
+        "code": "21000",
+        "message": "ON CONFLICT DO UPDATE command cannot affect row a second time"
+      }
+    },
+    {
+      "name": "D01 failed duplicate snapshot fully rolls back",
+      "passed": true,
+      "detail": [
+        {
+          "n": 0
+        }
+      ]
+    },
+    {
+      "name": "D02 documented missing target returns empty array",
+      "passed": false,
+      "detail": {
+        "code": "P0001",
+        "message": "not_allowed"
+      }
+    },
+    {
+      "name": "D03 accepted usage advances presence signal",
+      "passed": false,
+      "detail": {
+        "before": "2026-10-26 13:22:52.348+08",
+        "after": "2026-10-26 13:22:52.348+08",
+        "reply": [
+          {
+            "result": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "control unpaired default get_status is empty",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "control normal pair RPC blocks overlapping relationship",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "partner_already_paired"
+      }
+    },
+    {
+      "name": "D04 pair index alone blocks different partner overlap (admin-only diagnostic)",
+      "passed": false,
+      "detail": [
+        {
+          "user_a": "00000000-0000-0000-0000-000000000003",
+          "user_b": "00000000-0000-0000-0000-000000000001"
+        }
+      ]
+    },
+    {
+      "name": "control JSON null apps rejected",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "control lower coordinate and zero battery boundaries accepted",
+      "passed": true,
+      "detail": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "control upper coordinate and full battery boundaries accepted",
+      "passed": true,
+      "detail": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "control service_role retained maintenance privilege",
+      "passed": true,
+      "detail": [
+        {
+          "v": true
+        }
+      ]
+    }
+  ]
+}

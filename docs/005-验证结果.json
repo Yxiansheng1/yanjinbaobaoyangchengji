@@ -1,0 +1,150 @@
+{
+  "environment": "PGlite 0.5.11",
+  "passed": 17,
+  "total": 17,
+  "results": [
+    {
+      "name": "D01 battery 小数被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "D01 用机小数计数被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "D01 int 溢出被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "D01 real 溢出被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "D01 重复包名被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "D01 重复包名整批回滚",
+      "passed": true,
+      "detail": {
+        "daily": 0,
+        "apps": 0
+      }
+    },
+    {
+      "name": "D01 用机大整数显示时长仍可接受",
+      "passed": true,
+      "detail": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "D01 边界值仍合法",
+      "passed": true,
+      "detail": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "D03 用机上报推进 presence.updated_at",
+      "passed": true,
+      "detail": {
+        "before": "2026-10-26 13:28:43.881+08",
+        "after": "2026-10-26 13:28:43.946+08"
+      }
+    },
+    {
+      "name": "D03 用机上报不改 last_report_at",
+      "passed": true,
+      "detail": {
+        "before": "2026-10-26 13:28:43.88+08",
+        "after": "2026-10-26 13:28:43.88+08"
+      }
+    },
+    {
+      "name": "D03 旧快照返回 -1",
+      "passed": true,
+      "detail": [
+        {
+          "result": -1
+        }
+      ]
+    },
+    {
+      "name": "D03 丢弃的旧快照不推进更新信号",
+      "passed": true,
+      "detail": {
+        "before": "2026-10-26 13:28:43.948+08",
+        "after": "2026-10-26 13:28:43.948+08"
+      }
+    },
+    {
+      "name": "回归 p_apps 传 null 仍被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "回归 21 条应用仍报 apps_too_many",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "apps_too_many"
+      }
+    },
+    {
+      "name": "回归 未来快照仍被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "future_timestamp"
+      }
+    },
+    {
+      "name": "回归 settings 仍不可直写",
+      "passed": true,
+      "detail": {
+        "code": "42501",
+        "message": "permission denied for table settings"
+      }
+    },
+    {
+      "name": "回归 purge 对登录身份仍不可执行",
+      "passed": true,
+      "detail": [
+        {
+          "v": false
+        }
+      ]
+    }
+  ]
+}
