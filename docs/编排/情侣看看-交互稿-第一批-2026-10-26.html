@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>交互稿 · 情侣看看第一批</title>
+<style>
+  :root{ --ink:#111; --muted:#666; --line:#ddd; --soft:#f7f7f7; --accent:#111; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:#fff;line-height:1.7}
+  .wrap{max-width:1040px;margin:0 auto;padding:36px 24px 80px}
+  h1{font-size:23px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin:0 0 8px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:24px}
+  .layout{display:flex;gap:32px;align-items:flex-start}
+  .nav{width:190px;flex:0 0 190px;position:sticky;top:24px}
+  .nav button{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+  .nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .stage{flex:1}
+  .phone{width:330px;border:1px solid var(--ink);border-radius:18px;padding:0;overflow:hidden;background:#fff}
+  .bar{background:var(--soft);border-bottom:1px solid var(--line);padding:8px 14px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+  .screen{padding:18px 18px 22px;min-height:540px;display:flex;flex-direction:column;gap:12px}
+  .screen h2{font-size:16px;margin:0;font-weight:650}
+  .hint{font-size:12.5px;color:var(--muted);margin:0}
+  .field{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;color:#999}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:8px;padding:11px 14px;font-size:14px;cursor:default}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.small{padding:7px 10px;font-size:12.5px}
+  .code{display:flex;gap:8px;justify-content:center;margin:10px 0}
+  .code span{width:38px;height:46px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}
+  .card{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+  .muted{color:var(--muted)}
+  .map{height:170px;border:1px solid var(--line);border-radius:10px;background:
+    repeating-linear-gradient(0deg,#f4f4f4 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(90deg,#f4f4f4 0 1px,transparent 1px 24px);position:relative;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12.5px}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--ink);position:absolute;left:52%;top:46%}
+  .dot::after{content:"";position:absolute;inset:-8px;border:1px solid #bbb;border-radius:50%}
+  .step{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;gap:10px}
+  .num{width:22px;height:22px;flex:0 0 22px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border:1px solid var(--line);border-radius:10px;color:var(--muted)}
+  .notes{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+  .notes ul{margin:6px 0;padding-left:20px;font-size:13px}
+  .notes li{margin:4px 0}
+  .switch{margin:10px 0 18px}
+  .switch button{border:1px solid var(--line);background:#fff;padding:6px 10px;font-size:12.5px;border-radius:6px;margin-right:6px;cursor:pointer}
+  .switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .hidden{display:none}
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>交互稿 · 情侣看看第一批</h1>
+<p class="sub">五屏，2026-10-26。只定操作顺序与信息层级，不定视觉细节。你确认流程后，界面线按这张图施工，验收时逐屏对照。</p>
+
+<div class="layout">
+  <div class="nav">
+    <button class="on" data-k="s1">1 登录 / 注册</button>
+    <button data-k="s2">2 配对</button>
+    <button data-k="s3">3 首页</button>
+    <button data-k="s4">4 权限引导</button>
+    <button data-k="s5">5 暂停 / 恢复</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- 1 登录 -->
+    <div id="s1">
+      <div class="switch">
+        <button class="on" data-t="login">登录</button>
+        <button data-t="reg">注册</button>
+      </div>
+      <div class="phone">
+        <div class="bar"><span>情侣看看</span><span>9:41</span></div>
+        <div class="screen">
+          <h2 id="t1">登录</h2>
+          <p class="hint" id="t2">用邮箱和密码进入</p>
+          <div class="field">邮箱</div>
+          <div class="field">密码</div>
+          <button class="btn" id="t3">登录</button>
+          <button class="btn ghost small" id="t4">还没有账号？去注册</button>
+          <p class="hint" style="margin-top:auto">错误提示固定显示在按钮上方，例如「邮箱或密码不对」「邮箱还没确认」。</p>
+        </div>
+      </div>
+      <div class="notes">
+        <b>交互要点</b>
+        <ul>
+          <li>登录与注册共用一个页面，用顶部两个词切换，不另开页。</li>
+          <li>按钮在请求中变成「登录中…」并禁用，防止连点发两次。</li>
+          <li>登录成功后：已配对 → 首页；未配对 → 配对页。</li>
+          <li>注册成功后直接进登录态，不需要再登一次。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2 配对 -->
+    <div id="s2" class="hidden">
+      <div class="switch">
+        <button class="on" data-p="mine">我出码</button>
+        <button data-p="theirs">输对方的码</button>
+      </div>
+      <div class="phone">
+        <div class="bar"><span>配对</span><span>9:41</span></div>
+        <div class="screen" id="pairMine">
+          <h2>把这六个数字告诉她</h2>
+          <p class="hint">十分钟内有效，过期就重新生成</p>
+          <div class="code"><span>3</span><span>8</span><span>4</span><span>1</span><span>0</span><span>2</span></div>
+          <p class="hint" style="text-align:center">剩余 09:42</p>
+          <button class="btn ghost small">重新生成</button>
+          <button class="btn" style="margin-top:auto">我已经配对好了</button>
+        </div>
+        <div class="screen hidden" id="pairTheirs">
+          <h2>输入对方的六位码</h2>
+          <p class="hint">输完自动校验，不用点按钮</p>
+          <div class="code"><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span></div>
+          <p class="hint">码不对或已过期时，输入框保留，只提示「这个码用不了了，让对方重新生成」。</p>
+          <button class="btn" style="margin-top:auto">确认</button>
+        </div>
+      </div>
+      <div class="notes">
+        <b>交互要点</b>
+        <ul>
+          <li>两个方向放同一页，用顶部切换；不强制谁出码谁输码。</li>
+          <li>输自己的码 → 提示「这是你自己的码，换成她的」。</li>
+          <li>任一方已配对 → 提示「你已经有一段关系了」并回首页。</li>
+          <li>配对成功后两端都自动进首页，不需要手动刷新。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3 首页 -->
+    <div id="s3" class="hidden">
+      <div class="phone">
+        <div class="bar"><span>小可</span><span>在线 · 9:41</span></div>
+        <div class="screen">
+          <div class="card">
+            <div class="row"><span class="muted">最后上报</span><span>12 秒前</span></div>
+            <div class="row"><span class="muted">电量</span><span>64% · 充电中</span></div>
+          </div>
+          <div class="map"><span class="dot"></span>地图区域（高德）</div>
+          <div class="card">
+            <div class="row"><span class="muted">位置</span><span>杭州市西湖区…</span></div>
+            <div class="row"><span class="muted">精度</span><span>±12 米</span></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:auto">
+            <button class="btn ghost small">刷新</button>
+            <button class="btn small">暂停共享</button>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <b>三种状态（界面线必须都做）</b>
+        <ul>
+          <li><b>正常：</b>如上图，坐标、电量、地址、精度都显示。</li>
+          <li><b>对方暂停：</b>地图区变成灰底一句话「她暂停了共享」，坐标与地址整块消失，电量也不显示。</li>
+          <li><b>从未上报：</b>显示「还没收到过数据」，不显示「离线」，两者含义不同。</li>
+        </ul>
+        <p class="hint">相对时间用服务端时间算，改手机时间显示不应变化。</p>
+      </div>
+    </div>
+
+    <!-- 4 权限引导 -->
+    <div id="s4" class="hidden">
+      <div class="phone">
+        <div class="bar"><span>开始之前</span><span>1/3</span></div>
+        <div class="screen">
+          <h2>需要三样权限</h2>
+          <p class="hint">缺哪一样，她就看不到对应的东西。都可以先跳过，之后在首页顶部提醒里补。</p>
+          <div class="step"><div class="num">1</div><div><b>定位</b><br><span class="hint">不给就完全看不到位置</span></div></div>
+          <div class="step"><div class="num">2</div><div><b>始终允许定位</b><br><span class="hint">只给「使用期间」的话，锁屏后位置会停</span></div></div>
+          <div class="step"><div class="num">3</div><div><b>通知</b><br><span class="hint">用来显示正在运行的常驻提示</span></div></div>
+          <button class="btn" style="margin-top:auto">去开启</button>
+          <button class="btn ghost small">先跳过</button>
+        </div>
+      </div>
+      <div class="notes">
+        <b>交互要点</b>
+        <ul>
+          <li>三步逐条点亮，不弹三个系统框叠在一起。</li>
+          <li>第二步要跳系统设置页，并在回来时自动检测是否已改成「始终允许」。</li>
+          <li>跳过任意一步，首页顶部保留一条提示，点它回到这一步。</li>
+          <li>文案里的「锁屏后位置会停」必须真实——这条要和后台存活报告一致。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 5 暂停 -->
+    <div id="s5" class="hidden">
+      <div class="switch">
+        <button class="on" data-x="set">选择暂停</button>
+        <button data-x="paused">已暂停</button>
+      </div>
+      <div class="phone">
+        <div class="bar"><span>暂停共享</span><span>9:41</span></div>
+        <div class="screen" id="pauseSet">
+          <h2>暂停多久</h2>
+          <p class="hint">暂停期间她看不到你的位置、电量和用机</p>
+          <div class="card"><div class="row"><span>1 小时</span><span class="tag">常用</span></div></div>
+          <div class="card"><div class="row"><span>到今天结束</span><span class="tag">今天 24:00 自动恢复</span></div></div>
+          <div class="card"><div class="row"><span>一直暂停，手动恢复</span><span class="tag">无限期</span></div></div>
+          <button class="btn" style="margin-top:auto">确认暂停</button>
+          <button class="btn ghost small">取消</button>
+        </div>
+        <div class="screen hidden" id="pausePaused">
+          <h2>已暂停</h2>
+          <p class="hint">今天 10:41 恢复</p>
+          <div class="card"><div class="row"><span>她看到的</span><span>「已暂停」</span></div></div>
+          <button class="btn" style="margin-top:auto">立即恢复</button>
+        </div>
+      </div>
+      <div class="notes">
+        <b>交互要点</b>
+        <ul>
+          <li>三个选项单选，默认「1 小时」。</li>
+          <li>确认后立即调服务端，不等本地状态先变；断网时页面显示「正在同步暂停」，联网自动完成。</li>
+          <li>恢复后不是立刻显示坐标，而是显示「等新位置」，直到下一点到达。</li>
+          <li>暂停只影响对方可见性，本机采集是否继续由采集线决定，不在这一屏暴露。</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  确认方式：看完五屏，回复「流程没问题」或指出要改的屏幕号。确认后这张图就是界面线的验收基准，施工同图。
+</footer>
+
+</div>
+
+<script>
+  const navBtns = document.querySelectorAll('.nav button');
+  const screens = ['s1','s2','s3','s4','s5'];
+  navBtns.forEach(b => b.addEventListener('click', () => {
+    navBtns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    screens.forEach(id => document.getElementById(id).classList.toggle('hidden', id !== b.dataset.k));
+  }));
+
+  // 登录页切换
+  const t1 = document.getElementById('t1'), t2 = document.getElementById('t2'),
+        t3 = document.getElementById('t3'), t4 = document.getElementById('t4');
+  document.querySelectorAll('.switch button[data-t]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.switch button[data-t]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const reg = b.dataset.t === 'reg';
+    t1.textContent = reg ? '注册' : '登录';
+    t2.textContent = reg ? '邮箱 + 密码，注册后自动登录' : '用邮箱和密码进入';
+    t3.textContent = reg ? '注册并进入' : '登录';
+    t4.textContent = reg ? '已有账号？去登录' : '还没有账号？去注册';
+  }));
+
+  // 配对页切换
+  document.querySelectorAll('.switch button[data-p]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.switch button[data-p]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('pairMine').classList.toggle('hidden', b.dataset.p !== 'mine');
+    document.getElementById('pairTheirs').classList.toggle('hidden', b.dataset.p !== 'theirs');
+  }));
+
+  // 暂停页切换
+  document.querySelectorAll('.switch button[data-x]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.switch button[data-x]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('pauseSet').classList.toggle('hidden', b.dataset.x !== 'set');
+    document.getElementById('pausePaused').classList.toggle('hidden', b.dataset.x !== 'paused');
+  }));
+</script>
+</body>
+</html>

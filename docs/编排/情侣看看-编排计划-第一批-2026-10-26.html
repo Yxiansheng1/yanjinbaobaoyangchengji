@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>编排计划 · 情侣看看第一批（工程版）</title>
+<style>
+  :root{ --ink:#111; --muted:#666; --line:#ccc; --bg:#fff; --soft:#fafafa; --warn:#946200; --bad:#b30000; --ok:#0a7d33; }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:var(--bg); max-width:960px; margin:40px auto; padding:0 24px; line-height:1.75; }
+  h1{ font-size:25px; border-bottom:2px solid var(--ink); padding-bottom:10px; }
+  h2{ font-size:19px; margin-top:34px; border-left:4px solid var(--ink); padding-left:10px; }
+  h3{ font-size:15.5px; margin-top:22px; }
+  table{ border-collapse:collapse; width:100%; margin:14px 0; font-size:13.5px; }
+  th,td{ border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; }
+  th{ background:#f5f5f5; white-space:nowrap; }
+  .boss{ background:var(--soft); border:1px solid #ddd; border-radius:8px; padding:18px 22px; margin:20px 0; }
+  .muted{ color:var(--muted); font-size:13px; }
+  code{ background:#f2f2f2; padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .sign{ border:1px dashed #999; border-radius:6px; padding:12px 16px; margin:12px 0; background:#fffdf5; }
+  .p0{ color:var(--bad); font-weight:600; }
+  .ok{ color:var(--ok); font-weight:600; }
+  .wait{ color:var(--warn); font-weight:600; }
+  a{ color:#0550ae; }
+  pre{ background:#f7f7f7; border:1px solid #ddd; border-radius:6px; padding:12px; font-size:13px; overflow-x:auto; line-height:1.5; }
+  .pill{ display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:10px; background:#eee; color:#444; }
+</style>
+</head>
+<body>
+
+<h1>编排计划 · 情侣看看第一批（工程版）</h1>
+<p class="muted">主编排 · 2026-10-26 · 基座 <code>735cd67</code>。本 HTML 是总览与确认层；干活层在两个 md 附件，任何会话冷加载三件套即可开工：<br>
+① 事实索引：<a href="情侣看看-关键事实索引-2026-10-26.md">情侣看看-关键事实索引-2026-10-26.md</a>（路径、环境、账号、权威规范、门禁基线）<br>
+② 逐任务工单：<a href="情侣看看-工单集-第一批-2026-10-26.md">情侣看看-工单集-第一批-2026-10-26.md</a>（B0–B14，每单含执行体、依赖、步骤、产出、验收、五门格）<br>
+③ 交互稿：<a href="情侣看看-交互稿-第一批-2026-10-26.html">情侣看看-交互稿-第一批-2026-10-26.html</a>（五屏，待你确认操作流程）</p>
+
+<div class="boss">
+<h2 style="margin-top:0;border:none;padding:0;">第一节 · 总结说人话版</h2>
+<p><b>现在是什么状态：</b>数据库那一层已经全部做完并上线了，三轮外部审查提的十五个问题全部修完，客户端一行代码还没写。也就是说：地基打好了，房子还没开始盖。</p>
+<p><b>这一批要做出什么：</b>一台手机上能装、能注册、能手输六位码配上对；配上之后，对方的手机能持续把位置传上来，这台手机能在几秒内看到；对方按暂停，这边立刻显示已暂停，恢复后等新位置出现。同时要专门花时间验证一件事——手机锁屏放一小时，位置还在不在传。这一条不提前验，后面所有功能都是空中楼阁。</p>
+<p><b>怎么排：</b>第一天先把空壳工程建起来，装到两台机上能打开。然后三条线并行：一条做账号和配对，一条做定位和上传，一条做页面。三条线各改各的文件夹，互不越界，合并由我来做。每做完一段就装到两台真机上试，不攒到最后一起试。</p>
+<p><b>这一批不做什么：</b>用机统计、历史轨迹、推送、解绑、iOS。这些等第一批跑通再排。</p>
+<div class="sign"><b>要你签的字：</b>①回复「确认开工」；②告诉我两台手机什么时候能插上电脑（第一次装包要用数据线）；③看一眼交互稿，确认五个页面的操作顺序没问题。<br>
+<span class="muted">排期默认值：邮箱确认先关掉、测试账号用 <code>couple.test.a@example.test</code> / <code>couple.test.b@example.test</code>、不开第二个数据库项目。三条都可改。</span></div>
+</div>
+
+<h2>第二节 · 任务总表（B0–B14，详单见工单集 md）</h2>
+<table>
+<tr><th>ID</th><th>任务</th><th>执行体</th><th>依赖</th><th>产出</th><th>验收要点（一句话）</th></tr>
+<tr><td>B0</td><td class="p0">工程底座</td><td>E1 施工（sonnet-5-5 / high）</td><td>无，即刻</td><td><code>android/</code> 可运行空壳</td><td>构建退出码 0、装得上、冷启 &lt; 3 秒</td></tr>
+<tr><td>B1</td><td>认证</td><td>E2 数据线（sonnet-5-5 / high）</td><td>B0</td><td>AuthApi + 仓储实现</td><td>注册登录、杀进程仍登录、四类错误各一条单测</td></tr>
+<tr><td>B2</td><td>配对</td><td>E2 数据线</td><td>B1</td><td>PairingApi + 状态机</td><td>两台机出码输码互配成功，四条错误分支各触发一次</td></tr>
+<tr><td>B3</td><td>RPC 接入与错误处理</td><td>E2 数据线</td><td>B1</td><td>StatusApi / UsageApi / AppError</td><td>真实 JWT 调通、越权得 not_allowed、五类错误落五个分支</td></tr>
+<tr><td>B4</td><td>订阅与轮询</td><td>E2 数据线</td><td>B3</td><td>PresenceSubscriber</td><td>对方上报后 3 秒内刷新；断网 30 秒内自愈</td></tr>
+<tr><td>B5</td><td>定位授权与前台服务</td><td>E3 采集线（sonnet-5-5 / high）</td><td>B0</td><td>LocationService</td><td>三种授权组合各走一遍，服务被杀能自启</td></tr>
+<tr><td>B6</td><td>采集与入队</td><td>E3 采集线</td><td>B5</td><td>Sampler + Room 队列</td><td>静止 5 分钟 12–16 点、步行 3 分钟 ≥ 40 点</td></tr>
+<tr><td>B7</td><td>上报与断网重试</td><td>E3 采集线</td><td>B6</td><td>ReportApi + 调度器</td><td>断网 10 分钟补齐、重发不重复、关采集即停</td></tr>
+<tr><td>B8</td><td>后台存活验证</td><td>E3 + owner 真机</td><td>B7</td><td>后台存活报告</td><td>锁屏 60 分钟仍有点，间隔 ≤ 5 分钟</td></tr>
+<tr><td>B9</td><td>登录与配对页面</td><td>E4 界面线（opus-5-5 / high）</td><td>B0</td><td>登录页、配对页</td><td>与交互稿逐屏对照，零未说明差异</td></tr>
+<tr><td>B10</td><td>首页</td><td>E4 界面线</td><td>B3</td><td>状态卡 + 地图</td><td>正常/暂停/无数据三态各截图，时间用 server_now</td></tr>
+<tr><td>B11</td><td>权限引导</td><td>E4 界面线</td><td>B5、B9</td><td>三步引导页</td><td>可跳过、有后果说明、回前台自动复检</td></tr>
+<tr><td>B12</td><td>暂停与恢复</td><td>E4 界面线</td><td>B3</td><td>暂停页</td><td>暂停后对方 5 秒内看不到坐标，恢复等新点</td></tr>
+<tr><td>B13</td><td>双机联调与分批验收</td><td>主编排 + owner</td><td>B2 B4 B7 B10 B11 B12</td><td>验收记录 + APK</td><td>M1/M2/M3 三段各有双机截图与 logcat</td></tr>
+<tr><td>B14</td><td>独立复核</td><td>R1 复核（opus-5-5 / max）</td><td>B13</td><td>复核件</td><td>零未决 P0/P1，每个通过都挂亲跑读数</td></tr>
+</table>
+
+<h2>第三节 · 依赖图（事件判定式，零日历日）</h2>
+<pre>
+B0 工程底座（串行，唯一入口）
+ ├─→ B1 认证 ─→ B2 配对 ──────────────┐
+ │        └──→ B3 RPC 接入 ─→ B4 订阅 │
+ │                    └──→ B10 首页    │
+ │                    └──→ B12 暂停    │
+ ├─→ B5 定位授权 ─→ B6 采集 ─→ B7 上报 ─→ B8 后台存活
+ │                                   └──→ B11 权限引导（也等 B9）
+ └─→ B9 登录配对页 ──────────────────┘
+
+汇合：M1（B0+B1+B2+B9）→ M2（B3+B4+B5+B6+B7+B10）→ M3（B8+B11+B12）
+      → B13 双机验收 → B14 独立复核 → 交 owner
+
+最大并行：B0 之后同时 3 条线（数据 E2 / 采集 E3 / 界面 E4）。
+复核期间释放开发席位，只留复核员 1 人。
+</pre>
+
+<h2>第四节 · 验收门（逐站判定，机器可判或可亲验）</h2>
+<table>
+<tr><th>站</th><th>门</th><th>判定标准</th></tr>
+<tr><td>1</td><td>能装上</td><td><code>assembleDebug</code> 退出码 0；<code>adb install -r</code> 成功；冷启到登录页 &lt; 3000 ms；<code>git status --short</code> 为空</td></tr>
+<tr><td>2</td><td>能登录配对</td><td>两台真机各装一次；注册两个测试账号；A 出码 B 输码后两端首页都显示对方昵称（双机截图）</td></tr>
+<tr><td>3</td><td>能看到真实位置</td><td>A 机移动 200 m，B 机 5 秒内显示新坐标；同一点与高德地图对照误差 &lt; 30 m</td></tr>
+<tr><td>4</td><td>暂停与恢复</td><td>暂停后 B 机 5 秒内坐标变空并显示「已暂停」；恢复后显示「等新位置」，新点到达才显示坐标</td></tr>
+<tr><td>5</td><td>后台存活</td><td>锁屏 60 分钟后服务端仍有点，最大间隔 ≤ 5 分钟；两台机各有一份开关清单与截图</td></tr>
+<tr><td>6</td><td>数据库零回归</td><td><code>verify-003/004/005/006</code> 四份脚本全绿，数字不低于 37/25/17/15</td></tr>
+<tr><td>7</td><td>独立复核</td><td>复核件零未决 P0/P1；每个「通过」挂亲跑读数或截图路径；注明未做双人隔离复核</td></tr>
+</table>
+
+<h2>第五节 · 候 owner 清单</h2>
+<table>
+<tr><th>#</th><th>背景与问题（展开讲）</th><th>你要做的（选项 + 推荐 + 理由 + 代价）</th></tr>
+
+<tr><td>1</td><td>Supabase 注册默认要收邮件点确认才能登录。测试账号如果走这条路，每次新建账号都要去邮箱点一下，工单里的「注册后立刻登录」就没法自动化，验证会卡在等人点邮件上。</td><td><b>推荐：测试期在控制台把 confirm email 关掉</b>，上线前再打开。代价是这段时间任何人知道地址都能注册，但这个项目没有公开入口，风险可接受。另一条路是保留确认、每个账号手工点一次，代价是每次新增测试账号都要多花几分钟。</td></tr>
+
+<tr><td>2</td><td>越权、暂停、清空这类用例必须用假账号跑，不能拿你和她的真实账号试——试完对方可能真的看不到位置。现在还没有测试账号。</td><td><b>推荐：用 <code>couple.test.a@example.test</code> 和 <code>couple.test.b@example.test</code> 两个地址</b>，密码你定，第一次注册时你在 App 里输一次，之后我这边就不需要密码了。代价是你要记得这对账号的密码。另一条路是你把密码给我，我写进本地调试配置，代价是密码会留在本机文件里。</td></tr>
+
+<tr><td>3</td><td>第一次装包必须用数据线。现在 <code>adb devices</code> 是空的，没有任何手机连着。B0 的验收、以及后面每段合并后的真机测试，都要插线。</td><td><b>推荐：你在开工后找一次十分钟，把两台机都插上并允许 USB 调试</b>，我一次性确认型号、系统版本、屏幕分辨率，写进事实索引。代价是你得在场点一次「允许调试」。另一条路是只插采集端那台，查看端最后再插，代价是 M1 那步只能验一半。</td></tr>
+
+<tr><td>4</td><td>发版范式里「盲测」要求一套和真实数据隔离的环境。我们只有一个 Supabase 项目，里面是你和她的真实数据。这一批我用两个测试账号代替，但仍然共用一个库。</td><td><b>推荐：这一批先不开第二个项目</b>，盲测前后各跑一次清理与计数快照，验收记录里写明「独立性降级」。代价是测试期间库里会多出几个假账号的数据，清理脚本能删干净。等你觉得要长期迭代了，再开第二个项目做 staging。</td></tr>
+</table>
+
+<p class="muted">本批执行体上限：主编排 1 + 施工 3（数据 / 采集 / 界面）。复核阶段释放 3 个施工席位，只留复核 1 人。台账随进度回填，状态唯一事实源是工单集 md。</p>
+
+</body>
+</html>

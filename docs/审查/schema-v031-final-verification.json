@@ -1,0 +1,631 @@
+{
+  "baseline": "735cd67",
+  "environment": "PGlite 0.5.11, synthetic Auth, SQL 001-006, no live HTTP",
+  "verify006": {
+    "environment": "PGlite 0.5.11",
+    "phase": "after",
+    "passed": 15,
+    "total": 15,
+    "results": [
+      {
+        "name": "E01 位置点 battery 66.0 被接受",
+        "passed": true,
+        "detail": [
+          {
+            "result": {
+              "inserted": 1,
+              "received": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "E01 当前状态 battery 存成 66",
+        "passed": true,
+        "detail": [
+          {
+            "battery": 66
+          }
+        ]
+      },
+      {
+        "name": "E01 应用 foreground_ms 1000.0 与 launch_count 3.0 被接受",
+        "passed": true,
+        "detail": [
+          {
+            "result": 1
+          }
+        ]
+      },
+      {
+        "name": "E01 应用明细存成整数",
+        "passed": true,
+        "detail": [
+          {
+            "foreground_ms": 1000,
+            "launch_count": 3
+          }
+        ]
+      },
+      {
+        "name": "E01 真小数 66.5 仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "E01 int 越界仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "E01 bigint 最大值被接受",
+        "passed": true,
+        "detail": [
+          {
+            "result": 1
+          }
+        ]
+      },
+      {
+        "name": "E01 负数仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "E01 重复包名仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "E01 被拒后当天无残留",
+        "passed": true,
+        "detail": {
+          "n": 0,
+          "m": 0
+        }
+      },
+      {
+        "name": "回归 用机上报仍推进显示信号",
+        "passed": true,
+        "detail": {
+          "before": "2026-10-26 13:44:17.585+08",
+          "after": "2026-10-26 13:44:17.651+08"
+        }
+      },
+      {
+        "name": "回归 last_report_at 仍不被用机改写",
+        "passed": true,
+        "detail": {
+          "before": "2026-10-26 13:44:17.563+08",
+          "after": "2026-10-26 13:44:17.563+08"
+        }
+      },
+      {
+        "name": "回归 p_apps 传 null 仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "回归 settings 仍不可直写",
+        "passed": true,
+        "detail": {
+          "code": "42501",
+          "message": "permission denied for table settings"
+        }
+      },
+      {
+        "name": "回归 无关 UUID 仍返回 not_allowed",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "not_allowed"
+        }
+      }
+    ]
+  },
+  "supplement": {
+    "environment": "PGlite 0.5.11; synthetic Auth; raw JSON inputs; no live HTTP",
+    "passed": 13,
+    "total": 13,
+    "results": [
+      {
+        "name": "E01 integral decimal battery 66.0 accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": {
+              "inserted": 1,
+              "received": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "E01 integral decimal foreground_ms 1000.0 accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": 1
+          }
+        ]
+      },
+      {
+        "name": "E01 integral decimal launch_count 3.0 accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": 1
+          }
+        ]
+      },
+      {
+        "name": "control decimal-form integer daily values accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": 0
+          }
+        ]
+      },
+      {
+        "name": "control failed fractional snapshot leaves no summary",
+        "passed": true,
+        "detail": [
+          {
+            "n": 0
+          }
+        ]
+      },
+      {
+        "name": "control ordinary integer battery accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": {
+              "inserted": 0,
+              "received": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "control fractional application time rejected",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "control application count beyond int rejected",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "control application bigint maximum accepted",
+        "passed": true,
+        "detail": [
+          {
+            "result": 1
+          }
+        ]
+      },
+      {
+        "name": "control application bigint overflow rejected",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "control unauthorized absent target rejected",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "not_allowed"
+        }
+      },
+      {
+        "name": "control unpaired default returns no rows",
+        "passed": true,
+        "detail": []
+      },
+      {
+        "name": "control normal pairing rejects cross relationship",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "partner_already_paired"
+        }
+      }
+    ]
+  },
+  "verify005On006": {
+    "environment": "PGlite 0.5.11",
+    "passed": 17,
+    "total": 17,
+    "results": [
+      {
+        "name": "D01 battery 小数被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "D01 用机小数计数被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "D01 int 溢出被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "D01 real 溢出被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "D01 重复包名被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "D01 重复包名整批回滚",
+        "passed": true,
+        "detail": {
+          "daily": 0,
+          "apps": 0
+        }
+      },
+      {
+        "name": "D01 用机大整数显示时长仍可接受",
+        "passed": true,
+        "detail": [
+          {
+            "result": 0
+          }
+        ]
+      },
+      {
+        "name": "D01 边界值仍合法",
+        "passed": true,
+        "detail": [
+          {
+            "result": {
+              "inserted": 1,
+              "received": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "D03 用机上报推进 presence.updated_at",
+        "passed": true,
+        "detail": {
+          "before": "2026-10-26 13:44:17.593+08",
+          "after": "2026-10-26 13:44:17.651+08"
+        }
+      },
+      {
+        "name": "D03 用机上报不改 last_report_at",
+        "passed": true,
+        "detail": {
+          "before": "2026-10-26 13:44:17.593+08",
+          "after": "2026-10-26 13:44:17.593+08"
+        }
+      },
+      {
+        "name": "D03 旧快照返回 -1",
+        "passed": true,
+        "detail": [
+          {
+            "result": -1
+          }
+        ]
+      },
+      {
+        "name": "D03 丢弃的旧快照不推进更新信号",
+        "passed": true,
+        "detail": {
+          "before": "2026-10-26 13:44:17.653+08",
+          "after": "2026-10-26 13:44:17.653+08"
+        }
+      },
+      {
+        "name": "回归 p_apps 传 null 仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "回归 21 条应用仍报 apps_too_many",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "apps_too_many"
+        }
+      },
+      {
+        "name": "回归 未来快照仍被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "future_timestamp"
+        }
+      },
+      {
+        "name": "回归 settings 仍不可直写",
+        "passed": true,
+        "detail": {
+          "code": "42501",
+          "message": "permission denied for table settings"
+        }
+      },
+      {
+        "name": "回归 purge 对登录身份仍不可执行",
+        "passed": true,
+        "detail": [
+          {
+            "v": false
+          }
+        ]
+      }
+    ]
+  },
+  "verify004On006": {
+    "environment": "PGlite 0.5.11",
+    "passed": 25,
+    "total": 25,
+    "results": [
+      {
+        "name": "C01 null 应用列表被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C01 拒绝后明细仍在",
+        "passed": true,
+        "detail": [
+          {
+            "package_name": "original.app"
+          }
+        ]
+      },
+      {
+        "name": "C01 空数组仍然清空",
+        "passed": true,
+        "detail": []
+      },
+      {
+        "name": "C02 21 条报 apps_too_many",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "apps_too_many"
+        }
+      },
+      {
+        "name": "C02 被拒后当天没有半截快照",
+        "passed": true,
+        "detail": [
+          {
+            "result": 0
+          }
+        ]
+      },
+      {
+        "name": "C02 整体 20 条正常写入",
+        "passed": true,
+        "detail": [
+          {
+            "result": 20
+          }
+        ]
+      },
+      {
+        "name": "C06 负数用机被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 未来快照被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "future_timestamp"
+        }
+      },
+      {
+        "name": "C06 未来快照不再毒化版本",
+        "passed": true,
+        "detail": [
+          {
+            "result": 0
+          }
+        ]
+      },
+      {
+        "name": "C06 缺 lng 报 invalid_payload",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 lat 字符串报 invalid_payload",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 坐标越界被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 电量越界被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 负精度被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "invalid_payload"
+        }
+      },
+      {
+        "name": "C06 未来位置点被拒",
+        "passed": true,
+        "detail": {
+          "code": "P0001",
+          "message": "future_timestamp"
+        }
+      },
+      {
+        "name": "C06 合法点仍可写入",
+        "passed": true,
+        "detail": [
+          {
+            "result": {
+              "inserted": 1,
+              "received": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "C05 settings 直写被拒",
+        "passed": true,
+        "detail": {
+          "code": "42501",
+          "message": "permission denied for table settings"
+        }
+      },
+      {
+        "name": "C05 presence 直写被拒",
+        "passed": true,
+        "detail": {
+          "code": "42501",
+          "message": "permission denied for table presence"
+        }
+      },
+      {
+        "name": "C05 profiles 昵称仍可改",
+        "passed": true,
+        "detail": [
+          {
+            "nickname": "小可"
+          }
+        ]
+      },
+      {
+        "name": "C05 profiles 邮箱不可改",
+        "passed": true,
+        "detail": {
+          "code": "42501",
+          "message": "permission denied for table profiles"
+        }
+      },
+      {
+        "name": "C03 authenticated 收回执行权",
+        "passed": true,
+        "detail": [
+          {
+            "v": false
+          }
+        ]
+      },
+      {
+        "name": "C03 anon 收回执行权",
+        "passed": true,
+        "detail": [
+          {
+            "v": false
+          }
+        ]
+      },
+      {
+        "name": "C03 内部时间函数也不外放",
+        "passed": true,
+        "detail": [
+          {
+            "v": false
+          }
+        ]
+      },
+      {
+        "name": "C07 同一对反向插入被拒",
+        "passed": true,
+        "detail": {
+          "code": "23505",
+          "message": "duplicate key value violates unique constraint \"couples_pair_active\""
+        }
+      },
+      {
+        "name": "回归 get_status 仍返回对象行",
+        "passed": true,
+        "detail": [
+          {
+            "user_id": "00000000-0000-0000-0000-000000000001",
+            "last_report_at": "2026-10-26T05:44:17.587Z",
+            "updated_at": "2026-10-26T05:44:17.6Z"
+          }
+        ]
+      }
+    ]
+  }
+}
