@@ -175,7 +175,7 @@
     <tr><td class="num">D3</td><td>应用明细粒度</td><td>界面 Top 15，库里每应用每天一行、最多 20 行</td><td>高</td></tr>
     <tr><td class="num">D4</td><td>位置上报频率</td><td>移动 30 秒、静止 5 分钟</td><td>高，两个常量</td></tr>
     <tr><td class="num">D5</td><td>解绑后数据</td><td>立即停止共享，7 天后删除</td><td>解绑功能 v0.4 才落库，届时可改</td></tr>
-    <tr><td class="num">D6</td><td>最低系统版本</td><td>minSdk 26，Android 8.0</td><td>中，降低要改采集实现</td></tr>
+    <tr><td class="num">D6</td><td>最低系统版本</td><td>minSdk 26，targetSdk 36。她的机是真我 GT8，Android 16</td><td>中，降低要改采集实现</td></tr>
     <tr><td class="num">D7</td><td>日切时区</td><td>固定 Asia/Shanghai，按本地零点切</td><td>高</td></tr>
     <tr><td class="num">D8</td><td>iOS 端</td><td>不进 v0.1，先保证安卓侧跑通</td><td>高</td></tr>
     <tr><td class="num">D9</td><td>坐标系</td><td>从采集到展示一律 GCJ-02，高德返回什么就存什么，不做转换</td><td>中，转换接口一旦铺开难收回</td></tr>
@@ -668,7 +668,7 @@ interface Clock {
   <thead><tr><th>缺什么</th><th>影响</th><th>什么时候要</th></tr></thead>
   <tbody>
     <tr><td>高德 Web 服务 key</td><td>地名解析无法联调</td><td>W-16 之前</td></tr>
-    <tr><td>她的机型与 Android 版本</td><td>保活引导路径与 minSdk 校验</td><td>W-15 之前</td></tr>
+    <tr><td>她的机型与 Android 版本</td><td>已确定：真我 GT8，Android 16，realme UI</td><td>保活引导走 OPPO 与 ColorOS 路径，W-15 照此实现</td></tr>
     <tr><td>正式签名 keystore</td><td>高德发布版 SHA1 要补录</td><td>W-19 之前</td></tr>
     <tr><td>Supabase 邮件确认开关</td><td>注册会卡在收邮件</td><td>W-03 联调前</td></tr>
   </tbody>
