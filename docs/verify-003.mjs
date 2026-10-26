@@ -69,18 +69,24 @@ await db.exec(`
 await db.exec(sql('001-schema.sql'));
 await db.exec(sql('002-contract.sql'));
 
+// 模拟 Supabase：库里对象默认就把增删改查授给 authenticated，
+// 003 新建的表也自动带上这些授权，所以默认权限要在跑 003 之前设好。
+await db.exec(`
+  grant usage on schema public to authenticated;
+  grant select, insert, update, delete on all tables in schema public to authenticated;
+  grant usage, select on all sequences in schema public to authenticated;
+  alter default privileges in schema public
+    grant select, insert, update, delete on tables to authenticated;
+  alter default privileges in schema public
+    grant usage, select on sequences to authenticated;
+`);
+
 const applyErr = await err(() => db.exec(sql('003-hardening.sql')));
 ok('003 可在干净库执行', applyErr === null, applyErr ?? 'ok');
 if (applyErr) {
   fs.writeFileSync(path.join(HERE, 'verify-003-results.json'), JSON.stringify({ checks }, null, 2));
   process.exit(1);
 }
-
-// Supabase 对新表有默认授权，这里补上，才能测到 RLS 而不是缺表权限
-await db.exec(`
-  grant select, insert, update, delete on all tables in schema public to authenticated;
-  grant usage, select on all sequences in schema public to authenticated;
-`);
 
 // ---------- 造数 ----------
 for (const [id, email] of [[A, 'a@x'], [B, 'b@x'], [C, 'c@x'], [D, 'd@x']]) {
@@ -120,6 +126,9 @@ const forgeErr = await err(() => asUser(C, () => db.query('insert into public.co
 ok('N04 不能伪造成员', forgeErr !== null && /row-level security|permission denied/.test(forgeErr), forgeErr ?? 'unexpected success');
 const cPartner = (await asUser(C, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
 ok('N04 孤儿成员不返回对象', cPartner === null, cPartner);
+const aPartner = (await asUser(A, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
+const bPartner = (await asUser(B, () => db.query('select public.my_partner_id() as p'))).rows[0].p;
+ok('N04 两侧互为对象', aPartner === B && bPartner === A, { aPartner, bPartner });
 
 // ---------- N02 / N03 ----------
 const raw = (await asUser(B, () => db.query(`
@@ -130,6 +139,22 @@ const raw = (await asUser(B, () => db.query(`
     (select count(*) from public.user_status where user_id = $1)::int as status
 `, [A]))).rows[0];
 ok('N02 对象读不到四张原表', raw.loc + raw.daily + raw.apps + raw.status === 0, raw);
+
+// 直写被拒：客户端只能走函数，否则纯查看模式与快照版本都能绕过
+const writeLoc = await err(() => asUser(A, () => db.query(
+  `insert into public.location_points (user_id, lat, lng, recorded_at) values ($1, 1, 1, now())`, [A])));
+const writeDaily = await err(() => asUser(A, () => db.query(
+  `insert into public.daily_usage (user_id, date, screen_on_ms) values ($1, $2, 1)`, [A, today])));
+const writeApp = await err(() => asUser(A, () => db.query(
+  `insert into public.app_usage (user_id, date, package_name) values ($1, $2, 'x')`, [A, today])));
+const writeStatus = await err(() => asUser(A, () => db.query(
+  `update public.user_status set lat = 1 where user_id = $1`, [A])));
+ok('R01 直写四张数据表被拒',
+  [writeLoc, writeDaily, writeApp, writeStatus].every((e) => e && /row-level security|permission denied/.test(e)),
+  { writeLoc, writeDaily, writeApp, writeStatus });
+const selfLoc = (await asUser(A, () => db.query(
+  'select count(*)::int as n from public.location_points where user_id = $1', [A]))).rows[0].n;
+ok('R01 自己的行仍可读', selfLoc >= 1, { selfLoc });
 
 await asUser(A, () => db.query('select public.set_sharing(true,true,false)'));
 const noBattery = (await asUser(B, () => db.query('select lat, battery, charging from public.get_status()'))).rows[0];
@@ -152,6 +177,24 @@ await asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSO
 ])]));
 const afterNew = (await asUser(B, () => db.query('select lat, lng from public.get_status()'))).rows[0];
 ok('N06 新点到达即可见', afterNew.lat === 25.02, afterNew);
+
+// 补传：比当前点更旧的点不能把状态回退
+const backlogAt = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+await asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSON.stringify([
+  { lat: 24.99, lng: 121.49, accuracy: 20, provider: 'gps', battery: 63, charging: false, recorded_at: backlogAt },
+])]));
+const afterBacklog = (await asUser(B, () => db.query('select lat, lng from public.get_status()'))).rows[0];
+ok('N06 补传更旧的点不回退状态', afterBacklog.lat === 25.02, afterBacklog);
+
+// 暂停期间采集、恢复后才补传：入库，但恢复后仍不可见
+await asUser(A, () => db.query(`select public.set_pause(now() + interval '1 hour')`));
+const pausedPointAt = new Date(Date.now() - 1000).toISOString();
+await asUser(A, () => db.query('select public.report_locations($1::jsonb)', [JSON.stringify([
+  { lat: 25.05, lng: 121.55, accuracy: 15, provider: 'gps', battery: 62, charging: false, recorded_at: pausedPointAt },
+])]));
+await asUser(A, () => db.query('select public.set_pause(null)'));
+const afterPausedBacklog = (await asUser(B, () => db.query('select lat, lng from public.get_status()'))).rows[0];
+ok('N06 恢复后补传的旧点仍遮蔽', afterPausedBacklog.lat === null, afterPausedBacklog);
 
 await asUser(A, () => db.query(`select public.set_pause(now() + interval '1 second')`));
 await new Promise((r) => setTimeout(r, 1600));
@@ -179,6 +222,9 @@ ok('N05 旧快照拒绝、同版本幂等', r1 === 1 && r2 === -1 && r3 === 1 &&
 // ---------- N07 ----------
 const pub = (await db.query(`select tablename from pg_publication_tables where pubname='supabase_realtime' order by 1`)).rows.map((x) => x.tablename);
 ok('N07 只发布 presence', pub.length === 1 && pub[0] === 'presence', pub);
+const cPresence = (await asUser(C, () => db.query('select count(*)::int as n from public.presence where user_id = $1', [A]))).rows[0].n;
+const bPresence = (await asUser(B, () => db.query('select count(*)::int as n from public.presence where user_id = $1', [A]))).rows[0].n;
+ok('N07 未配对读不到对方 presence，对象读得到', cPresence === 0 && bPresence === 1, { cPresence, bPresence });
 await db.query(`insert into auth.users (id, email) values ($1,'e@x')`, [E]);
 const ePresence = (await db.query(`select count(*)::int as n from public.presence where user_id=$1`, [E])).rows[0].n;
 await asUser(E, () => db.query(`select public.set_pause(now() + interval '1 hour')`));
@@ -208,6 +254,11 @@ const sigs = (await db.query(`
 `)).rows;
 const getStatus = sigs.find((x) => x.proname === 'get_status')?.ret ?? '';
 ok('函数签名与规格一致', sigs.find((x) => x.proname === 'report_locations')?.ret === 'jsonb' && getStatus.includes('server_now'), sigs.map((x) => `${x.proname}:${x.ret.split('(')[0]}`));
+
+// ---------- 003 自带校验 ----------
+const rawSql = sql('003-hardening.sql');
+const checkRow = (await db.query(rawSql.slice(rawSql.indexOf('-- 校验（')))).rows[0];
+ok('003 自带校验七行全 ok', Object.values(checkRow).every((v) => v === true), checkRow);
 
 // ---------- 汇总 ----------
 const failed = checks.filter((x) => !x.pass);

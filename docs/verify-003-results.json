@@ -1,6 +1,6 @@
 {
   "environment": "PGlite 0.5.11，干净库 001→002→003；模拟 auth.uid/authenticated/表级授权；无 Realtime、无多连接",
-  "passed": 24,
+  "passed": 31,
   "failed": 0,
   "checks": [
     {
@@ -61,6 +61,14 @@
       "observed": null
     },
     {
+      "name": "N04 两侧互为对象",
+      "pass": true,
+      "observed": {
+        "aPartner": "00000000-0000-0000-0000-000000000002",
+        "bPartner": "00000000-0000-0000-0000-000000000001"
+      }
+    },
+    {
       "name": "N02 对象读不到四张原表",
       "pass": true,
       "observed": {
@@ -68,6 +76,23 @@
         "daily": 0,
         "apps": 0,
         "status": 0
+      }
+    },
+    {
+      "name": "R01 直写四张数据表被拒",
+      "pass": true,
+      "observed": {
+        "writeLoc": "permission denied for table location_points",
+        "writeDaily": "permission denied for table daily_usage",
+        "writeApp": "permission denied for table app_usage",
+        "writeStatus": "permission denied for table user_status"
+      }
+    },
+    {
+      "name": "R01 自己的行仍可读",
+      "pass": true,
+      "observed": {
+        "selfLoc": 1
       }
     },
     {
@@ -89,7 +114,7 @@
         "place_name": null,
         "battery": null,
         "charging": null,
-        "paused_until": "2026-10-26T04:12:03.282Z"
+        "paused_until": "2026-10-26T05:06:37.940Z"
       }
     },
     {
@@ -113,6 +138,22 @@
       "observed": {
         "lat": 25.02,
         "lng": 121.52
+      }
+    },
+    {
+      "name": "N06 补传更旧的点不回退状态",
+      "pass": true,
+      "observed": {
+        "lat": 25.02,
+        "lng": 121.52
+      }
+    },
+    {
+      "name": "N06 恢复后补传的旧点仍遮蔽",
+      "pass": true,
+      "observed": {
+        "lat": null,
+        "lng": null
       }
     },
     {
@@ -153,6 +194,14 @@
       ]
     },
     {
+      "name": "N07 未配对读不到对方 presence，对象读得到",
+      "pass": true,
+      "observed": {
+        "cPresence": 0,
+        "bPresence": 1
+      }
+    },
+    {
       "name": "N07 新用户有 presence 且能发信号",
       "pass": true,
       "observed": {
@@ -185,6 +234,19 @@
         "report_usage:integer",
         "set_collect_enabled:void"
       ]
+    },
+    {
+      "name": "003 自带校验七行全 ok",
+      "pass": true,
+      "observed": {
+        "members_ok": true,
+        "presence_ok": true,
+        "leak_closed": true,
+        "write_closed": true,
+        "funcs_ok": true,
+        "pub_closed": true,
+        "view_only_ok": true
+      }
     }
   ]
 }

@@ -83,7 +83,7 @@
 <header class="doc">
   <h1>情侣看看 规格 v0.1</h1>
   <div class="meta">
-    <span><b>版本</b> 1.3</span>
+    <span><b>版本</b> 1.4</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 设计冻结；003 已本地验证，待线上执行</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
@@ -272,10 +272,10 @@
     <tr><td class="num">I1</td><td>未配对的账号读不到任何他人的行</td><td>RLS 依赖 <code>my_partner_id()</code>，无关系时返回 null，条件恒假</td></tr>
     <tr><td class="num">I2</td><td>可见性由数据主人决定，不由读者决定</td><td>判据读的是对方的 <code>settings</code>，不是自己的</td></tr>
     <tr><td class="num">I3</td><td>暂停覆盖全部三类</td><td><code>get_status</code> 与 <code>get_usage</code> 先判 <code>paused_until</code>，四张原表不对对象开放</td></tr>
-    <tr><td class="num">I4</td><td>写入只能落在自己名下</td><td>所有上报与设置函数内强制 <code>user_id = auth.uid()</code></td></tr>
+    <tr><td class="num">I4</td><td>写入只能落在自己名下，且只能走函数</td><td>上报与设置函数内强制 <code>user_id = auth.uid()</code>；四张数据表对 <code>authenticated</code> 没有 INSERT / UPDATE / DELETE 权限，直写直接报 42501</td></tr>
     <tr><td class="num">I5</td><td>对外只有两个读入口</td><td>对象对四张原表没有任何 SELECT 策略，只能走 <code>get_status</code> 与 <code>get_usage</code></td></tr>
-    <tr><td class="num">I6</td><td>订阅消息里不含敏感字段</td><td>发布集合只有 <code>presence</code>，该表无坐标无电量</td></tr>
-    <tr><td class="num">I7</td><td>纯查看设备不产生任何数据</td><td><code>collect_enabled = false</code> 时，两个上报函数直接抛 <code>collect_disabled</code></td></tr>
+    <tr><td class="num">I6</td><td>订阅消息里不含敏感字段</td><td>发布集合只有 <code>presence</code>，该表无坐标无电量；该表的行只有本人与对象读得到</td></tr>
+    <tr><td class="num">I7</td><td>纯查看设备不产生任何数据</td><td><code>collect_enabled = false</code> 时，两个上报函数直接抛 <code>collect_disabled</code>；直写表也被权限挡住，绕不过去</td></tr>
   </tbody>
 </table>
 
@@ -287,12 +287,12 @@
     <tr><td class="mono">couple_members</td><td>是</td><td><b>否，只走函数</b></td><td>是</td><td>否</td></tr>
     <tr><td class="mono">devices</td><td>是</td><td>是</td><td>否</td><td>否</td></tr>
     <tr><td class="mono">pair_codes</td><td>是</td><td>否，只走函数</td><td>否</td><td>否</td></tr>
-    <tr><td class="mono">location_points</td><td>是</td><td>是</td><td><b>否</b>，当前点只走 get_status</td><td>否</td></tr>
-    <tr><td class="mono">daily_usage</td><td>是</td><td>是</td><td><b>否</b>，只走 get_usage</td><td>否</td></tr>
-    <tr><td class="mono">app_usage</td><td>是</td><td>是</td><td><b>否</b>，只走 get_usage</td><td>否</td></tr>
-    <tr><td class="mono"><b>user_status</b></td><td>是</td><td>是</td><td><b>否，只能走 get_status</b></td><td>否</td></tr>
-    <tr><td class="mono">presence</td><td>是</td><td>是</td><td>是，无敏感字段</td><td>否</td></tr>
-    <tr><td class="mono">settings</td><td>是</td><td>是</td><td>是，只含开关布尔值</td><td>否</td></tr>
+    <tr><td class="mono">location_points</td><td>是</td><td><b>否，只走 report_locations</b></td><td><b>否</b>，当前点只走 get_status</td><td>否</td></tr>
+    <tr><td class="mono">daily_usage</td><td>是</td><td><b>否，只走 report_usage</b></td><td><b>否</b>，只走 get_usage</td><td>否</td></tr>
+    <tr><td class="mono">app_usage</td><td>是</td><td><b>否，只走 report_usage</b></td><td><b>否</b>，只走 get_usage</td><td>否</td></tr>
+    <tr><td class="mono"><b>user_status</b></td><td>是</td><td><b>否，只走上报与设置函数</b></td><td><b>否，只能走 get_status</b></td><td>否</td></tr>
+    <tr><td class="mono">presence</td><td>是</td><td>是，心跳写 <code>updated_at</code></td><td>是，无敏感字段</td><td>否</td></tr>
+    <tr><td class="mono">settings</td><td>是</td><td>是，共享开关走 <code>set_sharing</code> 才有刷新信号</td><td>是，只含开关布尔值</td><td>否</td></tr>
   </tbody>
 </table>
 
@@ -352,6 +352,7 @@
     <tr><td>用机频次</td><td>每 15 分钟一次，另在次日 00:05 补一次前一日终态快照</td></tr>
     <tr><td>用机语义</td><td>全量快照，服务端整日替换；请求必须带 <code>captured_at</code>，它是唯一版本号</td></tr>
     <tr><td>纯查看设备</td><td><code>collect_enabled = false</code> 时服务端直接拒绝上报，客户端不应起采集与上报循环</td></tr>
+    <tr><td>写入通道</td><td>只能调两个上报函数。四张数据表对 <code>authenticated</code> 没有写权限，直接 INSERT / UPDATE 报 42501，绕不过 <code>collect_disabled</code> 与版本比较</td></tr>
     <tr><td>成功判据</td><td>HTTP 2xx 且返回的 <code>received</code> 等于提交条数。不看 <code>inserted</code>，重发时它是 0</td></tr>
     <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code>，同版本重发是幂等成功</td></tr>
     <tr><td>时钟</td><td>启动时与每小时各校一次，用响应头 <code>Date</code> 减本机时间得偏移</td></tr>
@@ -418,6 +419,7 @@ POST /rest/v1/rpc/<b>report_usage</b>
     <tr><td>事件用途</td><td>只当「该刷新了」的信号，收到后调 <code>get_status</code> 与 <code>get_usage</code></td></tr>
     <tr><td>消息内容</td><td><code>user_id</code>、<code>online</code>、<code>last_report_at</code>、<code>resumed_at</code>、<code>updated_at</code>，不含坐标与电量</td></tr>
     <tr><td>新用户</td><td>注册触发器就建 <code>presence</code> 行，首次定位前切换暂停或开关也能发出信号</td></tr>
+    <tr><td>谁能订</td><td><code>presence</code> 自己带 RLS：本人与对象读得到，未配对账号读到空集。不是靠客户端只订自己的行来挡</td></tr>
     <tr><td>前台</td><td>保持连接，另加 30 秒兜底轮询</td></tr>
     <tr><td>后台</td><td>断开订阅，退化 15 分钟轮询</td></tr>
     <tr><td>断线判定</td><td>30 秒无任何消息</td></tr>
@@ -448,8 +450,8 @@ POST /rest/v1/rpc/<b>report_usage</b>
     <tr>
       <td>应用排行</td>
       <td>上一条结果</td>
-      <td>按 <code>foreground_ms</code> 降序取前 20</td>
-      <td>前台不足 60 秒不上报；时长相同按包名升序；第 15 名同分时只取一个，不并列扩展</td>
+      <td>只对同一过滤集合（前台满 60 秒、已排除本 App）按 <code>foreground_ms</code> 降序取前 20</td>
+      <td>前台不足 60 秒不上报；时长相同按包名升序；第 15 名同分时只取一个，不并列扩展；界面只展示前 15</td>
     </tr>
     <tr>
       <td>解锁次数</td>
@@ -676,11 +678,11 @@ interface Clock {
     <tr><td class="num">V13</td><td>并发配对</td><td>B 接受 A 的码、C 接受 B 的码并发执行，B 最多进入一段关系；同码并发只成功一次</td></tr>
     <tr><td class="num">V14</td><td>旧快照不回退</td><td>先发 10:15 快照再发 10:00 快照，第二次返回 -1，库里数据仍为 10:15 版本</td></tr>
     <tr><td class="num">V15</td><td>断网暂停</td><td>断网点暂停，界面显示「正在同步暂停」；此时对方仍可能读到旧点，联网同步后立即不可读</td></tr>
-    <tr><td class="num">V16</td><td>未配对隔离</td><td>未配对 C 指定 A 的 ID 调 <code>get_status</code> 与 <code>get_usage</code> 均得 <code>not_allowed</code>；无参调用返回空集；直接查四张原表为空集；已配对 B 指定无关 D 同样被拒</td></tr>
+    <tr><td class="num">V16</td><td>未配对隔离</td><td>未配对 C 指定 A 的 ID 调 <code>get_status</code> 与 <code>get_usage</code> 均得 <code>not_allowed</code>；无参调用返回空集；直接查四张原表为空集；查对方 <code>presence</code> 也是空集；已配对 B 指定无关 D 同样被拒</td></tr>
     <tr><td class="num">V17</td><td>暂停全入口</td><td>暂停后，对象直查 <code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code> 全部为空；<code>get_usage</code> 返回空；不能只验 <code>get_status</code></td></tr>
-    <tr><td class="num">V18</td><td>恢复不返旧点</td><td>手动恢复、定时到期、恢复后立即新开查看端三种路径，服务端都返回 null，直到新点到达；积压旧点补传也不显示</td></tr>
+    <tr><td class="num">V18</td><td>恢复不返旧点</td><td>手动恢复、定时到期、恢复后立即新开查看端三种路径，服务端都返回 null，直到新点到达；暂停期间采集、恢复后才补传的点同样不显示，补传比当前点更旧的点也不回退状态</td></tr>
     <tr><td class="num">V19</td><td>发布集合与消息体</td><td><code>pg_publication_tables</code> 里只有 <code>presence</code>；抓一条真实 Realtime 消息，字段仅 <code>presence</code> 的列；新注册用户在首次定位前切暂停，查看端也能收到信号</td></tr>
-    <tr><td class="num">V20</td><td>纯查看模式</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；对方看到的是「未共享」而不是旧位置；重开采集后恢复上报</td></tr>
+    <tr><td class="num">V20</td><td>纯查看模式</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；用普通 JWT 直写四张数据表报 42501；对方看到的是「未共享」而不是旧位置；重开采集后恢复上报</td></tr>
   </tbody>
 </table>
 
@@ -715,9 +717,9 @@ interface Clock {
 <table>
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
-    <tr><td>设计</td><td>规格 1.3 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001、002 已执行；003 未执行</td><td>SQL Editor 跑完 003，校验出六行 <code>ok</code></td></tr>
-    <tr><td>已验证</td><td>003 在本地 PGlite 按 001→002→003 跑通，N01–N07 逐项复现通过；线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 重跑 V16–V19，并抓一条真实消息</td></tr>
+    <tr><td>设计</td><td>规格 1.4 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
+    <tr><td>已部署</td><td>001、002 已执行；003 未执行</td><td>SQL Editor 跑完 003，校验出七行 <code>ok</code></td></tr>
+    <tr><td>已验证</td><td>003 在本地 PGlite 按 001→002→003 跑通，<code>verify-003.mjs</code> 31 项断言全过；线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 重跑 V16–V20，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -751,11 +753,12 @@ interface Clock {
     <tr><td class="num">2026-10-26</td><td class="num">1.1</td><td>按审查意见改：撤掉对象的整行读权限，删除 visible_status，读入口改为 get_status；新增 presence 表作唯一订阅源；新增 couple_members 保证一人一段关系；用机快照加 captured_at 拦旧版本；minSdk 提到 28；暂停定义覆盖三类；常去点延期；工单依赖去环；验收扩到 V15</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.3</td><td>按 N01–N09 加固：身份判断改 NULL 安全写法；对象对四张原表一律不可读，新增 get_usage；历史电量随原表关闭；成员表只允许函数写入；快照版本比较并入 UPSERT；恢复后旧点由 resumed_at 与 paused_until 遮蔽；发布集合只剩 presence；新增 collect_enabled 纯查看模式；补算法单测向量与排名容差；验收扩到 V20；修正留存与版本号事实</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.4</td><td>补两处复核未编号项：成员表回填遇到不一致时列出明细并报错，不再静默跳过；四张数据表收回直写权限，客户端只能走上报函数，纯查看与快照版本无法绕过。校验查询增到七行，验证脚本扩到 31 项断言</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.3 · 设计冻结 · 003 待线上执行 · 2026-10-26
+  情侣看看 规格 v0.1.4 · 设计冻结 · 003 待线上执行 · 2026-10-26
 </footer>
 
 </div>

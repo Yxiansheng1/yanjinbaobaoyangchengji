@@ -31,21 +31,47 @@ drop policy if exists "couple_members read own or partner" on public.couple_memb
 create policy "couple_members read own or partner" on public.couple_members
   for select using (user_id = auth.uid() or user_id = public.my_partner_id());
 
--- 回填：冲突不掩盖，直接报错让人修
+-- 回填：任何不一致都报错并列出要修的行，不用 ON CONFLICT DO NOTHING 掩盖
 do $$
 declare
-  v_conflict int;
+  v_bad text;
 begin
-  select count(*) into v_conflict
+  -- 1. 一人出现在两段 active 关系里，成员表一人一行放不下
+  select string_agg(format('user %s 同时在 %s 段 active 关系里', uid, n), '; ')
+  into v_bad
   from (
-    select user_a as uid from public.couples where status = 'active'
-    union all
-    select user_b from public.couples where status = 'active'
-  ) t
-  group by uid having count(*) > 1;
+    select uid, count(*) as n
+    from (
+      select user_a as uid from public.couples where status = 'active'
+      union all
+      select user_b from public.couples where status = 'active'
+    ) t
+    group by uid having count(*) > 1
+  ) d;
+  if v_bad is not null then
+    raise exception 'couples 存在一人多段 active 关系，先修数据再跑本脚本：%', v_bad;
+  end if;
 
-  if coalesce(v_conflict, 0) > 0 then
-    raise exception 'couples 表存在一人多段 active 关系，先修数据再跑本脚本';
+  -- 2. 自己和自己配对
+  select string_agg(format('couple %s 两侧是同一人 %s', id, user_a), '; ')
+  into v_bad
+  from public.couples
+  where status = 'active' and user_a = user_b;
+  if v_bad is not null then
+    raise exception 'couples 存在自己配自己的关系，先修数据：%', v_bad;
+  end if;
+
+  -- 3. 已有成员行与 active 关系不一致：指向别的关系、指向已失效关系、或伪造行
+  select string_agg(
+           format('user %s: 成员行 %s，应为 %s', m.user_id, m.couple_id, coalesce(c.id::text, '无')),
+           '; ')
+  into v_bad
+  from public.couple_members m
+  left join public.couples c
+    on c.status = 'active' and (c.user_a = m.user_id or c.user_b = m.user_id)
+  where c.id is null or c.id <> m.couple_id;
+  if v_bad is not null then
+    raise exception '成员表与 active 关系不一致，先修数据：%', v_bad;
   end if;
 end $$;
 
@@ -259,6 +285,43 @@ drop policy if exists "app_usage read partner"        on public.app_usage;
 drop policy if exists "locations read own" on public.location_points;
 create policy "locations read own" on public.location_points
   for select using (user_id = auth.uid());
+
+-- 客户端只读自己的数据；写一律走函数。
+-- 直写会绕过纯查看模式（V20）、快照版本比较（N05）与上报校验，
+-- 因此把四张数据表的写策略全部收掉，只留自己的读策略。
+drop policy if exists "locations insert own" on public.location_points;
+
+drop policy if exists "daily_usage write own" on public.daily_usage;
+drop policy if exists "daily_usage read own"  on public.daily_usage;
+create policy "daily_usage read own" on public.daily_usage
+  for select using (user_id = auth.uid());
+
+drop policy if exists "app_usage write own" on public.app_usage;
+drop policy if exists "app_usage read own"  on public.app_usage;
+create policy "app_usage read own" on public.app_usage
+  for select using (user_id = auth.uid());
+
+drop policy if exists "user_status write own" on public.user_status;
+drop policy if exists "user_status read own"  on public.user_status;
+create policy "user_status read own" on public.user_status
+  for select using (user_id = auth.uid());
+
+-- 权限层再收一道：UPDATE 在只有 RLS 时会静默匹配 0 行，客户端看不出没写成。
+-- 直接不给 INSERT/UPDATE/DELETE 权限，写错会立刻报 42501。
+-- 上报与设置函数是 SECURITY DEFINER，走属主权限，不受影响。
+do $$
+declare
+  r text;
+begin
+  foreach r in array array['authenticated', 'anon'] loop
+    if exists (select 1 from pg_roles where rolname = r) then
+      execute format('revoke insert, update, delete on public.location_points from %I', r);
+      execute format('revoke insert, update, delete on public.daily_usage   from %I', r);
+      execute format('revoke insert, update, delete on public.app_usage     from %I', r);
+      execute format('revoke insert, update, delete on public.user_status   from %I', r);
+    end if;
+  end loop;
+end $$;
 
 drop view if exists public.visible_status;
 
@@ -757,7 +820,7 @@ revoke all on function public.set_collect_enabled(boolean) from public;
 grant execute on function public.set_collect_enabled(boolean) to authenticated;
 
 -- ============================================================
--- 校验（六行都应为 ok）
+-- 校验（七行都应为 ok）
 -- ============================================================
 select
   (select count(*) from pg_tables
@@ -770,13 +833,22 @@ select
                          'locations read own or shared partner',
                          'daily_usage read partner',
                          'app_usage read partner')) = 0 as leak_closed,
+  (select count(*) from pg_policies
+    where schemaname = 'public'
+      and tablename in ('user_status', 'location_points', 'daily_usage', 'app_usage')
+      and cmd in ('INSERT', 'UPDATE', 'DELETE', 'ALL')) = 0
+  and (select count(*) from information_schema.role_table_grants
+    where table_schema = 'public'
+      and table_name in ('user_status', 'location_points', 'daily_usage', 'app_usage')
+      and grantee in ('authenticated', 'anon')
+      and privilege_type in ('INSERT', 'UPDATE', 'DELETE')) = 0 as write_closed,
   (select count(*) from pg_proc
     where pronamespace = 'public'::regnamespace
       and proname in ('get_status', 'get_usage', 'set_pause', 'set_sharing',
                       'set_collect_enabled')) = 5 as funcs_ok,
-  (select count(*) from pg_publication_tables
-    where pubname = 'supabase_realtime'
-      and tablename in ('user_status', 'location_points')) = 0 as pub_closed,
+  (select coalesce(string_agg(tablename, ',' order by tablename), '')
+    from pg_publication_tables
+    where pubname = 'supabase_realtime') = 'presence' as pub_closed,
   (select count(*) from information_schema.columns
     where table_schema = 'public' and table_name = 'settings'
       and column_name = 'collect_enabled') = 1 as view_only_ok;
