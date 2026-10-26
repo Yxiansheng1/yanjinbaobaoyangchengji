@@ -299,7 +299,7 @@
 
     <tr class="group"><td colspan="4">G 隐私与控制</td></tr>
     <tr><td class="num">G1</td><td>一键暂停共享</td><td><span class="tag v1">v0.1</span></td><td></td></tr>
-    <tr><td class="num">G2</td><td>分项开关</td><td><span class="tag">v0.2</span></td><td>位置、用机、电量各自可控</td></tr>
+    <tr><td class="num">G2</td><td>分项开关</td><td><span class="tag v1">v0.1</span></td><td>位置、用机、电量各自可控</td></tr>
     <tr><td class="num">G3</td><td>数据保留期限</td><td><span class="tag">v0.3</span></td><td></td></tr>
     <tr><td class="num">G4</td><td>访问日志</td><td><span class="tag">v0.3</span></td><td>她今天看了我几次</td></tr>
     <tr><td class="num">G5</td><td>夜间静默</td><td><span class="tag">v0.2</span></td><td></td></tr>
@@ -316,7 +316,7 @@
 
 <h2 id="s6"><span class="idx">06</span>v0.1 详细需求</h2>
 
-<p>第一版 12 项，目标 2 到 3 周。判断标准是能不能每天用，不是好看。</p>
+<p>第一版 13 项，目标 2 到 3 周。判断标准是能不能每天用，不是好看。</p>
 
 <h3>H1 注册登录</h3>
 <div class="kv">
@@ -390,6 +390,14 @@
   <div class="v">暂停期间不上报位置，用机数据照常（可单独关，属于 G2）。</div>
 </div>
 
+<h3>G2 分项开关</h3>
+<div class="kv">
+  <div class="k">做什么</div>
+  <div class="v">位置、用机、电量三个开关，各自独立。关掉某一项，对方读到的该项就是空的，界面写明「她关了位置共享」。</div>
+  <div class="k">边界</div>
+  <div class="v">开关只由数据主人控制，对方改不了。关共享不等于暂停，暂停覆盖全部三类。</div>
+</div>
+
 <h3>B1 今日屏幕时间</h3>
 <div class="kv">
   <div class="k">口径</div>
@@ -411,7 +419,9 @@
   <div class="k">口径</div>
   <div class="v">当天第一个和最后一个 KEYGUARD_HIDDEN 事件的时间。</div>
   <div class="k">展示</div>
-  <div class="v">「今天 7:12 拿起手机，23:40 最后一次放下」。</div>
+  <div class="v">「今天 7:12 第一次解锁，23:40 最后一次解锁」。</div>
+  <div class="k">边界</div>
+  <div class="v">解锁只说明屏幕被解开，不代表之后停止使用。不写「放下手机」，也不据此推断睡觉。</div>
 </div>
 
 <h2 id="s7"><span class="idx">07</span>页面与流程</h2>
@@ -524,7 +534,7 @@
 
 <h3>v0.1 验收清单</h3>
 <ol>
-  <li>两台手机注册、配对成功</li>
+  <li>两台设备注册、配对成功（查看端方案见规格第 15 节 R04）</li>
   <li>她锁屏 30 分钟后，位置仍在更新</li>
   <li>他打开 App，1 分钟内看到她的最新位置、地点名、电量</li>
   <li>能看到今日屏幕时间、Top 5 应用、首次和末次解锁</li>

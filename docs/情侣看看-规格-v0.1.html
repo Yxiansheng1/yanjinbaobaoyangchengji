@@ -6,30 +6,18 @@
 <title>情侣看看 规格 v0.1</title>
 <style>
   :root{
-    --ink:#1c1b19;
-    --muted:#6b6762;
-    --line:#e4e0da;
-    --bg:#f5f3f0;
-    --card:#ffffff;
-    --accent:#a63d5f;
-    --soft:#faf8f6;
-    --ok:#2f6b4f;
+    --ink:#1c1b19; --muted:#6b6762; --line:#e4e0da; --bg:#f5f3f0;
+    --card:#ffffff; --accent:#a63d5f; --soft:#faf8f6; --ok:#2f6b4f;
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
+    margin:0; background:var(--bg); color:var(--ink);
     font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;
-    font-size:15px;
-    line-height:1.78;
-    letter-spacing:.01em;
+    font-size:15px; line-height:1.78; letter-spacing:.01em;
   }
   .page{
-    max-width:880px;
-    margin:40px auto 80px;
-    background:var(--card);
+    max-width:880px; margin:40px auto 80px; background:var(--card);
     padding:64px 72px 80px;
     box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.05);
   }
@@ -38,10 +26,7 @@
   .meta{display:flex;flex-wrap:wrap;gap:8px 28px;font-size:12.5px;color:var(--muted);}
   .meta b{color:var(--ink);font-weight:600;}
 
-  nav.toc{
-    background:var(--soft);border:1px solid var(--line);
-    padding:20px 24px;margin-bottom:48px;font-size:13.5px;
-  }
+  nav.toc{background:var(--soft);border:1px solid var(--line);padding:20px 24px;margin-bottom:48px;font-size:13.5px;}
   nav.toc .t{font-weight:700;font-size:12px;letter-spacing:.14em;color:var(--muted);margin-bottom:10px;}
   nav.toc ol{margin:0;padding:0;list-style:none;columns:2;column-gap:32px;}
   nav.toc li{margin:0 0 6px;break-inside:avoid;}
@@ -49,52 +34,31 @@
   nav.toc a:hover{border-bottom-color:var(--accent);}
   nav.toc .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:8px;font-size:12px;}
 
-  h2{
-    font-size:21px;margin:56px 0 18px;padding-bottom:10px;
-    border-bottom:1px solid var(--line);font-weight:700;
-    display:flex;align-items:baseline;gap:12px;
-  }
+  h2{font-size:21px;margin:56px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line);font-weight:700;display:flex;align-items:baseline;gap:12px;}
   h2 .idx{font-size:12px;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:.1em;font-weight:700;}
   h3{font-size:15.5px;margin:30px 0 10px;font-weight:700;}
   p{margin:0 0 14px;}
   ul,ol{margin:0 0 16px;padding-left:22px;}
   li{margin:0 0 6px;}
   strong{font-weight:700;}
-  code{
-    font-family:ui-monospace,"SF Mono",Consolas,monospace;
-    font-size:12.5px;background:#f2efec;padding:1px 5px;border-radius:3px;
-  }
+  code{font-family:ui-monospace,"SF Mono",Consolas,monospace;font-size:12.5px;background:#f2efec;padding:1px 5px;border-radius:3px;}
   small{font-size:12px;color:var(--muted);}
 
   table{width:100%;border-collapse:collapse;margin:18px 0 22px;font-size:13.5px;font-variant-numeric:tabular-nums;}
-  th{
-    text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);
-    border-bottom:1px solid var(--ink);padding:8px 10px;white-space:nowrap;
-  }
+  th{text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--ink);padding:8px 10px;white-space:nowrap;}
   td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top;}
-  tr.group td{
-    background:var(--soft);font-weight:700;font-size:12.5px;letter-spacing:.08em;
-    color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--line);
-  }
+  tr.group td{background:var(--soft);font-weight:700;font-size:12.5px;letter-spacing:.08em;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--line);}
   td.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted);font-size:12.5px;}
   td.mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;white-space:nowrap;}
 
-  .tag{
-    display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:10px;
-    background:#f0ece8;color:var(--muted);white-space:nowrap;
-  }
+  .tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:10px;background:#f0ece8;color:var(--muted);white-space:nowrap;}
   .tag.hard{background:#f7e9ee;color:var(--accent);font-weight:700;}
 
   .note{border-left:3px solid var(--accent);background:var(--soft);padding:14px 20px;margin:20px 0;font-size:13.5px;}
   .note .h{font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;}
   .note p:last-child{margin-bottom:0;}
 
-  pre{
-    background:#f7f5f2;border:1px solid var(--line);
-    padding:16px 20px;margin:16px 0 22px;overflow-x:auto;
-    font-family:ui-monospace,Consolas,monospace;
-    font-size:12.5px;line-height:1.85;
-  }
+  pre{background:#f7f5f2;border:1px solid var(--line);padding:16px 20px;margin:16px 0 22px;overflow-x:auto;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.85;}
   pre b{color:var(--accent);font-weight:700;}
 
   footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);}
@@ -119,10 +83,10 @@
 <header class="doc">
   <h1>情侣看看 规格 v0.1</h1>
   <div class="meta">
-    <span><b>版本</b> 1.0</span>
+    <span><b>版本</b> 1.1</span>
     <span><b>日期</b> 2026-10-26</span>
-    <span><b>状态</b> 契约冻结</span>
-    <span><b>范围</b> 安卓端 + Supabase 后端，12 项功能</span>
+    <span><b>状态</b> 契约冻结，待 R04 决策</span>
+    <span><b>范围</b> 安卓端 + Supabase 后端</span>
   </div>
 </header>
 
@@ -149,21 +113,22 @@
 
 <h2 id="s1"><span class="idx">01</span>效力与变更</h2>
 
-<p>本文件是 v0.1 的施工依据。三份文件冲突时按这个顺序取值。</p>
+<p>本文件是 v0.1 的施工依据。四份文件冲突时按这个顺序取值。</p>
 
 <table>
   <thead><tr><th>优先级</th><th>文件</th><th>理由</th></tr></thead>
   <tbody>
-    <tr><td class="num">1</td><td><code>docs/001-schema.sql</code>、<code>docs/002-contract.sql</code></td><td>已经在库里跑过，可执行代码即现状</td></tr>
-    <tr><td class="num">2</td><td>本文件</td><td>契约层，冻结后作为派工单依据</td></tr>
+    <tr><td class="num">1</td><td><code>docs/001-schema.sql</code>、<code>002-contract.sql</code>、<code>003-hardening.sql</code></td><td>已经在库里跑过，可执行代码即现状</td></tr>
+    <tr><td class="num">2</td><td>本文件</td><td>契约层，派工单依据</td></tr>
     <tr><td class="num">3</td><td><code>docs/情侣看看-PRD-v1.0.html</code></td><td>意图层，本文件对其中口径有修订</td></tr>
+    <tr><td class="num">4</td><td><code>docs/情侣看看-v0.1-方案.md</code></td><td>已作废，只作历史</td></tr>
   </tbody>
 </table>
 
 <p><strong>冻结范围</strong>：数据模型、权限语义、函数签名、上报与订阅协议、采集口径、状态判定、数值门槛、工单编号空间。</p>
-<p><strong>未冻结</strong>：视觉细节、动效、文案措辞、推送通道（v0.2 C 类一并做）、iOS 端（v0.2 之后）。</p>
+<p><strong>未冻结</strong>：视觉细节、动效、文案措辞、推送通道、iOS 端。</p>
 
-<p>改契约要同时做三件事：在文末变更记录写一条、写明影响哪几张工单、通知受影响的执行端。破坏既有字段语义的改动不进 v0.1，排到 v0.2。</p>
+<p>改契约要同时做三件事：在文末变更记录写一条、写明影响哪几张工单、通知受影响的执行端。破坏既有字段语义的改动不进 v0.1。</p>
 
 <h2 id="s2"><span class="idx">02</span>已冻结的决策</h2>
 
@@ -171,21 +136,25 @@
   <thead><tr><th>编号</th><th>问题</th><th>结论</th><th>可逆性</th></tr></thead>
   <tbody>
     <tr><td class="num">D1</td><td>地图实现</td><td>高德地图 SDK，不引入 MapLibre 或 OSM 瓦片</td><td>换实现只改一个 View</td></tr>
-    <tr><td class="num">D2</td><td>屏幕时长口径</td><td>亮屏累计为主，另附应用前台合计做参照</td><td>低，口径变更影响历史数据可比性</td></tr>
-    <tr><td class="num">D3</td><td>应用明细粒度</td><td>界面 Top 15，库里每应用每天一行、最多 20 行</td><td>高</td></tr>
-    <tr><td class="num">D4</td><td>位置上报频率</td><td>移动 30 秒、静止 5 分钟</td><td>高，两个常量</td></tr>
-    <tr><td class="num">D5</td><td>解绑后数据</td><td>立即停止共享，7 天后删除</td><td>解绑功能 v0.4 才落库，届时可改</td></tr>
-    <tr><td class="num">D6</td><td>最低系统版本</td><td>minSdk 26，targetSdk 36。她的机是真我 GT8，Android 16</td><td>中，降低要改采集实现</td></tr>
+    <tr><td class="num">D2</td><td>屏幕时长口径</td><td>亮屏累计为主，另附应用前台合计做参照</td><td>低，口径变更影响历史可比性</td></tr>
+    <tr><td class="num">D3</td><td>应用明细粒度</td><td>界面 Top 15，库里每应用每天最多 20 行</td><td>高</td></tr>
+    <tr><td class="num">D4</td><td>位置采样与上报</td><td>定位回调移动 3 秒、静止 20 秒；入队并上报移动 30 秒、静止 5 分钟</td><td>高，四个常量</td></tr>
+    <tr><td class="num">D5</td><td>解绑后数据</td><td>立即停止共享，7 天后删除。解绑功能 v0.4 才做，v0.1 由暂停兜底</td><td>解绑落库前可改</td></tr>
+    <tr><td class="num">D6</td><td>最低系统版本</td><td>minSdk 28，targetSdk 36。她的机是真我 GT8，Android 16</td><td>中</td></tr>
     <tr><td class="num">D7</td><td>日切时区</td><td>固定 Asia/Shanghai，按本地零点切</td><td>高</td></tr>
-    <tr><td class="num">D8</td><td>iOS 端</td><td>不进 v0.1，先保证安卓侧跑通</td><td>高</td></tr>
-    <tr><td class="num">D9</td><td>坐标系</td><td>从采集到展示一律 GCJ-02，高德返回什么就存什么，不做转换</td><td>中，转换接口一旦铺开难收回</td></tr>
+    <tr><td class="num">D8</td><td>iOS 端</td><td>不进 v0.1。查看端方案待 R04 决定</td><td>高</td></tr>
+    <tr><td class="num">D9</td><td>坐标系</td><td>从采集到展示一律 GCJ-02，不做转换</td><td>中</td></tr>
     <tr><td class="num">D10</td><td>暂停哨兵值</td><td>手动恢复的暂停写 <code>9999-12-31T00:00:00Z</code></td><td>高</td></tr>
+    <tr><td class="num">D11</td><td>暂停覆盖范围</td><td>位置、电量、用机三类全停。分项细控由 <code>set_sharing</code> 负责</td><td>高</td></tr>
+    <tr><td class="num">D12</td><td>常去点</td><td>v0.1 只显示逆地理编码地址，聚类与命名排 v0.2</td><td>高</td></tr>
+    <tr><td class="num">D13</td><td>对外读入口</td><td>唯一入口是 <code>get_status</code>，客户端不直接读 <code>user_status</code></td><td>中</td></tr>
   </tbody>
 </table>
 
 <div class="note">
-  <div class="h">对 PRD 的一处修订</div>
-  <p>PRD 第 10 节写「后台位置延迟 30 秒内」，与 D4 的静止 5 分钟冲突。本规格改为按移动状态分档，见第 12 节。静止时首页会明确标注「N 分钟前」，不假装实时。</p>
+  <div class="h">对 PRD 的两处修订</div>
+  <p>第一，PRD 第 10 节「后台位置延迟 30 秒内」与 D4 冲突，本规格改为分档并在第 12 节给出起止时刻。</p>
+  <p>第二，PRD 第 6 节 B5 把末次解锁写成「最后一次放下手机」。解锁事件只说明屏幕被解开，说明不了之后用了多久，文案改为「最后解锁时间」。</p>
 </div>
 
 <h2 id="s3"><span class="idx">03</span>单位与命名</h2>
@@ -196,115 +165,110 @@
     <tr><td>时刻</td><td>ISO 8601，UTC，带 Z</td><td class="mono">2026-10-26T13:40:00Z</td></tr>
     <tr><td>日期</td><td>按 Asia/Shanghai 的本地日</td><td class="mono">2026-10-26</td></tr>
     <tr><td>时长</td><td>整数毫秒，字段后缀 <code>_ms</code></td><td class="mono">5400000</td></tr>
-    <tr><td>坐标</td><td>WGS84 十进制度，GCJ-02 内容，保留 6 位小数</td><td class="mono">116.481488</td></tr>
+    <tr><td>坐标</td><td>十进制度，GCJ-02 内容，保留 6 位小数</td><td class="mono">116.481488</td></tr>
     <tr><td>精度</td><td>米，浮点</td><td class="mono">12.5</td></tr>
     <tr><td>速度</td><td>米每秒，浮点</td><td class="mono">1.8</td></tr>
     <tr><td>电量</td><td>0 到 100 的整数</td><td class="mono">68</td></tr>
-    <tr><td>布尔</td><td>只用 true 与 false，不用 0 与 1</td><td class="mono">true</td></tr>
+    <tr><td>布尔</td><td>只用 true 与 false</td><td class="mono">true</td></tr>
     <tr><td>未知值</td><td>一律 null，不用 0 或 -1 占位</td><td class="mono">null</td></tr>
     <tr><td>库字段</td><td>snake_case</td><td class="mono">screen_on_ms</td></tr>
-    <tr><td>Kotlin 字段</td><td>camelCase，加 <code>@SerialName</code> 对上库字段</td><td class="mono">screenOnMs</td></tr>
+    <tr><td>Kotlin 字段</td><td>camelCase，加 <code>@SerialName</code></td><td class="mono">screenOnMs</td></tr>
   </tbody>
 </table>
 
-<p>未知值必须留空这一条不是洁癖。电量为 0 和电量未知在界面上是两种状态，混用会让「她手机关机了」显示成「她电量耗尽」。</p>
-
 <h2 id="s4"><span class="idx">04</span>数据模型</h2>
 
-<p>九张表加一个视图。加粗的是 002 补丁引入的部分。</p>
+<p>十一张表。加粗的是 003 补丁引入或修改的部分。</p>
 
 <table>
   <thead><tr><th>列</th><th>类型</th><th>约束</th><th>含义</th></tr></thead>
   <tbody>
     <tr class="group"><td colspan="4">profiles 用户档案</td></tr>
     <tr><td class="mono">id</td><td class="mono">uuid</td><td>主键，外键 auth.users，级联删</td><td></td></tr>
-    <tr><td class="mono">email</td><td class="mono">text</td><td>可空</td><td>冗余存一份便于展示</td></tr>
-    <tr><td class="mono">nickname</td><td class="mono">text</td><td>非空，默认空串</td><td>注册时取邮箱前缀</td></tr>
-    <tr><td class="mono">avatar_url</td><td class="mono">text</td><td>可空</td><td>v0.1 只用默认头像</td></tr>
-    <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>非空，默认 now()</td><td></td></tr>
+    <tr><td class="mono">email / nickname / avatar_url</td><td class="mono">text</td><td>nickname 非空</td><td></td></tr>
+    <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>非空</td><td></td></tr>
 
     <tr class="group"><td colspan="4">couples 关系</td></tr>
     <tr><td class="mono">id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
-    <tr><td class="mono">user_a / user_b</td><td class="mono">uuid</td><td>非空，外键 profiles，两者不相等</td><td>发起方在前</td></tr>
+    <tr><td class="mono">user_a / user_b</td><td class="mono">uuid</td><td>非空，两者不相等</td><td>发起方在前</td></tr>
     <tr><td class="mono">status</td><td class="mono">text</td><td>active 或 ended</td><td>v0.1 只会出现 active</td></tr>
-    <tr><td colspan="4" style="color:#6b6762;font-size:12.5px">两侧各有一个部分唯一索引，保证一人同时只有一段 active 关系。</td></tr>
+
+    <tr class="group"><td colspan="4">couple_members 关系成员，003 新增</td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td><b>主键</b>，外键 profiles</td><td>主键即「一人最多一段关系」</td></tr>
+    <tr><td class="mono">couple_id</td><td class="mono">uuid</td><td>非空，外键 couples</td><td></td></tr>
+    <tr><td colspan="4" style="color:#6b6762;font-size:12.5px">001 那两个分别作用在 user_a、user_b 上的唯一索引拦不住「同一个人这行当 a、那行当 b」，这张表补上。</td></tr>
 
     <tr class="group"><td colspan="4">devices 设备</td></tr>
-    <tr><td class="mono">id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
-    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>非空，外键 profiles</td><td></td></tr>
+    <tr><td class="mono">id / user_id</td><td class="mono">uuid</td><td>主键 / 外键</td><td></td></tr>
     <tr><td class="mono">platform</td><td class="mono">text</td><td>android 或 ios</td><td></td></tr>
-    <tr><td class="mono">push_token</td><td class="mono">text</td><td>可空</td><td>v0.2 启用</td></tr>
-    <tr><td class="mono">app_version</td><td class="mono">text</td><td>可空</td><td>排障用</td></tr>
+    <tr><td class="mono">push_token / app_version</td><td class="mono">text</td><td>可空</td><td>v0.2 起用</td></tr>
     <tr><td class="mono">last_seen_at</td><td class="mono">timestamptz</td><td>非空</td><td>每次启动更新</td></tr>
 
     <tr class="group"><td colspan="4">pair_codes 配对码</td></tr>
     <tr><td class="mono">code</td><td class="mono">text</td><td>主键，六位数字</td><td></td></tr>
     <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>非空</td><td>码的归属人</td></tr>
-    <tr><td class="mono">expires_at</td><td class="mono">timestamptz</td><td>非空</td><td>生成时加 10 分钟</td></tr>
-    <tr><td class="mono">used_at</td><td class="mono">timestamptz</td><td>可空</td><td>用掉即写</td></tr>
+    <tr><td class="mono">expires_at / used_at</td><td class="mono">timestamptz</td><td>expires_at 非空</td><td>生成时加 10 分钟；生成新码会把旧码置为已用</td></tr>
 
     <tr class="group"><td colspan="4">location_points 位置点，保留 7 天</td></tr>
     <tr><td class="mono">id</td><td class="mono">bigserial</td><td>主键</td><td></td></tr>
-    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>非空，外键 profiles</td><td></td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>非空</td><td></td></tr>
     <tr><td class="mono">lat / lng</td><td class="mono">double precision</td><td>非空</td><td>GCJ-02</td></tr>
-    <tr><td class="mono">accuracy</td><td class="mono">real</td><td>可空</td><td>米</td></tr>
-    <tr><td class="mono">speed</td><td class="mono">real</td><td>可空</td><td>米每秒</td></tr>
-    <tr><td class="mono">provider</td><td class="mono">text</td><td>可空</td><td>gps、network、wifi</td></tr>
+    <tr><td class="mono">accuracy / speed / provider</td><td class="mono">real / real / text</td><td>可空</td><td>米、米每秒、来源</td></tr>
     <tr><td class="mono">battery / charging</td><td class="mono">smallint / boolean</td><td>可空</td><td>随点上报</td></tr>
     <tr><td class="mono">recorded_at</td><td class="mono">timestamptz</td><td>非空</td><td>采集时刻，不是入库时刻</td></tr>
-    <tr><td><b>user_id + recorded_at</b></td><td class="mono">unique</td><td><b>002 新增</b></td><td>幂等键，补传重发不会存重复行</td></tr>
+    <tr><td><b>user_id + recorded_at</b></td><td class="mono">unique</td><td>幂等键</td><td>补传重发不存重复行</td></tr>
 
-    <tr class="group"><td colspan="4">daily_usage 每日汇总，一天一行</td></tr>
+    <tr class="group"><td colspan="4">daily_usage 每日汇总</td></tr>
     <tr><td class="mono">user_id + date</td><td class="mono">uuid + date</td><td>联合主键</td><td></td></tr>
-    <tr><td class="mono">screen_on_ms</td><td class="mono">bigint</td><td>非空，默认 0</td><td>亮屏累计</td></tr>
-    <tr><td class="mono">unlock_count / lock_count</td><td class="mono">int</td><td>非空，默认 0</td><td></td></tr>
+    <tr><td class="mono">screen_on_ms / unlock_count / lock_count</td><td class="mono">bigint / int / int</td><td>非空，默认 0</td><td></td></tr>
     <tr><td class="mono">first_unlock_at / last_unlock_at</td><td class="mono">timestamptz</td><td>可空</td><td>当天首末次解锁</td></tr>
-    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>非空</td><td>界面用「截至 HH:mm」</td></tr>
+    <tr><td class="mono"><b>captured_at</b></td><td class="mono">timestamptz</td><td><b>003 新增</b></td><td>快照的采集截止时刻，用来拦旧快照</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>非空</td><td>服务器接收时刻</td></tr>
 
-    <tr class="group"><td colspan="4">app_usage 应用用量，每应用每天一行</td></tr>
+    <tr class="group"><td colspan="4">app_usage 应用用量</td></tr>
     <tr><td class="mono">user_id + date + package_name</td><td class="mono">uuid + date + text</td><td>联合主键</td><td></td></tr>
-    <tr><td class="mono">app_label</td><td class="mono">text</td><td>非空，默认空串</td><td>写入时的显示名</td></tr>
-    <tr><td class="mono">foreground_ms</td><td class="mono">bigint</td><td>非空，默认 0</td><td>前台累计</td></tr>
-    <tr><td class="mono">launch_count</td><td class="mono">int</td><td>非空，默认 0</td><td>v0.1 只采集不展示</td></tr>
+    <tr><td class="mono">app_label / foreground_ms / launch_count</td><td class="mono">text / bigint / int</td><td>非空，默认 0</td><td></td></tr>
 
-    <tr class="group"><td colspan="4">user_status 当前状态，一人一行</td></tr>
+    <tr class="group"><td colspan="4">user_status 当前状态，本人可读写，对象不可读</td></tr>
     <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
-    <tr><td class="mono">lat / lng / accuracy</td><td class="mono">double / double / real</td><td>可空</td><td>最新一点</td></tr>
-    <tr><td class="mono">place_name</td><td class="mono">text</td><td>可空</td><td>客户端解析后写入</td></tr>
+    <tr><td class="mono">lat / lng / accuracy / place_name</td><td class="mono">double / double / real / text</td><td>可空</td><td>最新一点</td></tr>
     <tr><td class="mono">battery / charging</td><td class="mono">smallint / boolean</td><td>可空</td><td></td></tr>
-    <tr><td class="mono">online</td><td class="mono">boolean</td><td>非空，默认 false</td><td>上报即置 true，判定看 updated_at</td></tr>
+    <tr><td class="mono">online</td><td class="mono">boolean</td><td>非空，默认 false</td><td>保留兼容，新鲜度看 presence</td></tr>
     <tr><td class="mono">paused_until</td><td class="mono">timestamptz</td><td>可空</td><td>大于当前时刻即视为暂停</td></tr>
-    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>非空</td><td>新鲜度判定的唯一依据</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>非空</td><td>最后一点的时间</td></tr>
 
-    <tr class="group"><td colspan="4">settings 共享设置，一人一行</td></tr>
+    <tr class="group"><td colspan="4">presence 存在表，003 新增，唯一订阅源</td></tr>
+    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
+    <tr><td class="mono">online</td><td class="mono">boolean</td><td>非空</td><td></td></tr>
+    <tr><td class="mono">last_report_at</td><td class="mono">timestamptz</td><td>可空</td><td><b>null 表示从未上报过</b>，无数据状态的唯一判据</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>非空</td><td>暂停、改开关也会碰它，用来触发刷新</td></tr>
+    <tr><td colspan="4" style="color:#6b6762;font-size:12.5px">这张表没有任何坐标和电量字段。订阅消息里因此不存在可泄漏的内容。</td></tr>
+
+    <tr class="group"><td colspan="4">settings 共享设置</td></tr>
     <tr><td class="mono">user_id</td><td class="mono">uuid</td><td>主键</td><td></td></tr>
     <tr><td class="mono">share_location / share_usage / share_battery</td><td class="mono">boolean</td><td>非空，默认 true</td><td>只控制对象能否读</td></tr>
-    <tr><td class="mono">night_silence_start / end</td><td class="mono">time</td><td>可空</td><td>v0.2 启用，默认 null 即关闭</td></tr>
-
-    <tr class="group"><td colspan="4">visible_status 视图，002 新增，客户端唯一的状态读入口</td></tr>
-    <tr><td class="mono">user_id</td><td class="mono">uuid</td><td></td><td></td></tr>
-    <tr><td class="mono">lat / lng / accuracy / place_name</td><td>同源列</td><td>暂停或关了位置共享时为 null</td><td></td></tr>
-    <tr><td class="mono">battery / charging</td><td>同源列</td><td>关了电量共享时为 null</td><td></td></tr>
-    <tr><td class="mono">online / paused_until / updated_at</td><td>同源列</td><td>永远可见</td><td></td></tr>
+    <tr><td class="mono">night_silence_start / end</td><td class="mono">time</td><td>可空</td><td>v0.2 启用</td></tr>
   </tbody>
 </table>
 
 <div class="note">
-  <div class="h">为什么多了一个视图</div>
-  <p>行级权限只能决定「一行能不能看」，管不到「哪一列能不能看」。她点暂停之后，行级权限挡住了 <code>location_points</code>，但 <code>user_status</code> 里那一行仍然可读，坐标会从这一列漏出去。视图在服务端把坐标替换成 null，客户端读不到原始值，这个漏洞就补上了。</p>
+  <div class="h">002 的视图已废弃</div>
+  <p><code>visible_status</code> 在 003 里删掉了。它只判暂停，没判 <code>share_location</code>，关掉位置共享时坐标照样读得到。现在唯一的对外入口是 <code>get_status</code> 函数，判据写在函数体里，一处改全生效。</p>
 </div>
 
 <h2 id="s5"><span class="idx">05</span>权限不变量</h2>
 
-<p>四条不变量在数据库层强制，界面层的判断只作展示优化。任何一条被违反都算缺陷，不算体验问题。</p>
+<p>六条不变量在数据库层强制，界面判断只作展示优化。违反任何一条算缺陷，不算体验问题。</p>
 
 <table>
   <thead><tr><th>编号</th><th>不变量</th><th>强制在哪</th></tr></thead>
   <tbody>
-    <tr><td class="num">I1</td><td>未配对的账号读不到任何他人的行</td><td>RLS 依赖 <code>my_partner_id()</code>，无 relation 时返回 null，条件恒假</td></tr>
-    <tr><td class="num">I2</td><td>可见性由数据主人决定，不由读者决定</td><td>读写策略查的是对方的 <code>settings</code>，不是自己的</td></tr>
-    <tr><td class="num">I3</td><td>暂停优先于一切共享开关</td><td><code>visible_status</code> 里坐标先判 <code>paused_until</code>，再判 <code>share_location</code></td></tr>
-    <tr><td class="num">I4</td><td>写入只能落在自己名下</td><td>两个上报函数内强制 <code>user_id = auth.uid()</code>，不读请求体里的 user_id</td></tr>
+    <tr><td class="num">I1</td><td>未配对的账号读不到任何他人的行</td><td>RLS 依赖 <code>my_partner_id()</code>，无关系时返回 null，条件恒假</td></tr>
+    <tr><td class="num">I2</td><td>可见性由数据主人决定，不由读者决定</td><td>判据读的是对方的 <code>settings</code>，不是自己的</td></tr>
+    <tr><td class="num">I3</td><td>暂停覆盖全部三类</td><td><code>get_status</code> 里坐标与电量先判 <code>paused_until</code></td></tr>
+    <tr><td class="num">I4</td><td>写入只能落在自己名下</td><td>所有上报与设置函数内强制 <code>user_id = auth.uid()</code></td></tr>
+    <tr><td class="num">I5</td><td>对外只有一个读入口</td><td>对象对 <code>user_status</code> 没有任何 SELECT 策略，只能走 <code>get_status</code></td></tr>
+    <tr><td class="num">I6</td><td>订阅消息里不含敏感字段</td><td>只发布 <code>presence</code>，该表无坐标无电量</td></tr>
   </tbody>
 </table>
 
@@ -313,65 +277,69 @@
   <tbody>
     <tr><td class="mono">profiles</td><td>是</td><td>改昵称头像</td><td>是</td><td>否</td></tr>
     <tr><td class="mono">couples</td><td>是</td><td>否，只走函数</td><td>是</td><td>否</td></tr>
+    <tr><td class="mono">couple_members</td><td>是</td><td>否，只走函数</td><td>是</td><td>否</td></tr>
     <tr><td class="mono">devices</td><td>是</td><td>是</td><td>否</td><td>否</td></tr>
     <tr><td class="mono">pair_codes</td><td>是</td><td>否，只走函数</td><td>否</td><td>否</td></tr>
     <tr><td class="mono">location_points</td><td>是</td><td>是</td><td>受 share_location 与暂停约束</td><td>否</td></tr>
     <tr><td class="mono">daily_usage</td><td>是</td><td>是</td><td>受 share_usage 约束</td><td>否</td></tr>
     <tr><td class="mono">app_usage</td><td>是</td><td>是</td><td>受 share_usage 约束</td><td>否</td></tr>
-    <tr><td class="mono">user_status</td><td>是</td><td>是</td><td>是，但坐标列由视图遮蔽</td><td>否</td></tr>
-    <tr><td class="mono">settings</td><td>是</td><td>是</td><td>是，需要读对方的开关才能显示「她关了位置共享」</td><td>否</td></tr>
-    <tr><td class="mono">visible_status</td><td>是</td><td>视图，不可写</td><td>是，坐标按 I3 遮蔽</td><td>否</td></tr>
+    <tr><td class="mono"><b>user_status</b></td><td>是</td><td>是</td><td><b>否，只能走 get_status</b></td><td>否</td></tr>
+    <tr><td class="mono">presence</td><td>是</td><td>是</td><td>是，无敏感字段</td><td>否</td></tr>
+    <tr><td class="mono">settings</td><td>是</td><td>是</td><td>是，只含开关布尔值</td><td>否</td></tr>
   </tbody>
 </table>
-
-<p><code>user_status</code> 允许对象读整行，是为了让「暂停中」和「关了电量共享」这两种状态能显示出来。坐标与电量的遮蔽责任在视图，不在行级权限。</p>
 
 <h2 id="s6"><span class="idx">06</span>函数契约</h2>
 
 <table>
   <thead><tr><th>函数</th><th>签名</th><th>返回</th><th>语义</th></tr></thead>
   <tbody>
-    <tr><td class="mono">generate_pair_code</td><td class="mono">()</td><td class="mono">text</td><td>生成六位码，十分钟有效，同一人生成新码会作废旧码</td></tr>
-    <tr><td class="mono">accept_pair_code</td><td class="mono">(p_code text)</td><td class="mono">uuid</td><td>绑定成功返回关系 id</td></tr>
-    <tr><td class="mono">my_partner_id</td><td class="mono">()</td><td class="mono">uuid</td><td>无对象时返回 null</td></tr>
-    <tr><td class="mono">report_locations</td><td class="mono">(p_points jsonb)</td><td class="mono">int</td><td>批量写点并更新当前状态，返回实际新增行数</td></tr>
-    <tr><td class="mono">report_usage</td><td class="mono">(p_date date, p_daily jsonb, p_apps jsonb)</td><td class="mono">int</td><td>写当日快照，返回写入的应用行数</td></tr>
-    <tr><td class="mono">purge_old_locations</td><td class="mono">()</td><td class="mono">void</td><td>删 7 天前的位置点，由 pg_cron 调用</td></tr>
+    <tr><td class="mono">generate_pair_code</td><td class="mono">()</td><td class="mono">text</td><td>生成六位码，十分钟有效；同一人已有未用码时，旧码立即作废</td></tr>
+    <tr><td class="mono">accept_pair_code</td><td class="mono">(p_code text)</td><td class="mono">uuid</td><td>锁码行与双方档案行，锁内重查后建关系，返回关系 id</td></tr>
+    <tr><td class="mono">my_partner_id</td><td class="mono">()</td><td class="mono">uuid</td><td>从成员表取，一人一行，无对象返回 null</td></tr>
+    <tr><td class="mono">get_status</td><td class="mono">(p_user_id uuid default null)</td><td class="mono">table</td><td>唯一的对外读入口，按 I2、I3 遮蔽，缺省读对象</td></tr>
+    <tr><td class="mono">report_locations</td><td class="mono">(p_points jsonb)</td><td class="mono">jsonb</td><td>返回 <code>{received, inserted}</code>；received 是收到条数，inserted 是新增行数</td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">(p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz)</td><td class="mono">int</td><td>写入的应用行数；返回 -1 表示旧快照被丢弃</td></tr>
+    <tr><td class="mono">set_pause</td><td class="mono">(p_until timestamptz)</td><td class="mono">void</td><td>同一事务写暂停时刻并触发刷新信号；传 null 即恢复</td></tr>
+    <tr><td class="mono">set_sharing</td><td class="mono">(p_location boolean, p_usage boolean, p_battery boolean)</td><td class="mono">void</td><td>改三个分项开关并触发刷新信号</td></tr>
+    <tr><td class="mono">purge_old_locations</td><td class="mono">()</td><td class="mono">void</td><td>删 7 天前的位置点</td></tr>
   </tbody>
 </table>
 
 <h3>错误形状</h3>
 
-<p>PostgREST 统一返回 <code>{"code": ..., "message": ..., "details": ..., "hint": ...}</code>。自定义异常抛在 <code>message</code> 里，用下面的字符串判定。</p>
+<p>PostgREST 统一返回 <code>{"code", "message", "details", "hint"}</code>。自定义异常抛在 <code>message</code> 里。</p>
 
 <table>
   <thead><tr><th>message</th><th>触发条件</th><th>客户端处理</th></tr></thead>
   <tbody>
     <tr><td class="mono">not_authenticated</td><td>没有有效 JWT</td><td>跳登录，清本地 token</td></tr>
+    <tr><td class="mono">not_allowed</td><td>请求的 user_id 既不是自己也不是对象</td><td>回落读对象，不重试</td></tr>
     <tr><td class="mono">invalid_payload</td><td>必要字段缺失或类型不对</td><td>记日志丢弃，不重试</td></tr>
     <tr><td class="mono">batch_too_large</td><td>位置超过 50 点，应用超过 20 行</td><td>拆包重发</td></tr>
     <tr><td class="mono">invalid_code</td><td>码不存在、已用、已过期</td><td>提示重新输入，不清输入框</td></tr>
     <tr><td class="mono">cannot_pair_self</td><td>输了自己的码</td><td>提示换对方的码</td></tr>
-    <tr><td class="mono">already_paired</td><td>自己已有 active 关系</td><td>刷新进主页</td></tr>
-    <tr><td class="mono">partner_already_paired</td><td>对方已有 active 关系</td><td>提示让对方先解绑</td></tr>
+    <tr><td class="mono">already_paired</td><td>自己已有关系</td><td>刷新进主页</td></tr>
+    <tr><td class="mono">partner_already_paired</td><td>对方已有关系</td><td>提示让对方先解绑</td></tr>
   </tbody>
 </table>
 
-<p>HTTP 状态码不作为业务判定依据。网络层先看 <code>message</code>，取不到再按状态码分类。</p>
+<p>HTTP 状态码不作业务判定依据。网络层先看 <code>message</code>，取不到再按状态码分类。</p>
 
 <h2 id="s7"><span class="idx">07</span>上报契约</h2>
 
 <table>
   <thead><tr><th>项</th><th>约定</th></tr></thead>
   <tbody>
-    <tr><td>通道</td><td>HTTPS 调 PostgREST 的 <code>/rest/v1/rpc/</code>，带 <code>apikey</code> 与 <code>Authorization: Bearer</code> 用户 JWT</td></tr>
-    <tr><td>位置频次</td><td>按 D4 采样后立即入本地队列，队列满 5 条或满 30 秒冲刷一次</td></tr>
-    <tr><td>位置批量</td><td>单次最多 50 点，超过就拆</td></tr>
+    <tr><td>通道</td><td>HTTPS 调 <code>/rest/v1/rpc/</code>，带 <code>apikey</code> 与用户 JWT</td></tr>
+    <tr><td>位置发送</td><td>每个采样点立即发送。队列只在发送失败时攒批，不设「等 30 秒再发」</td></tr>
+    <tr><td>位置批量</td><td>断网恢复后的补传单次最多 50 点，超过拆分</td></tr>
     <tr><td>用机频次</td><td>每 15 分钟一次，另在次日 00:05 补一次前一日终态快照</td></tr>
-    <tr><td>用机语义</td><td>全量快照，服务端整日替换，不做增量累加</td></tr>
-    <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code> 唯一键；用机靠整日替换</td></tr>
-    <tr><td>时钟</td><td>启动时与之后每小时各校一次，用响应头 <code>Date</code> 减本机时间得偏移，上报的 <code>recorded_at</code> 按服务器基准换算</td></tr>
-    <tr><td>乱序</td><td>服务端按 <code>recorded_at</code> 合并，旧点不会覆盖新的当前状态</td></tr>
+    <tr><td>用机语义</td><td>全量快照，服务端整日替换；请求必须带 <code>captured_at</code></td></tr>
+    <tr><td>成功判据</td><td>HTTP 2xx 且返回的 <code>received</code> 等于提交条数。不看 <code>inserted</code>，重发时它是 0</td></tr>
+    <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code> 版本比较</td></tr>
+    <tr><td>时钟</td><td>启动时与每小时各校一次，用响应头 <code>Date</code> 减本机时间得偏移</td></tr>
+    <tr><td>乱序</td><td>位置按 <code>recorded_at</code> 合并，旧点不覆盖当前状态；用机旧快照返回 -1 并丢弃</td></tr>
   </tbody>
 </table>
 
@@ -380,12 +348,14 @@
 <table>
   <thead><tr><th>情况</th><th>动作</th></tr></thead>
   <tbody>
-    <tr><td>网络不可达或超时</td><td>退避 1、2、4、8、30 秒，封顶 30 秒，无限重试直到成功</td></tr>
-    <tr><td>5xx</td><td>同上，视为服务端临时故障</td></tr>
+    <tr><td>网络不可达或超时</td><td>退避 1、2、4、8、30 秒，封顶 30 秒，无限重试</td></tr>
+    <tr><td>5xx</td><td>同上</td></tr>
     <tr><td>429</td><td>退避 60 秒</td></tr>
-    <tr><td>401</td><td>刷新 token 重试一次，仍失败则跳登录并保留队列</td></tr>
-    <tr><td>其余 4xx</td><td>不重试，落错误日志，队列弹出该条</td></tr>
-    <tr><td>队列上限</td><td>5000 点，超出丢最旧。按 D4 满速估算约 42 小时，够覆盖两天断网</td></tr>
+    <tr><td>401</td><td>刷 token 重试一次，仍失败跳登录并保留队列</td></tr>
+    <tr><td>其余 4xx</td><td>不重试，落日志，弹出该条</td></tr>
+    <tr><td>响应丢失</td><td>重发整批，服务端按幂等键去重，客户端拿到 received 即可清队列</td></tr>
+    <tr><td>单点无效</td><td>整批失败，定位到具体点后剔除再发，不静默丢整批</td></tr>
+    <tr><td>队列上限</td><td>5000 点，超出丢最旧，按 D4 满速约覆盖 42 小时</td></tr>
   </tbody>
 </table>
 
@@ -403,10 +373,12 @@
     }
   ]
 }
+返回 {"received": 1, "inserted": 1}
 
 POST /rest/v1/rpc/<b>report_usage</b>
 {
   "p_date": "2026-10-26",
+  "p_captured_at": "2026-10-26T14:45:00Z",
   "p_daily": {
     "screen_on_ms": 5400000, "unlock_count": 62, "lock_count": 61,
     "first_unlock_at": "2026-10-25T23:12:00Z",
@@ -416,34 +388,30 @@ POST /rest/v1/rpc/<b>report_usage</b>
     {"package_name": "com.ss.android.ugc.aweme", "app_label": "抖音",
      "foreground_ms": 1980000, "launch_count": 24}
   ]
-}</pre>
+}
+返回 1 表示写入 1 行；返回 -1 表示这次快照比库里的旧，已被丢弃</pre>
 
-<p><code>place_name</code> 可以缺省为 null。客户端只有位移超过 200 米才重新请求逆地理编码，其余情况沿用上一条的值，避免每次都打高德接口。</p>
+<p><code>place_name</code> 可缺省为 null。位移超过 200 米才重新逆地理编码，其余沿用上一条。</p>
 
 <h2 id="s8"><span class="idx">08</span>实时订阅</h2>
 
 <table>
   <thead><tr><th>项</th><th>约定</th></tr></thead>
   <tbody>
-    <tr><td>订阅表</td><td>只订 <code>user_status</code>，按 <code>user_id=eq.对方id</code> 过滤。位置点不入实时频道</td></tr>
-    <tr><td>事件用途</td><td>只当「该刷新了」的信号，不直接渲染推送内容</td></tr>
-    <tr><td>刷新动作</td><td>收到事件后读 <code>visible_status</code>，坐标是否可见由服务端决定</td></tr>
-    <tr><td>前台</td><td>保持连接，另加 30 秒兜底轮询，防漏事件</td></tr>
-    <tr><td>后台</td><td>断开订阅，退化为 15 分钟轮询。v0.1 没有推送通道</td></tr>
-    <tr><td>断线判定</td><td>30 秒无任何消息即判定断线</td></tr>
-    <tr><td>重连</td><td>退避 2、4、8、16、30 秒，封顶 30 秒；成功后立即全量拉一次</td></tr>
-    <tr><td>失败降级</td><td>订阅连不上不影响展示，由兜底轮询驱动</td></tr>
+    <tr><td>订阅表</td><td>只订 <code>presence</code>，按 <code>user_id=eq.对方id</code> 过滤</td></tr>
+    <tr><td>事件用途</td><td>只当「该刷新了」的信号，收到后调 <code>get_status</code></td></tr>
+    <tr><td>消息内容</td><td><code>user_id</code>、<code>online</code>、<code>last_report_at</code>、<code>updated_at</code>，不含坐标与电量</td></tr>
+    <tr><td>前台</td><td>保持连接，另加 30 秒兜底轮询</td></tr>
+    <tr><td>后台</td><td>断开订阅，退化 15 分钟轮询</td></tr>
+    <tr><td>断线判定</td><td>30 秒无任何消息</td></tr>
+    <tr><td>重连</td><td>退避 2、4、8、16、30 秒；成功后立即全量拉一次</td></tr>
+    <tr><td>失败降级</td><td>连不上不影响展示，由轮询驱动</td></tr>
   </tbody>
 </table>
 
-<div class="note">
-  <div class="h">为什么不直接渲染推送的行</div>
-  <p>实时通道走的是行级权限，只能过滤行，不能遮列。暂停那一刻 <code>user_status</code> 的坐标还没清空，直接拿推送内容渲染就会漏一次坐标。多一次读视图的往返换掉这个漏洞，值得。</p>
-</div>
+<p>订阅不存在「收到即渲染」的路径。消息里根本没有坐标，坐标只能从 <code>get_status</code> 来，而那个函数会按 I2、I3 遮蔽。这一条是结构上的，不是约定上的。</p>
 
 <h2 id="s9"><span class="idx">09</span>采集口径</h2>
-
-<p>每条都给出可复现的算法，实现时照此写，不按「大概是这个意思」写。</p>
 
 <table>
   <thead><tr><th>指标</th><th>数据源</th><th>算法</th><th>边界</th></tr></thead>
@@ -451,29 +419,29 @@ POST /rest/v1/rpc/<b>report_usage</b>
     <tr>
       <td>亮屏时长 <code>screen_on_ms</code></td>
       <td>UsageEvents 的 <code>SCREEN_INTERACTIVE</code> 与 <code>SCREEN_NON_INTERACTIVE</code></td>
-      <td>按事件配对累加区间；到查询时刻屏仍亮，则从最后一次亮屏补到此刻</td>
-      <td>跨零点的区间截到 23:59:59.999 归前一日；短于 2 秒的配对记 0；单日上限 24 小时，超出丢弃</td>
+      <td>按事件配对累加；查询时屏仍亮，从最后一次亮屏补到查询时刻</td>
+      <td>跨零点区间截到 23:59:59.999 归前一日；短于 2 秒的配对记 0；单日上限 24 小时</td>
     </tr>
     <tr>
       <td>应用前台 <code>foreground_ms</code></td>
-      <td>API 29 以上用 <code>ACTIVITY_RESUMED</code> 与 <code>ACTIVITY_PAUSED</code>；26 到 28 用 <code>MOVE_TO_FOREGROUND</code> 与 <code>MOVE_TO_BACKGROUND</code></td>
-      <td>同一包连续 RESUME 只保留最外层；按包累加前台区间</td>
-      <td>短于 1 秒记 0；长于 6 小时的单段截断为 6 小时并记异常；排除 <code>com.couplesee</code> 自身</td>
+      <td><code>ACTIVITY_RESUMED</code> 与 <code>ACTIVITY_PAUSED</code></td>
+      <td>同一包连续 RESUME 只保留最外层，按包累加</td>
+      <td>短于 1 秒记 0；单段超过 6 小时截断并记异常；排除 <code>com.couplesee</code> 自身</td>
     </tr>
     <tr>
       <td>应用排行</td>
-      <td>上一条的结果</td>
-      <td>按 <code>foreground_ms</code> 降序，取前 20 上报</td>
-      <td>前台时长不足 60 秒的不上报</td>
+      <td>上一条结果</td>
+      <td>按 <code>foreground_ms</code> 降序取前 20</td>
+      <td>前台不足 60 秒不上报</td>
     </tr>
     <tr>
-      <td>解锁次数 <code>unlock_count</code></td>
+      <td>解锁次数</td>
       <td><code>KEYGUARD_HIDDEN</code></td>
       <td>按本地日计数</td>
       <td>3 秒内连续多条合并为一次</td>
     </tr>
     <tr>
-      <td>锁屏次数 <code>lock_count</code></td>
+      <td>锁屏次数</td>
       <td><code>KEYGUARD_SHOWN</code></td>
       <td>按本地日计数</td>
       <td>同上</td>
@@ -482,171 +450,191 @@ POST /rest/v1/rpc/<b>report_usage</b>
       <td>首次与末次解锁</td>
       <td>同解锁事件</td>
       <td>当日最早与最晚的一条</td>
-      <td>当天无解锁则两者都为 null</td>
+      <td>当天无解锁则都为 null。<strong>只表示解锁，不表示之后停止使用</strong></td>
     </tr>
     <tr>
-      <td>位置采集</td>
-      <td>高德定位 SDK，高精度模式，1 秒定位周期</td>
-      <td>按 D4 策略决定是否入队</td>
-      <td>精度差于 200 米丢弃；速度大于 60 米每秒丢弃；连续同一点静止超过 5 分钟只在策略点上报一次</td>
+      <td>定位回调</td>
+      <td>高德定位 SDK，高精度模式</td>
+      <td>移动 3 秒一次，静止 20 秒一次</td>
+      <td>精度差于 200 米丢弃；速度大于 60 米每秒丢弃</td>
+    </tr>
+    <tr>
+      <td>入队与上报</td>
+      <td>定位回调结果</td>
+      <td>移动 30 秒取一点、静止 5 分钟取一点，取到即发</td>
+      <td>队列只在失败时生长</td>
     </tr>
     <tr>
       <td>移动判定</td>
       <td>上一次与本次定位</td>
-      <td>速度大于 1 米每秒，或两次直线位移大于 50 米</td>
-      <td>判定为移动则 30 秒一采，否则 5 分钟一采</td>
+      <td>速度大于 1 米每秒，或两点直线位移大于 50 米</td>
+      <td>据此切换两组周期</td>
     </tr>
     <tr>
       <td>电量与充电</td>
       <td><code>ACTION_BATTERY_CHANGED</code></td>
       <td>随位置点上报</td>
-      <td>读不到时留 null，不填 0</td>
+      <td>读不到留 null，不填 0</td>
     </tr>
     <tr>
       <td>地名 <code>place_name</code></td>
       <td>高德 Web 服务逆地理编码</td>
-      <td>位移超过 200 米才请求，其余沿用上一条</td>
-      <td>失败留 null 并 5 分钟后重试；连续失败 3 次降为 30 分钟一次</td>
+      <td>位移超过 200 米才请求</td>
+      <td>失败留 null，5 分钟后重试；连续失败 3 次降为 30 分钟一次</td>
     </tr>
   </tbody>
 </table>
 
+<p>D6 的 minSdk 从 26 提到 28，因为上面几类事件都在 API 28 才有。她的机是 Android 16，不受影响，但安装说明里写清最低 9.0。</p>
+
 <h2 id="s10"><span class="idx">10</span>客户端模块</h2>
 
 <pre>com.couplesee
-├─ app                 Application、MainActivity、导航图、DI
-├─ core/ui             主题、通用组件、格式化
-├─ core/net            Supabase 客户端、Realtime、重试拦截、校时
-├─ core/data           Room、仓库实现、DTO 与实体的映射
+├─ app                 Application、MainActivity、导航图、依赖容器
+├─ core/ui             主题、通用组件、时间格式化
+├─ core/net            HTTP 客户端、Realtime、重试拦截、校时
+├─ core/data           本地库、仓库实现、DTO 与实体映射
 ├─ core/collect        定位服务、用机采集、电量监听
 ├─ feature/auth        注册、登录
 ├─ feature/pair        生成码、输入码
 ├─ feature/home        地图、状态卡、用机卡
 ├─ feature/usage       用机详情
-├─ feature/settings    分项开关、暂停、常去点
+├─ feature/settings    分项开关、暂停
 └─ feature/onboarding  权限引导、保活引导</pre>
 
-<p>四个仓库接口先定签名，实现留在对应工单里。</p>
+<p>四个仓库接口先定签名，实现留在对应工单。</p>
 
 <pre>interface StatusRepository {
-    fun observePartner(): Flow&lt;PartnerStatus?&gt;   // 冷流，订阅或轮询驱动
-    suspend fun refresh()                        // 立即读一次视图
+    fun observePartner(): Flow&lt;PartnerStatus?&gt;   // 消息驱动加轮询兜底
+    suspend fun refresh()                        // 调 get_status
 }
 
 interface LocationReporter {
     suspend fun enqueue(point: LocationPoint)    // 落本地队列
-    suspend fun flush(): Int                     // 冲刷，返回成功条数
+    suspend fun flush(): Int                     // 冲刷，返回确认条数
 }
 
 interface UsageReader {
-    suspend fun snapshot(date: LocalDate): UsageSnapshot
+    suspend fun snapshot(date: LocalDate, capturedAt: Instant): UsageSnapshot
 }
 
 interface Clock {
-    suspend fun serverNow(): Instant             // 校时后取服务器基准
+    suspend fun serverNow(): Instant
 }</pre>
 
-<p>依赖单向：<code>feature</code> 只依赖 <code>core</code>，<code>core</code> 之间不回头依赖 <code>feature</code>。<code>core/collect</code> 不持有 Activity 引用，靠前台服务与广播驱动。</p>
+<p>依赖单向：<code>feature</code> 只依赖 <code>core</code>，<code>core</code> 之间不回依赖 <code>feature</code>。<code>core/collect</code> 不持有 Activity 引用。</p>
 
 <h2 id="s11"><span class="idx">11</span>状态与新鲜度</h2>
 
-<p>首页永远处于下面八种状态之一，没有第九种。每种都规定了判定条件和客户端动作。</p>
+<p>首页永远处于下面九种状态之一。判定从高到低，命中即停。</p>
 
 <table>
-  <thead><tr><th>状态</th><th>判定</th><th>首页展示</th><th>客户端动作</th></tr></thead>
+  <thead><tr><th>序</th><th>状态</th><th>判定</th><th>展示</th></tr></thead>
   <tbody>
-    <tr><td>未配对</td><td><code>couples</code> 无 active 行</td><td>配对引导，不给地图</td><td>不订阅，不上报</td></tr>
-    <tr><td>无数据</td><td>已配对，对方 <code>updated_at</code> 为 null</td><td>「对方还没打开过」</td><td>15 分钟轮询</td></tr>
-    <tr><td>实时</td><td>未暂停，<code>updated_at</code> 在 5 分钟内</td><td>绿点，时间显示「刚刚」</td><td>订阅加 30 秒兜底</td></tr>
-    <tr><td>延迟</td><td>5 到 10 分钟</td><td>「N 分钟前」</td><td>同上</td></tr>
-    <tr><td>过期</td><td>10 分钟到 2 小时</td><td>头像转灰，仍显示最后位置</td><td>同上</td></tr>
-    <tr><td>长时间未更新</td><td>超过 2 小时</td><td>「超过 2 小时未更新」加保活检查入口</td><td>同上</td></tr>
-    <tr><td>暂停中</td><td><code>paused_until</code> 大于此刻且不是哨兵</td><td>「已暂停，HH:mm 恢复」，不显示坐标</td><td>不显示位置，用机数据照常</td></tr>
-    <tr><td>手动暂停</td><td><code>paused_until</code> 等于哨兵值</td><td>「已暂停」，不显示坐标</td><td>同上</td></tr>
+    <tr><td class="num">1</td><td>未配对</td><td>无 <code>couple_members</code> 行</td><td>配对引导，不给地图</td></tr>
+    <tr><td class="num">2</td><td>读取失败</td><td>请求异常且无本地缓存</td><td>「暂时读不到」加重试，不显示上次的旧数据</td></tr>
+    <tr><td class="num">3</td><td>暂停中</td><td><code>paused_until</code> 大于此刻且非哨兵</td><td>「已暂停，HH:mm 恢复」，三类数据都不显示</td></tr>
+    <tr><td class="num">4</td><td>手动暂停</td><td><code>paused_until</code> 等于哨兵</td><td>「已暂停共享」，三类都不显示</td></tr>
+    <tr><td class="num">5</td><td>无数据</td><td><code>last_report_at</code> 为 null</td><td>「对方还没开始上报」</td></tr>
+    <tr><td class="num">6</td><td>实时</td><td>年龄不超过 1 分钟</td><td>绿点，时间写「刚刚」</td></tr>
+    <tr><td class="num">7</td><td>延迟</td><td>1 到 10 分钟</td><td>「N 分钟前」，分钟数取整到分钟</td></tr>
+    <tr><td class="num">8</td><td>过期</td><td>10 分钟到 2 小时</td><td>头像转灰，仍显示最后位置与时点</td></tr>
+    <tr><td class="num">9</td><td>长时间未更新</td><td>超过 2 小时</td><td>「超过 2 小时未更新」加保活检查入口</td></tr>
   </tbody>
 </table>
 
-<p>「今晚」这一档的语义是次日 07:00，按 Asia/Shanghai 计算。三档暂停写进库的值不同，恢复动作统一把 <code>paused_until</code> 置 null。</p>
+<p>年龄的定义是 <code>服务器当前时刻减 last_report_at</code>，不用客户端时钟。暂停与关闭共享同时成立时，第 3、4 条优先，因为暂停是更明确的意图。</p>
 
-<p>暂停的顺序是先把 <code>paused_until</code> 写进库，再停采集。反过来会留下一段既没共享又有坐标的窗口。</p>
+<table>
+  <thead><tr><th>场景</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr><td>在线暂停</td><td>先调 <code>set_pause</code>，成功后停采集。顺序不能反</td></tr>
+    <tr><td>断网暂停</td><td>本地立即停采集并置暂停标志，界面写「正在同步暂停」，联网后补 <code>set_pause</code>，成功才撤提示</td></tr>
+    <tr><td>有积压队列时暂停</td><td>队列保留但不再发送；恢复共享后按 <code>recorded_at</code> 正序补传</td></tr>
+    <tr><td>暂停期间的数据</td><td>不采集、不上报。恢复后不补采暂停那段时间</td></tr>
+    <tr><td>定时恢复</td><td><code>paused_until</code> 到期即自动恢复采集，不依赖本地闹钟，进程重启也成立</td></tr>
+    <tr><td>恢复后展示</td><td>拿到新点之前显示「已恢复，正在定位」，不显示暂停前的旧坐标</td></tr>
+  </tbody>
+</table>
 
 <h2 id="s12"><span class="idx">12</span>数值门槛</h2>
 
+<p>每条都写明起止时刻与条件，否则测出来的数不可比。</p>
+
 <table>
-  <thead><tr><th>项</th><th>门槛</th><th>测法</th></tr></thead>
+  <thead><tr><th>项</th><th>门槛</th><th>起止与条件</th></tr></thead>
   <tbody>
-    <tr><td>24 小时耗电</td><td>增量不超过 8%</td><td>满电、固定亮度、不主动使用，两台机同一时段对照</td></tr>
-    <tr><td>移动中端到端延迟</td><td>P95 不超过 10 秒</td><td>两台机同屏，行走 10 分钟，抽 20 次对比时间戳</td></tr>
-    <tr><td>移动中后台更新间隔</td><td>中位数不超过 60 秒</td><td>查服务端相邻 <code>recorded_at</code> 差值</td></tr>
-    <tr><td>静止后台更新间隔</td><td>不超过 5 分钟</td><td>同上，静置两小时</td></tr>
-    <tr><td>补传完整率</td><td>不低于 99%</td><td>断网 30 分钟，恢复后比对本地队列条数与服务端新增行数</td></tr>
-    <tr><td>首屏</td><td>不超过 2 秒</td><td>冷启动到状态卡完成渲染</td></tr>
-    <tr><td>用机数据偏差</td><td>每日不超过 60 秒</td><td>与系统自带数字健康对照同一日</td></tr>
-    <tr><td>崩溃</td><td>连续 24 小时 0 次</td><td>自建错误日志，只记堆栈不记数据</td></tr>
+    <tr><td>移动中端到端延迟</td><td>P95 不超过 45 秒</td><td>起点是对方设备采到该点，终点是查看端渲染完成；两人同城、4G、对方移动中，抽 20 次</td></tr>
+    <tr><td>静止时端到端延迟</td><td>不超过 5 分 30 秒</td><td>同上，对方静置；超出说明 5 分钟策略没生效</td></tr>
+    <tr><td>前台首屏</td><td>不超过 2 秒</td><td>冷启动到状态卡渲染完成</td></tr>
+    <tr><td>24 小时耗电</td><td>增量不超过 8%</td><td>同一台机、固定亮度、同一张卡、移动 2 小时加静止 22 小时；基线用关闭本 App 的同机同日数据</td></tr>
+    <tr><td>补传完整率</td><td>不低于 99%</td><td>分母是断网期间本地入队条数；分子是恢复后服务端按幂等键能查到的条数</td></tr>
+    <tr><td>用机时长误差</td><td>不超过 60 秒每日</td><td>与系统数字健康同日对比，同日同时段导出</td></tr>
+    <tr><td>应用排行一致性</td><td>前 15 名集合相同</td><td>与系统数字健康同日对比，比较集合与顺序；时长差在 60 秒内的名次互换不计错</td></tr>
+    <tr><td>崩溃</td><td>连续 24 小时 0 次</td><td>自建错误日志，只记堆栈</td></tr>
   </tbody>
 </table>
 
 <h2 id="s13"><span class="idx">13</span>工单与依赖</h2>
 
-<p>二十张单，分三条泳道。每条泳道的单只依赖同泳道或已完成的前置，跨泳道靠契约不靠代码。</p>
-
 <table>
   <thead><tr><th>编号</th><th>工单</th><th>泳道</th><th>依赖</th><th>验收断言</th></tr></thead>
   <tbody>
-    <tr><td class="num">W-01</td><td>安卓工程骨架、依赖注入、网络层与重试拦截</td><td>底座</td><td>无</td><td>空壳可装可启动</td></tr>
-    <tr><td class="num">W-02</td><td>执行 002 补丁并跑契约自测</td><td>底座</td><td>W-01</td><td>V11 回归通过</td></tr>
-    <tr><td class="num">W-03</td><td>注册登录、token 持久化、自动刷新</td><td>底座</td><td>W-01</td><td>V1</td></tr>
-    <tr><td class="num">W-04</td><td>配对生成与接受、已配对状态回显</td><td>底座</td><td>W-03</td><td>V2</td></tr>
-    <tr><td class="num">W-05</td><td>定位采集服务、前台服务常驻、变频策略</td><td>采集</td><td>W-01</td><td>V4</td></tr>
-    <tr><td class="num">W-06</td><td>位置队列、批量上报、幂等、校时</td><td>采集</td><td>W-05、W-02</td><td>V3、V9</td></tr>
+    <tr><td class="num">W-01</td><td>安卓工程骨架、依赖容器、网络层与重试</td><td>底座</td><td>无</td><td>空壳可装可启动</td></tr>
+    <tr><td class="num">W-02</td><td>契约自测脚本：越权、幂等、旧快照</td><td>底座</td><td>W-01</td><td>V3、V11、V14</td></tr>
+    <tr><td class="num">W-03</td><td>注册登录、token 持久化与刷新</td><td>底座</td><td>W-01</td><td>V1</td></tr>
+    <tr><td class="num">W-04</td><td>配对生成与接受、并发防护</td><td>底座</td><td>W-03</td><td>V2、V13</td></tr>
+    <tr><td class="num">W-05</td><td>定位采集服务、前台服务常驻、双档周期</td><td>采集</td><td>W-01</td><td>V4</td></tr>
+    <tr><td class="num">W-06</td><td>位置队列、立即发送、幂等、校时</td><td>采集</td><td>W-05、W-02</td><td>V3、V9</td></tr>
     <tr><td class="num">W-07</td><td>用机采集：亮屏、应用前台、解锁锁屏、日切</td><td>采集</td><td>W-01</td><td>V6、V12</td></tr>
-    <tr><td class="num">W-08</td><td>用机快照上报与日终补发</td><td>采集</td><td>W-07、W-02</td><td>V6、V9</td></tr>
-    <tr><td class="num">W-09</td><td>实时订阅、断线重连、前后台策略、兜底轮询</td><td>界面</td><td>W-02、W-04</td><td>V5</td></tr>
+    <tr><td class="num">W-08</td><td>用机快照上报、captured_at、日终补发</td><td>采集</td><td>W-07、W-02</td><td>V6、V14</td></tr>
+    <tr><td class="num">W-09</td><td>订阅 presence、断线重连、兜底轮询</td><td>界面</td><td>W-02、W-04</td><td>V5</td></tr>
     <tr><td class="num">W-10</td><td>首页地图与状态卡</td><td>界面</td><td>W-09</td><td>V5</td></tr>
     <tr><td class="num">W-11</td><td>用机详情页</td><td>界面</td><td>W-09</td><td>V6</td></tr>
-    <tr><td class="num">W-12</td><td>设置页与分项开关</td><td>界面</td><td>W-09</td><td>V7 前置</td></tr>
-    <tr><td class="num">W-13</td><td>暂停共享三档与恢复</td><td>界面</td><td>W-12</td><td>V7、V8</td></tr>
+    <tr><td class="num">W-12</td><td>设置页与分项开关</td><td>界面</td><td>W-09</td><td>V7 前置、V15</td></tr>
+    <tr><td class="num">W-13</td><td>暂停三档、恢复、断网暂停</td><td>界面</td><td>W-12</td><td>V7、V8、V15</td></tr>
     <tr><td class="num">W-14</td><td>权限引导三屏与缺失提示条</td><td>引导</td><td>W-03</td><td>可补授权</td></tr>
-    <tr><td class="num">W-15</td><td>保活引导，按品牌路由跳转</td><td>引导</td><td>W-14</td><td>V4</td></tr>
-    <tr><td class="num">W-16</td><td>地名解析与常去点命名</td><td>采集</td><td>W-06</td><td>首页显示中文地名</td></tr>
-    <tr><td class="num">W-17</td><td>异常态：无网、无权限、被暂停、数据过期</td><td>界面</td><td>W-10</td><td>八态全覆盖</td></tr>
-    <tr><td class="num">W-18</td><td>验收脚本与七天实测记录</td><td>验收</td><td>全部</td><td>V1 到 V12</td></tr>
-    <tr><td class="num">W-19</td><td>正式签名、打包、安装指引</td><td>底座</td><td>W-18</td><td>装到真机能用</td></tr>
+    <tr><td class="num">W-15</td><td>保活引导，OPPO 与 ColorOS 路径优先</td><td>引导</td><td>W-14</td><td>V4</td></tr>
+    <tr><td class="num">W-16</td><td>地名解析，只做逆地理编码</td><td>采集</td><td>W-06</td><td>首页显示中文地名</td></tr>
+    <tr><td class="num">W-17</td><td>异常态：无网、无权限、被暂停、无数据、过期</td><td>界面</td><td>W-10</td><td>九态全覆盖</td></tr>
+    <tr><td class="num">W-18</td><td>验收脚本与七天实测记录</td><td>验收</td><td>W-10、W-11、W-13、W-15、W-16、W-17</td><td>V1 到 V15</td></tr>
+    <tr><td class="num">W-19</td><td>正式签名、打包、安装说明</td><td>底座</td><td>W-18</td><td>装到真机能用</td></tr>
     <tr><td class="num">W-20</td><td>独立复核，逐条对照本规格</td><td>验收</td><td>W-19</td><td>复核报告</td></tr>
   </tbody>
 </table>
 
 <pre>底座  W-01 ─┬─ W-02 ─┬─ W-06 ── W-16
-            │        ├─ W-08
-            │        └─ W-09 ─┬─ W-10 ── W-17
-            ├─ W-03 ── W-04 ──┘        ├─ W-11
-            │        └─ W-14 ── W-15   └─ W-12 ── W-13
-            └─ W-05 ── W-06
+            │        └─ W-08
+            ├─ W-03 ── W-04 ── W-09 ─┬─ W-10 ── W-17
+            │                         ├─ W-11
+            │                         └─ W-12 ── W-13
+            ├─ W-05 ── W-06
+            └─ W-14 ── W-15
 
-采集  W-05 ── W-07
-汇合  W-17、W-13、W-15、W-16 ── W-18 ── W-19 ── W-20</pre>
+汇合  W-17、W-13、W-15、W-16、W-11、W-10 ── W-18 ── W-19 ── W-20</pre>
 
-<p>可以并行的起手是 W-01、W-03、W-05、W-07。W-02 只要库通了随时能做，放在 W-01 之后是为了让自测脚本先有执行环境。</p>
+<p>W-01 必须先完成。之后的 W-03、W-05、W-07、W-02 可以同时开工，接口按第 10 节先写签名，实现各自推进。W-18 的前置是上面列出的六张，不含 W-19、W-20，图与表一致。</p>
 
 <h2 id="s14"><span class="idx">14</span>验收断言</h2>
-
-<p>每条都要能由第三方复现，不写「看着正常」这类判据。</p>
 
 <table>
   <thead><tr><th>编号</th><th>断言</th><th>通过判据</th></tr></thead>
   <tbody>
     <tr><td class="num">V1</td><td>注册登录</td><td>新邮箱注册后直接进主页，杀进程重启仍免登录</td></tr>
-    <tr><td class="num">V2</td><td>配对</td><td>A 生成码，B 输入后双方都进已配对态；第三人输入同码返回 <code>invalid_code</code></td></tr>
-    <tr><td class="num">V3</td><td>幂等上报</td><td>同一批点连发三次，<code>location_points</code> 行数只增一次</td></tr>
+    <tr><td class="num">V2</td><td>配对</td><td>A 生成码，B 输入后双方进已配对态；第三人输同码得 <code>invalid_code</code>；A 生成第二个码后，第一个码不可再用</td></tr>
+    <tr><td class="num">V3</td><td>幂等上报</td><td>同批点连发三次，行数只增一次，三次都返回 <code>received</code> 等于 1</td></tr>
     <tr><td class="num">V4</td><td>后台存活</td><td>锁屏 30 分钟后服务端仍有新点，间隔符合静止档</td></tr>
-    <tr><td class="num">V5</td><td>首页可见</td><td>对方移动中，从打开 App 到看见新坐标不超过 10 秒</td></tr>
-    <tr><td class="num">V6</td><td>用机数据</td><td>屏幕时间、Top 15、首末次解锁三项与系统数字健康同日对比，偏差不超过 60 秒</td></tr>
-    <tr><td class="num">V7</td><td>暂停生效</td><td>点暂停后 5 秒内，对方直接调接口读 <code>visible_status</code> 得到 lat 与 lng 均为 null</td></tr>
-    <tr><td class="num">V8</td><td>暂停恢复</td><td>恢复后 30 秒内位置重新可见，且不显示暂停期间的历史坐标</td></tr>
-    <tr><td class="num">V9</td><td>断网补传</td><td>飞行模式 30 分钟后恢复，队列清零，服务端行数与本地累计一致，完整率不低于 99%</td></tr>
-    <tr><td class="num">V10</td><td>耗电</td><td>24 小时增量不超过 8%</td></tr>
-    <tr><td class="num">V11</td><td>越权不可读</td><td>用未配对账号的 token 查对方各表，全部返回空集或 42501</td></tr>
-    <tr><td class="num">V12</td><td>日切正确</td><td>23:50 到 00:10 连续亮屏，两日 <code>screen_on_ms</code> 各计本日部分，两日之和等于实际时长</td></tr>
+    <tr><td class="num">V5</td><td>查看端可见</td><td>对方移动中，从打开到看见新坐标不超过 45 秒</td></tr>
+    <tr><td class="num">V6</td><td>用机数据</td><td>屏幕时间误差不超过 60 秒，Top 15 集合与顺序与系统数字健康一致</td></tr>
+    <tr><td class="num">V7</td><td>暂停生效</td><td>点暂停后 5 秒内直接调 <code>get_status</code>，坐标、精度、地名、电量全为 null；同时抓 Realtime 消息体，里面没有坐标字段</td></tr>
+    <tr><td class="num">V8</td><td>暂停恢复</td><td>恢复后 30 秒内重新可见，且不显示暂停前的旧坐标</td></tr>
+    <tr><td class="num">V9</td><td>断网补传</td><td>飞行模式 30 分钟后恢复，按幂等键逐条对账，命中率不低于 99%</td></tr>
+    <tr><td class="num">V10</td><td>耗电</td><td>按第 12 节的条件测 24 小时，增量不超过 8%</td></tr>
+    <tr><td class="num">V11</td><td>越权与遮蔽</td><td>未配对账号查各表返回空集或 42501；已配对但 A 关闭位置共享时，B 调 <code>get_status</code> 拿到的坐标与地名为 null；关闭电量共享时电量与充电为 null</td></tr>
+    <tr><td class="num">V12</td><td>日切正确</td><td>23:50 到 00:10 连续亮屏，两日各计本日部分，之和等于实际时长</td></tr>
+    <tr><td class="num">V13</td><td>并发配对</td><td>B 接受 A 的码、C 接受 B 的码并发执行，B 最多进入一段关系；同码并发只成功一次</td></tr>
+    <tr><td class="num">V14</td><td>旧快照不回退</td><td>先发 10:15 快照再发 10:00 快照，第二次返回 -1，库里数据仍为 10:15 版本</td></tr>
+    <tr><td class="num">V15</td><td>断网暂停</td><td>断网点暂停，界面显示「正在同步暂停」；此时对方仍可能读到旧点，联网同步后立即不可读</td></tr>
   </tbody>
 </table>
 
@@ -654,23 +642,31 @@ interface Clock {
 
 <h3>v0.1 明确不做</h3>
 <ul>
-  <li>C 类全部推送通知，位置变化靠前台订阅与兜底轮询</li>
-  <li>A5 历史轨迹的界面，数据照存</li>
+  <li>C 类全部推送通知</li>
+  <li>A5 历史轨迹界面，数据照存</li>
   <li>A11、A12 幽灵模式的模糊与冻结</li>
+  <li>常去点聚类与命名，只做逆地理编码</li>
   <li>B7、B8 应用分类与趋势对比</li>
   <li>D 类互动、E 类记录、F 类养成</li>
-  <li>iOS 端</li>
+  <li>解绑与删号，由暂停哨兵兜底</li>
   <li>找回密码、第三方登录、多设备同账号</li>
 </ul>
+
+<h3>需要你决定的一项</h3>
+
+<div class="note">
+  <div class="h">R04 查看端</div>
+  <p>v0.1 只有安卓端，而她是两人里唯一用安卓的人。做完之后你手上没有任何设备能看到她。PRD 的验收第 1 条与本节冲突，这一项不解决，v0.1 只能算技术验证。</p>
+  <p>三条路：加极简 iOS 查看端，多一到两周；出只读网页，多一天；你找台旧安卓机，零成本。我建议网页打底、iOS 排 v0.2，但这属于你的取舍，我不替你定。</p>
+</div>
 
 <h3>待补输入</h3>
 <table>
   <thead><tr><th>缺什么</th><th>影响</th><th>什么时候要</th></tr></thead>
   <tbody>
-    <tr><td>高德 Web 服务 key</td><td>地名解析无法联调</td><td>W-16 之前</td></tr>
-    <tr><td>她的机型与 Android 版本</td><td>已确定：真我 GT8，Android 16，realme UI</td><td>保活引导走 OPPO 与 ColorOS 路径，W-15 照此实现</td></tr>
+    <tr><td>查看端方案，见上一节</td><td>决定工单总数与验收口径</td><td>开工前</td></tr>
     <tr><td>正式签名 keystore</td><td>高德发布版 SHA1 要补录</td><td>W-19 之前</td></tr>
-    <tr><td>Supabase 邮件确认开关</td><td>注册会卡在收邮件</td><td>W-03 联调前</td></tr>
+    <tr><td>pg_cron 是否启用</td><td>不启用时位置点留存最长 7 天以上，实际到 8 天</td><td>W-18 之前</td></tr>
   </tbody>
 </table>
 
@@ -678,11 +674,11 @@ interface Clock {
 <table>
   <thead><tr><th>风险</th><th>触发条件</th><th>应对</th></tr></thead>
   <tbody>
-    <tr><td>国产 ROM 杀后台</td><td>锁屏后服务被清</td><td>W-15 按品牌路由；W-18 期间至少连续七天实测</td></tr>
-    <tr><td>Supabase 国内延迟</td><td>移动中延迟超过 10 秒</td><td>先测再定；不可接受就走迁移预案，客户端只改 base URL</td></tr>
-    <tr><td>免费档休眠</td><td>连续七天无请求</td><td>两人日常使用不会触发，长时间停用后手动唤醒</td></tr>
-    <tr><td>高德个人额度</td><td>逆地理编码日调用超限</td><td>位移 200 米才请求，日调用量在两台机的正常范围内</td></tr>
-    <tr><td>Realtime 免费档并发</td><td>上限 200 个连接</td><td>只有两台设备，远低于上限</td></tr>
+    <tr><td>国产 ROM 杀后台</td><td>锁屏后服务被清</td><td>W-15 走 OPPO 与 ColorOS 路径；W-18 连续七天实测</td></tr>
+    <tr><td>Supabase 国内延迟</td><td>端到端超过 45 秒</td><td>先测再定；不可接受则走迁移预案，客户端只改 base URL</td></tr>
+    <tr><td>免费档休眠</td><td>连续七天无请求</td><td>日常使用不会触发，长期停用后手动唤醒</td></tr>
+    <tr><td>高德个人额度</td><td>逆地理编码超日限</td><td>位移 200 米才请求，正常用量远低于上限</td></tr>
+    <tr><td>定位持续高精度</td><td>耗电超过 8%</td><td>W-05 里先做双档周期实测，超标就拉长静止档</td></tr>
   </tbody>
 </table>
 
@@ -690,12 +686,13 @@ interface Clock {
 <table>
   <thead><tr><th>日期</th><th>版本</th><th>改动</th></tr></thead>
   <tbody>
-    <tr><td class="num">2026-10-26</td><td class="num">1.0</td><td>首次冻结。引入 002 补丁（幂等索引、两个上报函数、可见性视图）。修订 PRD 的后台延迟口径为分档制</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.0</td><td>首次冻结。引入 002 补丁（幂等索引、两个上报函数、可见性视图）</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.1</td><td>按审查意见改：撤掉对象的整行读权限，删除 visible_status，读入口改为 get_status；新增 presence 表作唯一订阅源；新增 couple_members 保证一人一段关系；用机快照加 captured_at 拦旧版本；minSdk 提到 28；暂停定义覆盖三类；常去点延期；工单依赖去环；验收扩到 V15</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 规格 v0.1 · 契约冻结 · 2026-10-26
+  情侣看看 规格 v0.1.1 · 契约冻结待 R04 · 2026-10-26
 </footer>
 
 </div>
