@@ -85,7 +85,7 @@
   <div class="meta">
     <span><b>版本</b> 1.1</span>
     <span><b>日期</b> 2026-10-26</span>
-    <span><b>状态</b> 契约冻结，待 R04 决策</span>
+    <span><b>状态</b> 契约冻结</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
   </div>
 </header>
@@ -142,7 +142,7 @@
     <tr><td class="num">D5</td><td>解绑后数据</td><td>立即停止共享，7 天后删除。解绑功能 v0.4 才做，v0.1 由暂停兜底</td><td>解绑落库前可改</td></tr>
     <tr><td class="num">D6</td><td>最低系统版本</td><td>minSdk 28，targetSdk 36。她的机是真我 GT8，Android 16</td><td>中</td></tr>
     <tr><td class="num">D7</td><td>日切时区</td><td>固定 Asia/Shanghai，按本地零点切</td><td>高</td></tr>
-    <tr><td class="num">D8</td><td>iOS 端</td><td>不进 v0.1。查看端方案待 R04 决定</td><td>高</td></tr>
+    <tr><td class="num">D8</td><td>查看端</td><td>v0.1 用两台安卓：她的真我 GT8 采集兼查看，你的备用机只作查看端。iOS 排 v0.2</td><td>高</td></tr>
     <tr><td class="num">D9</td><td>坐标系</td><td>从采集到展示一律 GCJ-02，不做转换</td><td>中</td></tr>
     <tr><td class="num">D10</td><td>暂停哨兵值</td><td>手动恢复的暂停写 <code>9999-12-31T00:00:00Z</code></td><td>高</td></tr>
     <tr><td class="num">D11</td><td>暂停覆盖范围</td><td>位置、电量、用机三类全停。分项细控由 <code>set_sharing</code> 负责</td><td>高</td></tr>
@@ -624,7 +624,7 @@ interface Clock {
     <tr><td class="num">V2</td><td>配对</td><td>A 生成码，B 输入后双方进已配对态；第三人输同码得 <code>invalid_code</code>；A 生成第二个码后，第一个码不可再用</td></tr>
     <tr><td class="num">V3</td><td>幂等上报</td><td>同批点连发三次，行数只增一次，三次都返回 <code>received</code> 等于 1</td></tr>
     <tr><td class="num">V4</td><td>后台存活</td><td>锁屏 30 分钟后服务端仍有新点，间隔符合静止档</td></tr>
-    <tr><td class="num">V5</td><td>查看端可见</td><td>对方移动中，从打开到看见新坐标不超过 45 秒</td></tr>
+    <tr><td class="num">V5</td><td>查看端可见</td><td>在备用安卓机上打开，对方移动中，从打开到看见新坐标不超过 45 秒</td></tr>
     <tr><td class="num">V6</td><td>用机数据</td><td>屏幕时间误差不超过 60 秒，Top 15 集合与顺序与系统数字健康一致</td></tr>
     <tr><td class="num">V7</td><td>暂停生效</td><td>点暂停后 5 秒内直接调 <code>get_status</code>，坐标、精度、地名、电量全为 null；同时抓 Realtime 消息体，里面没有坐标字段</td></tr>
     <tr><td class="num">V8</td><td>暂停恢复</td><td>恢复后 30 秒内重新可见，且不显示暂停前的旧坐标</td></tr>
@@ -652,19 +652,20 @@ interface Clock {
   <li>找回密码、第三方登录、多设备同账号</li>
 </ul>
 
-<h3>需要你决定的一项</h3>
+<h3>已定的查看端</h3>
 
 <div class="note">
-  <div class="h">R04 查看端</div>
-  <p>v0.1 只有安卓端，而她是两人里唯一用安卓的人。做完之后你手上没有任何设备能看到她。PRD 的验收第 1 条与本节冲突，这一项不解决，v0.1 只能算技术验证。</p>
-  <p>三条路：加极简 iOS 查看端，多一到两周；出只读网页，多一天；你找台旧安卓机，零成本。我建议网页打底、iOS 排 v0.2，但这属于你的取舍，我不替你定。</p>
+  <div class="h">R04 结论</div>
+  <p>v0.1 用两台安卓。她的真我 GT8 采集全部数据并查看；你的备用机只作查看端，关闭自身三类共享，不上报位置、电量与用机。</p>
+  <p>备用机关闭共享的原因是位置诚实：那台机不随身，开着共享会让对方看到一个人停在某处不动，比看不到更误导。等 iOS 端上线再打开。</p>
+  <p>这条同时解决 PRD 验收第 1 条：两台真机注册配对即可完成。</p>
 </div>
 
 <h3>待补输入</h3>
 <table>
   <thead><tr><th>缺什么</th><th>影响</th><th>什么时候要</th></tr></thead>
   <tbody>
-    <tr><td>查看端方案，见上一节</td><td>决定工单总数与验收口径</td><td>开工前</td></tr>
+    <tr><td>备用机的型号与 Android 版本</td><td>低于 Android 9 时要回退 minSdk 并降级三项指标</td><td>开工前</td></tr>
     <tr><td>正式签名 keystore</td><td>高德发布版 SHA1 要补录</td><td>W-19 之前</td></tr>
     <tr><td>pg_cron 是否启用</td><td>不启用时位置点留存最长 7 天以上，实际到 8 天</td><td>W-18 之前</td></tr>
   </tbody>
@@ -688,11 +689,12 @@ interface Clock {
   <tbody>
     <tr><td class="num">2026-10-26</td><td class="num">1.0</td><td>首次冻结。引入 002 补丁（幂等索引、两个上报函数、可见性视图）</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.1</td><td>按审查意见改：撤掉对象的整行读权限，删除 visible_status，读入口改为 get_status；新增 presence 表作唯一订阅源；新增 couple_members 保证一人一段关系；用机快照加 captured_at 拦旧版本；minSdk 提到 28；暂停定义覆盖三类；常去点延期；工单依赖去环；验收扩到 V15</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.1 · 契约冻结待 R04 · 2026-10-26
+  情侣看看 规格 v0.1.2 · 契约冻结 · 2026-10-26
 </footer>
 
 </div>
