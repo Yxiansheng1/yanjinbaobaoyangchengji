@@ -85,7 +85,7 @@
   <div class="meta">
     <span><b>版本</b> 1.4</span>
     <span><b>日期</b> 2026-10-26</span>
-    <span><b>状态</b> 设计冻结；003 已本地验证，待线上执行</span>
+    <span><b>状态</b> 设计冻结；003 已上线，行为校验待做</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
   </div>
 </header>
@@ -118,7 +118,7 @@
 <table>
   <thead><tr><th>优先级</th><th>文件</th><th>理由</th></tr></thead>
   <tbody>
-    <tr><td class="num">1</td><td><code>docs/001-schema.sql</code>、<code>002-contract.sql</code>（已部署）、<code>003-hardening.sql</code>（待部署）</td><td>可执行代码即现状；003 的本地验证结果见 <code>docs/二次复核处理-2026-10-26.md</code></td></tr>
+    <tr><td class="num">1</td><td><code>docs/001-schema.sql</code>、<code>002-contract.sql</code>、<code>003-hardening.sql</code>（三者均已部署）</td><td>可执行代码即现状；003 的本地验证与线上部署记录见 <code>docs/二次复核处理-2026-10-26.md</code></td></tr>
     <tr><td class="num">2</td><td>本文件</td><td>契约层，派工单依据</td></tr>
     <tr><td class="num">3</td><td><code>docs/情侣看看-PRD-v1.0.html</code></td><td>意图层，本文件对其中口径有修订</td></tr>
     <tr><td class="num">4</td><td><code>docs/情侣看看-v0.1-方案.md</code></td><td>已作废，只作历史</td></tr>
@@ -718,8 +718,8 @@ interface Clock {
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
     <tr><td>设计</td><td>规格 1.4 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001、002 已执行；003 未执行</td><td>SQL Editor 跑完 003，校验出七行 <code>ok</code></td></tr>
-    <tr><td>已验证</td><td>003 在本地 PGlite 按 001→002→003 跑通，<code>verify-003.mjs</code> 31 项断言全过；线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 重跑 V16–V20，并抓一条真实消息</td></tr>
+    <tr><td>已部署</td><td>001、002、003 均已执行；2026-10-26 校验查询七行全 <code>ok</code></td><td>已达成</td></tr>
+    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 31 项断言全过，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V20，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -758,7 +758,7 @@ interface Clock {
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.4 · 设计冻结 · 003 待线上执行 · 2026-10-26
+  情侣看看 规格 v0.1.4 · 设计冻结 · 003 已上线 · 2026-10-26
 </footer>
 
 </div>
