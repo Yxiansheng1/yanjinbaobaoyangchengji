@@ -275,6 +275,10 @@ grant execute on function public.get_status(uuid) to authenticated;
 -- 客户端认「收到条数等于提交条数」为成功，
 -- 不能拿 inserted 判，重发时它是 0。
 -- ------------------------------------------------------------
+-- 002 建的是返回 int，这里要改成 jsonb。
+-- Postgres 不允许 create or replace 改返回类型，必须先 drop。
+drop function if exists public.report_locations(jsonb);
+
 create or replace function public.report_locations(p_points jsonb)
 returns jsonb
 language plpgsql
