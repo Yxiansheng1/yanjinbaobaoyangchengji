@@ -1,0 +1,190 @@
+{
+  "environment": "PGlite 0.5.11，干净库 001→002→003；模拟 auth.uid/authenticated/表级授权；无 Realtime、无多连接",
+  "passed": 24,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "003 可在干净库执行",
+      "pass": true,
+      "observed": "ok"
+    },
+    {
+      "name": "正常配对",
+      "pass": true,
+      "observed": {
+        "codeLen": 6
+      }
+    },
+    {
+      "name": "N01 未配对读 get_status",
+      "pass": true,
+      "observed": "not_allowed"
+    },
+    {
+      "name": "N01 未配对读 get_usage",
+      "pass": true,
+      "observed": "not_allowed"
+    },
+    {
+      "name": "N01 已配对读陌生人",
+      "pass": true,
+      "observed": "not_allowed"
+    },
+    {
+      "name": "N01 未配对可读自己",
+      "pass": true,
+      "observed": "empty ok"
+    },
+    {
+      "name": "正常状态可见",
+      "pass": true,
+      "observed": {
+        "lat": 25.01,
+        "battery": 66
+      }
+    },
+    {
+      "name": "正常用机可见",
+      "pass": true,
+      "observed": {
+        "rows": 1
+      }
+    },
+    {
+      "name": "N04 不能伪造成员",
+      "pass": true,
+      "observed": "new row violates row-level security policy for table \"couple_members\""
+    },
+    {
+      "name": "N04 孤儿成员不返回对象",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "N02 对象读不到四张原表",
+      "pass": true,
+      "observed": {
+        "loc": 0,
+        "daily": 0,
+        "apps": 0,
+        "status": 0
+      }
+    },
+    {
+      "name": "N03 关电量只遮电量",
+      "pass": true,
+      "observed": {
+        "lat": 25.01,
+        "battery": null,
+        "charging": null
+      }
+    },
+    {
+      "name": "N02 暂停遮住状态",
+      "pass": true,
+      "observed": {
+        "lat": null,
+        "lng": null,
+        "accuracy": null,
+        "place_name": null,
+        "battery": null,
+        "charging": null,
+        "paused_until": "2026-10-26T04:12:03.282Z"
+      }
+    },
+    {
+      "name": "N02 暂停用机为空",
+      "pass": true,
+      "observed": {
+        "rows": 0
+      }
+    },
+    {
+      "name": "N06 手动恢复不返旧点",
+      "pass": true,
+      "observed": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    {
+      "name": "N06 新点到达即可见",
+      "pass": true,
+      "observed": {
+        "lat": 25.02,
+        "lng": 121.52
+      }
+    },
+    {
+      "name": "N06 定时到期不返旧点",
+      "pass": true,
+      "observed": {
+        "lat": null
+      }
+    },
+    {
+      "name": "N06 到期后新点可见",
+      "pass": true,
+      "observed": {
+        "lat": 25.03
+      }
+    },
+    {
+      "name": "N05 旧快照拒绝、同版本幂等",
+      "pass": true,
+      "observed": {
+        "r1": 1,
+        "r2": -1,
+        "r3": 1,
+        "stored": {
+          "screen_on_ms": 900000,
+          "captured_at": "2026-10-26T10:15:00.000Z"
+        },
+        "appRows": [
+          "p1"
+        ]
+      }
+    },
+    {
+      "name": "N07 只发布 presence",
+      "pass": true,
+      "observed": [
+        "presence"
+      ]
+    },
+    {
+      "name": "N07 新用户有 presence 且能发信号",
+      "pass": true,
+      "observed": {
+        "ePresence": 1,
+        "eTouched": true
+      }
+    },
+    {
+      "name": "V20 纯查看拒绝上报",
+      "pass": true,
+      "observed": {
+        "locOff": "collect_disabled",
+        "usageOff": "collect_disabled"
+      }
+    },
+    {
+      "name": "V13 同码只成功一次",
+      "pass": true,
+      "observed": {
+        "secondAccept": "invalid_code"
+      }
+    },
+    {
+      "name": "函数签名与规格一致",
+      "pass": true,
+      "observed": [
+        "get_status:TABLE",
+        "get_usage:TABLE",
+        "report_locations:jsonb",
+        "report_usage:integer",
+        "set_collect_enabled:void"
+      ]
+    }
+  ]
+}

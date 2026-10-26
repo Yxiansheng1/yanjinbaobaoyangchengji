@@ -1,0 +1,161 @@
+{
+  "environment": "Local PGlite, auth.uid and authenticated privileges modeled, not hosted Supabase; no Realtime delivery or concurrent-session test",
+  "results": [
+    {
+      "name": "unpaired_explicit_target_reads_status",
+      "rows": [
+        {
+          "user_id": "00000000-0000-0000-0000-000000000001",
+          "lat": 25.01,
+          "lng": 121.51,
+          "battery": 66
+        }
+      ]
+    },
+    {
+      "name": "paused_partner_status_is_masked",
+      "rows": [
+        {
+          "lat": null,
+          "lng": null,
+          "battery": null
+        }
+      ]
+    },
+    {
+      "name": "paused_partner_raw_status_is_blocked",
+      "rows": []
+    },
+    {
+      "name": "paused_partner_location_history_is_readable",
+      "rows": [
+        {
+          "lat": 25.01,
+          "lng": 121.51,
+          "battery": 66
+        }
+      ]
+    },
+    {
+      "name": "paused_partner_usage_is_readable",
+      "rows": [
+        {
+          "screen_on_ms": 900000
+        }
+      ]
+    },
+    {
+      "name": "paused_partner_apps_are_readable",
+      "rows": [
+        {
+          "package_name": "test.app",
+          "foreground_ms": 800000
+        }
+      ]
+    },
+    {
+      "name": "resume_before_new_point_returns_old_coordinates",
+      "rows": [
+        {
+          "lat": 25.01,
+          "lng": 121.51,
+          "battery": null
+        }
+      ]
+    },
+    {
+      "name": "battery_disabled_history_still_has_battery",
+      "rows": [
+        {
+          "battery": 66,
+          "charging": true
+        }
+      ]
+    },
+    {
+      "name": "third_user_inserts_membership",
+      "rows": [
+        {
+          "user_id": "00000000-0000-0000-0000-000000000003",
+          "couple_id": "17aa9ab2-6173-4de5-88b7-31c3fab0df72"
+        }
+      ]
+    },
+    {
+      "name": "forged_member_partner",
+      "rows": [
+        {
+          "my_partner_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ]
+    },
+    {
+      "name": "forged_member_reads_usage",
+      "rows": [
+        {
+          "screen_on_ms": 900000
+        }
+      ]
+    },
+    {
+      "name": "new_user_presence_missing",
+      "rows": []
+    },
+    {
+      "name": "pause_does_not_create_presence",
+      "rows": []
+    },
+    {
+      "name": "sequential_old_snapshot_rejected",
+      "rows": [
+        {
+          "report_usage": -1
+        }
+      ]
+    },
+    {
+      "name": "new_snapshot_preserved",
+      "rows": [
+        {
+          "screen_on_ms": 900000,
+          "captured_at": "2026-10-26T10:15:00.000Z"
+        }
+      ]
+    },
+    {
+      "name": "publication_still_contains_original_tables",
+      "rows": [
+        {
+          "tablename": "location_points"
+        },
+        {
+          "tablename": "presence"
+        },
+        {
+          "tablename": "user_status"
+        }
+      ]
+    },
+    {
+      "name": "injected_presence_failure",
+      "error": "injected_failure"
+    },
+    {
+      "name": "failed_report_rolls_back_location_point",
+      "rows": [
+        {
+          "count": 0
+        }
+      ]
+    },
+    {
+      "name": "failed_report_rolls_back_status",
+      "rows": [
+        {
+          "lat": 25.01,
+          "lng": 121.51
+        }
+      ]
+    }
+  ]
+}

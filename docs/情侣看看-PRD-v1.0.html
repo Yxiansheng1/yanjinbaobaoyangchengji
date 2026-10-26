@@ -234,7 +234,7 @@
   <tbody>
     <tr class="group"><td colspan="4">A 定位与位置</td></tr>
     <tr><td class="num">A1</td><td>实时位置</td><td><span class="tag v1">v0.1</span></td><td>核心</td></tr>
-    <tr><td class="num">A2</td><td>地点语义</td><td><span class="tag v1">v0.1</span></td><td>家、公司、学校自动识别</td></tr>
+    <tr><td class="num">A2</td><td>地点语义</td><td><span class="tag v1">v0.1</span></td><td>v0.1 只做逆地理编码，常去点聚类排 v0.2</td></tr>
     <tr><td class="num">A3</td><td>停留时长</td><td><span class="tag">v0.2</span></td><td></td></tr>
     <tr><td class="num">A4</td><td>移动状态</td><td><span class="tag">v0.6</span></td><td>走路、骑行、驾车</td></tr>
     <tr><td class="num">A5</td><td>历史轨迹</td><td><span class="tag">v0.3</span></td><td>数据从 v0.1 就开始存</td></tr>
@@ -363,9 +363,9 @@
 <h3>A2 地点语义</h3>
 <div class="kv">
   <div class="k">做什么</div>
-  <div class="v">把坐标变成地名。两种来源：常去点的聚类结果（家、公司、学校），以及逆地理编码拿到的具体地址。</div>
-  <div class="k">规则</div>
-  <div class="v">在她停留超过 30 分钟、且在 200 米范围内反复出现的位置，第七天标记为候选常去点。双方都可以手动命名和删除。</div>
+  <div class="v">把坐标变成中文地名，走逆地理编码。v0.1 只做到这一层。</div>
+  <div class="k">边界</div>
+  <div class="v">常去点的聚类、自动识别家或公司、手动命名，都排到 v0.2。v0.1 不做七天候选点，也不做地点管理入口。</div>
 </div>
 
 <h3>A9 电量与充电</h3>
@@ -387,7 +387,7 @@
   <div class="k">对方看到什么</div>
   <div class="v">明确的「她已暂停共享，22:00 恢复」。不能显示成离线或最后位置，那等于骗人。</div>
   <div class="k">数据</div>
-  <div class="v">暂停期间不上报位置，用机数据照常（可单独关，属于 G2）。</div>
+  <div class="v">暂停期间位置、电量、用机三类全部停止共享，也不采集不上报。要单独关某一项，用 G2 的分项开关；暂停优先于分项开关。</div>
 </div>
 
 <h3>G2 分项开关</h3>
@@ -452,7 +452,7 @@
 <ul>
   <li>共享开关：位置、用机、电量的分项控制</li>
   <li>暂停共享</li>
-  <li>常去点管理</li>
+  <li>常去点管理（v0.2）</li>
   <li>账号与解绑</li>
 </ul>
 
@@ -558,9 +558,9 @@
 
 <h3>待确认</h3>
 <ul>
-  <li>高德开放平台的 key 由谁注册，什么时候能拿到</li>
-  <li>Supabase 账号用你的还是我的</li>
-  <li>常去点识别在 v0.1 是否必须，如果砍掉，A2 退化为只显示逆地理编码地址</li>
+  <li>备用安卓机的型号与 Android 版本，决定 minSdk 是否要回退</li>
+  <li>003 加固补丁尚未在线上 Supabase 执行，执行完补六项校验</li>
+  <li>正式签名的 keystore 还没建，高德发布版 SHA1 要补录</li>
 </ul>
 
 <footer>
