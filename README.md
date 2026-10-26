@@ -18,7 +18,7 @@
 
 - 她的安卓：Kotlin + Compose，采集全部数据，也能看对方
 - 他的 iPhone：v0.2 之后再做，v0.1 只保证安卓侧跑通
-- 后端：Supabase 免费档，新加坡区域，项目 `cqvapkrjngarteqzbrnd`
+- 后端：Supabase 免费档，新加坡区域
 
 ## 当前进度
 
