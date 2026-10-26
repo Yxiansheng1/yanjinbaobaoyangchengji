@@ -1,0 +1,163 @@
+{
+  "environment": "PGlite 0.5.11; project SQL unchanged; simulated auth and pre-003 table privileges; no live Supabase or HTTP PostgREST",
+  "results": [
+    {
+      "name": "null_apps_before",
+      "value": [
+        {
+          "package_name": "original.app"
+        }
+      ]
+    },
+    {
+      "name": "null_apps_after",
+      "value": []
+    },
+    {
+      "name": "twenty_one_apps_error",
+      "error": {
+        "code": "P0001",
+        "message": "batch_too_large"
+      }
+    },
+    {
+      "name": "split_snapshot_final_apps",
+      "value": [
+        {
+          "package_name": "app.20"
+        }
+      ]
+    },
+    {
+      "name": "status_time_sources",
+      "value": {
+        "response": [
+          {
+            "last_report_at": "2026-10-26T05:02:24.850Z",
+            "updated_at": "2026-10-26T05:02:24.879Z"
+          }
+        ],
+        "point": [
+          {
+            "updated_at": "2026-10-26T05:02:24.850Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_required_location_field",
+      "error": {
+        "code": "23502",
+        "message": "null value in column \"lng\" of relation \"location_points\" violates not-null constraint"
+      }
+    },
+    {
+      "name": "wrong_location_field_type",
+      "error": {
+        "code": "22P02",
+        "message": "invalid input syntax for type double precision: \"bad\""
+      }
+    },
+    {
+      "name": "out_of_range_location_accepted",
+      "value": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "negative_usage_accepted",
+      "value": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "future_snapshot_accepted",
+      "value": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "valid_time_snapshot_after_future_rejected",
+      "value": [
+        {
+          "result": -1
+        }
+      ]
+    },
+    {
+      "name": "settings_direct_write_allowed",
+      "value": [
+        {
+          "share_battery": true
+        }
+      ]
+    },
+    {
+      "name": "presence_nonheartbeat_write_allowed",
+      "value": [
+        {
+          "resumed_at": "2000-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "name": "profile_noneditable_columns_write_allowed",
+      "value": [
+        {
+          "email": "changed@example.test",
+          "created_at": "2000-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "name": "purge_function_role_privileges",
+      "value": [
+        {
+          "anon_execute": true,
+          "authenticated_execute": true
+        }
+      ]
+    },
+    {
+      "name": "anon_purge_call",
+      "value": [
+        {
+          "purge_old_locations": null
+        }
+      ]
+    },
+    {
+      "name": "other_user_old_point_after_anon_purge",
+      "value": [
+        {
+          "n": 0
+        }
+      ]
+    },
+    {
+      "name": "postgres_json_timestamp_format",
+      "value": [
+        {
+          "timestamp": "2026-10-26T08:00:00+08:00"
+        }
+      ]
+    },
+    {
+      "name": "postgres_json_timestamp_utc_format",
+      "value": [
+        {
+          "timestamp": "2026-10-26T00:00:00+00:00"
+        }
+      ]
+    }
+  ]
+}

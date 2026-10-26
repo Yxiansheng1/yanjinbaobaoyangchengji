@@ -83,7 +83,7 @@
 <header class="doc">
   <h1>情侣看看 规格 v0.1</h1>
   <div class="meta">
-    <span><b>版本</b> 1.5</span>
+    <span><b>版本</b> 1.6</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 设计冻结；003 已上线，行为校验待做</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
@@ -150,6 +150,8 @@
     <tr><td class="num">D13</td><td>对外读入口</td><td>只有两个：<code>get_status</code> 读当前状态，<code>get_usage</code> 读用机。客户端不直读 <code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code></td><td>中</td></tr>
     <tr><td class="num">D14</td><td>纯查看模式</td><td><code>settings.collect_enabled</code> 控制本机是否采集，与 <code>share_*</code> 分开存；为 false 时服务端拒绝上报</td><td>高</td></tr>
     <tr><td class="num">D15</td><td>快照版本</td><td><code>captured_at</code> 是唯一版本号；旧快照返回 -1 并整体丢弃；同版本重发视为幂等成功</td><td>中</td></tr>
+    <tr><td class="num">D16</td><td>时钟容限</td><td>采集时刻最多允许比服务端时间超前 10 分钟，超过报 <code>future_timestamp</code>；历史补传不设下限。这是个常量，改起来一分钟</td><td>低</td></tr>
+    <tr><td class="num">D17</td><td>应用明细的提交</td><td><code>p_apps</code> 必填，语义是整日全量替换；超过 20 行报 <code>apps_too_many</code>，客户端本地取 Top 20 后整体发一次，禁止拆包</td><td>高</td></tr>
   </tbody>
 </table>
 
@@ -307,7 +309,7 @@
     <tr><td class="mono">get_status</td><td class="mono">(p_user_id uuid default null)</td><td class="mono">table</td><td>当前状态读入口，按 I2、I3 遮蔽，缺省读对象；返回 <code>server_now</code> 供状态判定</td></tr>
     <tr><td class="mono">get_usage</td><td class="mono">(p_user_id uuid default null, p_date date default null)</td><td class="mono">table</td><td>用机读入口，日汇总连同应用明细一起返回；暂停或关闭用机共享时返回空集</td></tr>
     <tr><td class="mono">report_locations</td><td class="mono">(p_points jsonb)</td><td class="mono">jsonb</td><td>返回 <code>{received, inserted}</code>；received 是收到条数，inserted 是新增行数</td></tr>
-    <tr><td class="mono">report_usage</td><td class="mono">(p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz)</td><td class="mono">int</td><td>写入的应用行数；返回 -1 表示旧快照被丢弃；同版本重发按幂等成功处理</td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">(p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz)</td><td class="mono">int</td><td>四个参数全必填，<code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>，超 20 行报 <code>apps_too_many</code>；返回写入的应用行数；返回 -1 表示旧快照被丢弃；同版本重发按幂等成功处理</td></tr>
     <tr><td class="mono">set_pause</td><td class="mono">(p_until timestamptz)</td><td class="mono">void</td><td>同一事务写暂停时刻并触发刷新信号；传 null 即恢复，并记 <code>resumed_at</code></td></tr>
     <tr><td class="mono">set_sharing</td><td class="mono">(p_location boolean, p_usage boolean, p_battery boolean)</td><td class="mono">void</td><td>改三个分项开关并触发刷新信号</td></tr>
     <tr><td class="mono">set_collect_enabled</td><td class="mono">(p_enabled boolean)</td><td class="mono">void</td><td>纯查看模式开关；只影响本机采集，不改共享。要同时撤掉对方可见性，另调 <code>set_sharing(false,false,false)</code></td></tr>
@@ -350,9 +352,9 @@
     <tr><td>位置发送</td><td>每个采样点立即发送。队列只在发送失败时攒批，不设「等 30 秒再发」</td></tr>
     <tr><td>位置批量</td><td>断网恢复后的补传单次最多 50 点，超过拆分</td></tr>
     <tr><td>用机频次</td><td>每 15 分钟一次，另在次日 00:05 补一次前一日终态快照</td></tr>
-    <tr><td>用机语义</td><td>全量快照，服务端整日替换；请求必须带 <code>captured_at</code>，它是唯一版本号</td></tr>
+    <tr><td>用机语义</td><td>全量快照，服务端整日替换；请求必须带 <code>captured_at</code>，它是唯一版本号；<code>p_apps</code> 必须显式传数组，<code>null</code> 被拒，超 20 行在本地取 Top 20 后整体发</td></tr>
     <tr><td>纯查看设备</td><td><code>collect_enabled = false</code> 时服务端直接拒绝上报，客户端不应起采集与上报循环。这只停上报，不改三类共享；旧数据是否可见仍由 <code>share_*</code> 决定</td></tr>
-    <tr><td>写入通道</td><td>只能调两个上报函数。四张数据表对 <code>authenticated</code> 没有写权限，直接 INSERT / UPDATE 报 42501，绕不过 <code>collect_disabled</code> 与版本比较</td></tr>
+    <tr><td>写入通道</td><td>只能调两个上报函数与四个设置函数。四张数据表、<code>settings</code>、<code>presence</code> 对 <code>authenticated</code> 都没有写权限，直接 INSERT / UPDATE 报 42501，绕不过 <code>collect_disabled</code> 与版本比较；<code>profiles</code> 只给 <code>nickname</code>、<code>avatar_url</code> 两列更新权；<code>devices</code> 是唯一允许本人整行直写的表（004）</td></tr>
     <tr><td>成功判据</td><td>HTTP 2xx 且返回的 <code>received</code> 等于提交条数。不看 <code>inserted</code>，重发时它是 0</td></tr>
     <tr><td>幂等</td><td>位置靠 <code>user_id + recorded_at</code>；用机靠 <code>captured_at</code>，同版本重发是幂等成功</td></tr>
     <tr><td>时钟</td><td>启动时与每小时各校一次，用响应头 <code>Date</code> 减本机时间得偏移</td></tr>
@@ -684,6 +686,9 @@ interface Clock {
     <tr><td class="num">V19</td><td>发布集合与消息体</td><td><code>pg_publication_tables</code> 里只有 <code>presence</code>；抓一条真实 Realtime 消息，字段仅 <code>presence</code> 的列；新注册用户在首次定位前切暂停，查看端也能收到信号</td></tr>
     <tr><td class="num">V20</td><td>关闭采集</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；三类共享仍开时，对方仍能读到旧位置与旧用机（这是设计，不是缺陷）；用普通 JWT 直写四张数据表报 42501；重开采集后恢复上报</td></tr>
     <tr><td class="num">V21</td><td>纯查看模式</td><td>一键进入时先关采集再关三类共享，两步都成功后对方调 <code>get_status</code> 拿到的坐标、电量全为 null，<code>get_usage</code> 返回空；第二步失败时界面显示「部分完成」，重试只补未完成的那一步；两步都幂等，重复执行不报错</td></tr>
+    <tr><td class="num">V22</td><td>应用列表必填</td><td><code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>，库里应用明细不变；传 <code>[]</code> 清空当天明细；传 21 条报 <code>apps_too_many</code>，客户端本地取 Top 20 后整体发送，服务端最终是完整的 20 行，不是最后一包</td></tr>
+    <tr><td class="num">V23</td><td>越界与未来时间</td><td>坐标超 ±90/±180、电量超 0–100、精度或时长为负，一律报 <code>invalid_payload</code> 且整批不落库；<code>recorded_at</code> 或 <code>captured_at</code> 超服务端 +10 分钟报 <code>future_timestamp</code>；被拒之后当天正常快照仍能写入，不会被未来版本毒化</td></tr>
+    <tr><td class="num">V24</td><td>受控表直写</td><td><code>settings</code>、<code>presence</code> 直写报 42501；<code>profiles</code> 改 <code>nickname</code> 成功、改 <code>email</code> 报 42501；<code>devices</code> 本人整行可写；<code>anon</code> 与普通 JWT 调 <code>purge_old_locations</code> 均被拒，任务身份仍可执行</td></tr>
   </tbody>
 </table>
 
@@ -722,9 +727,9 @@ interface Clock {
 <table>
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
-    <tr><td>设计</td><td>规格 1.5 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001、002、003 均已执行；2026-10-26 校验查询七行全 <code>ok</code></td><td>已达成</td></tr>
-    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 全过，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V21，并抓一条真实消息</td></tr>
+    <tr><td>设计</td><td>规格 1.6 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
+    <tr><td>已部署</td><td>001、002、003 均已执行；2026-10-26 校验查询七行全 <code>ok</code>。004 写好并在本地验过 25/25，<b>线上未执行</b></td><td>004 在线上跑一次，自检那段不报错</td></tr>
+    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V24，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -759,12 +764,13 @@ interface Clock {
     <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.3</td><td>按 N01–N09 加固：身份判断改 NULL 安全写法；对象对四张原表一律不可读，新增 get_usage；历史电量随原表关闭；成员表只允许函数写入；快照版本比较并入 UPSERT；恢复后旧点由 resumed_at 与 paused_until 遮蔽；发布集合只剩 presence；新增 collect_enabled 纯查看模式；补算法单测向量与排名容差；验收扩到 V20；修正留存与版本号事实</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.4</td><td>补两处复核未编号项：成员表回填遇到不一致时列出明细并报错，不再静默跳过；四张数据表收回直写权限，客户端只能走上报函数，纯查看与快照版本无法绕过。校验查询增到七行，验证脚本扩到 31 项断言</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.6</td><td>按《契约 schema 审查意见》C01–C08 改：<code>p_apps</code> 改必填、整日替换且禁止拆包（D17）；新增时钟容限 +10 分钟（D16）；越界与非负数校验进服务端；<code>settings</code> 与 <code>presence</code> 收回直写，<code>profiles</code> 改列级授权；<code>couples</code> 改对称唯一；<code>get_status.updated_at</code> 明确为刷新信号时刻；时间戳不再承诺 Z 后缀；验收扩到 V22–V24</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.5</td><td>按三次复核 T01–T04 改：V20 拆成「关闭采集」与「纯查看模式」两条，写明一键操作的顺序、部分失败与重试；R04 同步说明为什么分两步；V13 注明本机只覆盖顺序复用、并发在线上验；V14 补两种初始状态的并发；修正第 4 节 user_status 标题与 README 部署状态；确认备用机系统不低于 Android 9，minSdk 28 不变</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.5 · 设计冻结 · 003 已上线 · 2026-10-26
+  情侣看看 规格 v0.1.6 · 设计冻结 · 003 已上线 · 004 待上线 · 2026-10-26
 </footer>
 
 </div>

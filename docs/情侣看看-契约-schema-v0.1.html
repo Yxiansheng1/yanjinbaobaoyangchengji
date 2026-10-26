@@ -47,14 +47,19 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
 <header class="doc">
   <h1>情侣看看 · 契约 schema</h1>
   <div class="meta">
-    <span><b>版本</b> 0.1</span>
+    <span><b>版本</b> 0.2</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 冻结 · 施工依据</span>
-    <span><b>依据</b> SQL 001 / 002 / 003（均已部署）· 规格 v1.5</span>
+    <span><b>依据</b> SQL 001 / 002 / 003（已部署）· 004（修正，待上线）· 规格 v1.6</span>
   </div>
 </header>
 
 <p>这份文件把「客户端能碰什么、怎么碰、拿到什么形状」定死。规格讲产品语义，这份讲字段与调用。实现期改这里等于改契约，必须回阶段二，不能边写边改。</p>
+
+<div class="note">
+  <div class="h">这份 0.2 有一半还没上线</div>
+  <p>004 修正脚本已写好并在本地 PGlite 验过 25 项断言，但<b>还没在线上执行</b>。凡标了 <span class="tag later">待 004</span> 的条款，线上现在还是旧行为。执行 004 之后，本文才与线上完全一致。</p>
+</div>
 
 <div class="note">
   <div class="h">冲突时以谁为准</div>
@@ -69,17 +74,17 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
 <table>
   <thead><tr><th>表</th><th>用途</th><th>客户端读</th><th>客户端写</th></tr></thead>
   <tbody>
-    <tr><td class="mono">profiles</td><td>昵称头像，auth.users 的镜像</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只能改自己的昵称头像，见下</td></tr>
+    <tr><td class="mono">profiles</td><td>昵称头像，auth.users 的镜像</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只给 <code>nickname</code>、<code>avatar_url</code> 两列的更新权，其余列由列级授权挡住 <span class="tag later">待 004</span></td></tr>
     <tr><td class="mono">couples</td><td>关系，一人最多一段 active</td><td>自己参与的</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
     <tr><td class="mono">couple_members</td><td>关系成员，一人一行</td><td>自己 + 对象</td><td><span class="tag no">否</span> 只走配对函数</td></tr>
-    <tr><td class="mono">devices</td><td>设备与推送令牌</td><td>自己的</td><td>自己的整行</td></tr>
+    <tr><td class="mono">devices</td><td>设备与推送令牌</td><td>自己的</td><td>自己的整行 <span class="tag later">唯一例外</span> 数据库只限本人行，不限列</td></tr>
     <tr><td class="mono">pair_codes</td><td>六位配对码，十分钟有效</td><td>自己的</td><td><span class="tag no">否</span> 只走两个配对函数</td></tr>
-    <tr><td class="mono">settings</td><td>共享开关与纯查看开关</td><td>自己 + 对象</td><td><span class="tag no">否</span> 走 set_sharing / set_collect_enabled</td></tr>
+    <tr><td class="mono">settings</td><td>共享开关与纯查看开关</td><td>自己 + 对象</td><td><span class="tag no">否</span> 表级写权限已收回，只能走 set_sharing / set_collect_enabled <span class="tag later">待 004</span></td></tr>
     <tr><td class="mono">user_status</td><td>当前状态，反范式</td><td>只有自己</td><td><span class="tag no">否</span> 走两个上报函数</td></tr>
     <tr><td class="mono">location_points</td><td>位置点，保留约 7 天</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_locations</td></tr>
     <tr><td class="mono">daily_usage</td><td>每日用机汇总</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_usage</td></tr>
     <tr><td class="mono">app_usage</td><td>每应用每日一行，只存 Top 20</td><td>只有自己</td><td><span class="tag no">否</span> 走 report_usage</td></tr>
-    <tr><td class="mono">presence</td><td>存在与刷新信号，Realtime 唯一发布表</td><td>自己 + 对象</td><td>自己的心跳列</td></tr>
+    <tr><td class="mono">presence</td><td>存在与刷新信号，Realtime 唯一发布表</td><td>自己 + 对象</td><td><span class="tag no">否</span> 写权限已收回，由上报与设置函数维护 <span class="tag later">待 004</span></td></tr>
   </tbody>
 </table>
 
@@ -115,7 +120,13 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
     <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td></td></tr>
   </tbody>
 </table>
-<p>约束：<code>user_a &lt;&gt; user_b</code>；<code>user_a</code> 与 <code>user_b</code> 各有「active 时唯一」的部分索引，所以一人同时只能有一段关系。</p>
+<p>约束：<code>user_a &lt;&gt; user_b</code>。「一人同时只能有一段关系」由三件事共同保证，不靠单列索引：</p>
+<ul>
+  <li><code>couples_pair_active</code>：对 <code>(least(user_a,user_b), greatest(user_a,user_b))</code> 在 <code>status='active'</code> 上的唯一索引，正反两向都挡住 <span class="tag later">待 004</span></li>
+  <li><code>couple_members.user_id</code> 是主键，一人只能占一行</li>
+  <li>配对函数锁住码行与双方档案行，锁内重查</li>
+</ul>
+<p>0.1 曾写成「<code>user_a</code> 与 <code>user_b</code> 各有 active 唯一索引」，那是错的：两列各自唯一并不阻止同一个人分别出现在两行的不同列里。</p>
 
 <h3>couple_members</h3>
 <table>
@@ -211,7 +222,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
     <tr><td class="mono">charging</td><td class="mono">boolean</td><td>是</td><td>—</td><td></td></tr>
     <tr><td class="mono">online</td><td class="mono">boolean</td><td>否</td><td><code>false</code></td><td>保留兼容，新鲜度看 presence</td></tr>
     <tr><td class="mono">paused_until</td><td class="mono">timestamptz</td><td>是</td><td>—</td><td>大于当前时刻即暂停；手动暂停用哨兵 <code>9999-12-31T00:00:00Z</code></td></tr>
-    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td><b>最后一点的采集时刻</b>，暂停恢复都不改它</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>否</td><td><code>now()</code></td><td><b>最后一点的采集时刻</b>，暂停恢复都不改它。注意 <code>get_status</code> 返回的同名字段不是这一列，取的是 presence 的刷新时刻</td></tr>
   </tbody>
 </table>
 
@@ -259,7 +270,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
     <tr><td class="mono">online</td><td class="mono">boolean</td><td>来自 presence，缺行时为 false</td></tr>
     <tr><td class="mono">paused_until</td><td class="mono">timestamptz</td><td>null 表示没暂停</td></tr>
     <tr><td class="mono">last_report_at</td><td class="mono">timestamptz</td><td>从未上报为 null，用它判「无数据」</td></tr>
-    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td>最后一点的采集时刻</td></tr>
+    <tr><td class="mono">updated_at</td><td class="mono">timestamptz</td><td><b>状态刷新时刻</b>，取 <code>presence.updated_at</code>，没有 presence 行才退回 <code>user_status.updated_at</code>。改共享开关、暂停、心跳都会推进它。<b>判断数据新旧只用 <code>last_report_at</code></b></td></tr>
     <tr><td class="mono">share_location / share_usage / share_battery</td><td class="mono">boolean</td><td>对象的三项开关，用来解释为什么看不到</td></tr>
     <tr><td class="mono">server_now</td><td class="mono">timestamptz</td><td><b>状态判定只信它</b>，不用手机时钟</td></tr>
   </tbody>
@@ -287,8 +298,8 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);color:v
   <tbody>
     <tr><td class="mono">generate_pair_code</td><td>—</td><td class="mono">text</td><td>六位码，十分钟有效。生成新码会作废自己所有未用码。已配对时报 <code>already_paired</code></td></tr>
     <tr><td class="mono">accept_pair_code</td><td class="mono">p_code text</td><td class="mono">uuid</td><td>返回 <code>couples.id</code>。锁码行与双方档案行，锁内重查</td></tr>
-    <tr><td class="mono">report_locations</td><td class="mono">p_points jsonb</td><td class="mono">jsonb</td><td><code>{"received": n, "inserted": m}</code>。单次最多 50 点</td></tr>
-    <tr><td class="mono">report_usage</td><td class="mono">p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz</td><td class="mono">int</td><td>写入的应用行数；<b>-1 表示旧快照被丢弃</b>；同版本重发按幂等成功</td></tr>
+    <tr><td class="mono">report_locations</td><td class="mono">p_points jsonb</td><td class="mono">jsonb</td><td><code>{"received": n, "inserted": m}</code>。单次最多 50 点，超了拆批。逐点校验坐标、电量、精度与采集时刻，任一点不合格整批拒绝 <span class="tag later">待 004</span></td></tr>
+    <tr><td class="mono">report_usage</td><td class="mono">p_date date, p_daily jsonb, p_apps jsonb, p_captured_at timestamptz</td><td class="mono">int</td><td><b>四个参数全必填</b>。<code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>；超过 20 行报 <code>apps_too_many</code>。返回写入的应用行数，<b>-1 表示旧快照被丢弃</b>；同版本重发按幂等成功 <span class="tag later">待 004</span></td></tr>
     <tr><td class="mono">set_pause</td><td class="mono">p_until timestamptz</td><td class="mono">void</td><td>传 null 即恢复，并写 <code>resumed_at</code></td></tr>
     <tr><td class="mono">set_sharing</td><td class="mono">p_location boolean, p_usage boolean, p_battery boolean</td><td class="mono">void</td><td>改三个分项开关，不碰采集</td></tr>
     <tr><td class="mono">set_collect_enabled</td><td class="mono">p_enabled boolean</td><td class="mono">void</td><td>只停本机采集，不改共享</td></tr>
@@ -339,7 +350,9 @@ p_apps = [
 ]
 
 p_captured_at = "2026-10-26T04:05:00Z"</code></pre>
-<p><code>p_apps</code> 传 <code>null</code> 表示这次不动应用明细；传 <code>[]</code> 表示当天没有应用数据，会把旧明细清空。这个区别必须保留。</p>
+<p><b><code>p_apps</code> 必填，语义是整日全量替换。</b>传 <code>null</code> 会被拒绝（<code>invalid_payload</code>）；传 <code>[]</code> 表示当天没有应用数据，清空旧明细；传数组就是这一天的完整清单，先删后插。</p>
+<p><b>超过 20 条不能拆包。</b>应用是整日替换，拆成两包发会让后一包覆盖前一包。客户端必须先在本地按 <code>foreground_ms</code> 降序取前 20 条，整体发一次；服务端遇到超过 20 条直接报 <code>apps_too_many</code>。</p>
+<p>位置点相反，是逐条追加（<code>user_id + recorded_at</code> 幂等），超过 50 点才拆批。两者的超限处理不要混用。</p>
 
 <h3>get_status 一行</h3>
 <pre><code>{
@@ -376,7 +389,50 @@ p_captured_at = "2026-10-26T04:05:00Z"</code></pre>
   ]
 }</code></pre>
 
+<h3>完整请求与响应</h3>
+
+<p>上面是行对象示例。真实的 RPC 响应永远是数组，<b>0 行时是 <code>[]</code></b>，不是 <code>null</code>，也不是空对象。</p>
+
+<pre><code>POST /rest/v1/rpc/report_locations
+apikey: sb_publishable_xELrqAejvAmCVInr-LsQLw_Dh06TkIu
+Authorization: Bearer &lt;jwt&gt;
+Content-Type: application/json
+
+{ "p_points": [ { "lat": 25.0143, "lng": 121.5121,
+                  "accuracy": 12.5, "battery": 66,
+                  "recorded_at": "2026-10-26T04:00:00Z" } ] }
+
+200 → { "received": 1, "inserted": 1 }</code></pre>
+
+<pre><code>POST /rest/v1/rpc/report_usage
+
+{ "p_date": "2026-10-26",
+  "p_daily": { "screen_on_ms": 900000, "unlock_count": 5, "lock_count": 4,
+               "first_unlock_at": "2026-10-26T00:12:00Z",
+               "last_unlock_at": "2026-10-26T03:40:00Z" },
+  "p_apps": [ { "package_name": "com.tencent.mm", "app_label": "微信",
+                "foreground_ms": 800000, "launch_count": 3 } ],
+  "p_captured_at": "2026-10-26T04:05:00Z" }
+
+200 → 1     写入 1 行应用明细
+200 → 0     应用数组为空，只更新了日汇总
+200 → -1    旧快照，被丢弃，立刻停止重试</code></pre>
+
+<pre><code>POST /rest/v1/rpc/set_sharing     （返回 void 的 RPC 都是这样）
+{ "p_location": true, "p_usage": true, "p_battery": true }
+
+200 → 空响应体，Content-Length: 0</code></pre>
+
+<pre><code>POST /rest/v1/rpc/get_status
+{}
+
+200 → [ { "user_id": "...", "lat": 25.01, "server_now": "..." } ]
+200 → []     未配对，或 p_user_id 指向不存在的人</code></pre>
+
+<p><b>拿到 -1 必须停。</b>它表示服务端已有更新的版本，继续重发只会一直被拒。等下一次采集产生新的 <code>captured_at</code> 再报，不要把这一条留在重试队列里。</p>
+
 <h2 id="s6"><span class="idx">06</span>错误形状</h2>
+
 
 <p>PostgREST 统一返回 <code>{"code","message","details","hint"}</code>。业务错误写在 <code>message</code> 里，HTTP 状态码不作业务判定依据。</p>
 
@@ -385,20 +441,34 @@ p_captured_at = "2026-10-26T04:05:00Z"</code></pre>
   <tbody>
     <tr><td class="mono">not_authenticated</td><td>没有有效 JWT</td><td>清 token，回登录</td></tr>
     <tr><td class="mono">not_allowed</td><td>读的不是自己也不是对象</td><td>回落到读对象，不重试</td></tr>
-    <tr><td class="mono">invalid_payload</td><td>必填字段缺失或类型不对</td><td>记日志丢弃，不重试</td></tr>
-    <tr><td class="mono">batch_too_large</td><td>位置超 50 点，应用超 20 行</td><td>拆包重发</td></tr>
+    <tr><td class="mono">invalid_payload</td><td>必填字段缺失、类型不对、取值越界（坐标 ±90/±180、电量 0–100、时长计数为负）</td><td>记日志丢弃，不重试</td></tr>
+    <tr><td class="mono">batch_too_large</td><td><b>位置</b>超 50 点</td><td>拆批重发，每批 ≤50</td></tr>
+    <tr><td class="mono">apps_too_many</td><td><b>应用</b>超 20 行 <span class="tag later">待 004</span></td><td>本地取 Top 20 后整体重发，<b>禁止拆包</b></td></tr>
+    <tr><td class="mono">future_timestamp</td><td>采集时刻超过服务端时间 +10 分钟 <span class="tag later">待 004</span></td><td>用服务端时间校正后重发；不要循环重试同一个未来时间</td></tr>
     <tr><td class="mono">invalid_code</td><td>码不存在、已用、已过期</td><td>提示重新输入，不清输入框</td></tr>
     <tr><td class="mono">cannot_pair_self</td><td>输了自己的码</td><td>提示换对方的码</td></tr>
     <tr><td class="mono">already_paired</td><td>自己已有关系</td><td>刷新进主页</td></tr>
     <tr><td class="mono">partner_already_paired</td><td>对方已有关系</td><td>提示让对方先解绑（v0.1 用暂停兜底）</td></tr>
     <tr><td class="mono">collect_disabled</td><td>纯查看设备调上报</td><td>停上报循环，不改共享</td></tr>
-    <tr><td class="mono">permission denied for table …</td><td>绕过函数直写四张数据表</td><td>不允许发生，属实现缺陷</td></tr>
+    <tr><td class="mono">permission denied for table …</td><td>绕过函数直写受控表（数据表、<code>settings</code>、<code>presence</code>，或改 <code>profiles</code> 的非授权列）</td><td>不允许发生，属实现缺陷</td></tr>
   </tbody>
 </table>
 
+<div class="note">
+  <div class="h">SQLSTATE 会漏出来，别只认 business code</div>
+  <p>函数内部的业务错误统一是 <code>P0001</code>，<code>message</code> 就是上表那些词。但函数里读不到的路径仍可能抛出原生错误：类型转换失败 <code>22P02</code>、日期格式错 <code>22007</code>、非空约束 <code>23502</code>、整数越界 <code>22003</code>。客户端按 <b>message 精确匹配 → 未命中就走「未知错误」分支</b>，不要把 HTTP 404/400 当业务判据。</p>
+  <p>004 之后，校验类错误已经全部转成 <code>invalid_payload</code>；仍看到 <code>22P02</code>／<code>23502</code> 说明有字段没进校验，属于要回来补校验的缺陷，不是正常分支。</p>
+</div>
+
+<div class="note">
+  <div class="h">一批里有一个坏点，整批不写</div>
+  <p><code>report_locations</code> 先校验全部点再插入，任何一点不合格整批拒绝，不会写一半。客户端要根据 <code>received/inserted</code> 判断：只有 <code>received == 提交条数</code> 才算成功。要定位坏点是哪一条，客户端在本地先按同样规则筛一遍再发。</p>
+</div>
+
 <h2 id="s7"><span class="idx">07</span>Kotlin 线格式</h2>
 
-<p>客户端只在网络层用这些类型。JSON 键保持 snake_case，Kotlin 属性用 camelCase 配 <code>@SerialName</code>。时间在线上统一是 ISO-8601 UTC 字符串，进业务层再解析成 <code>Instant</code>；这样序列化器不依赖额外的时间库。</p>
+<p>客户端只在网络层用这些类型。JSON 键保持 snake_case，Kotlin 属性用 camelCase 配 <code>@SerialName</code>。</p>
+<p><b>时间不能假设 Z 后缀。</b>请求侧我们统一发 <code>2026-10-26T04:00:00Z</code>；响应侧由 PostgreSQL 按会话时区序列化，实测会拿到 <code>2026-10-26T00:00:00+00:00</code> 甚至 <code>+08:00</code>。所以 DTO 里保持 <code>String</code>，业务层用 <code>OffsetDateTime.parse</code> 再转 <code>Instant</code>；<b>不要用 <code>Instant.parse</code></b>（它只吃 <code>Z</code>），也不要用字符串比较判断时间先后。</p>
 
 <pre><code>@Serializable
 data class StatusDto(
@@ -484,7 +554,9 @@ data class ReportLocationsResult(
   <thead><tr><th>项</th><th>定死的口径</th></tr></thead>
   <tbody>
     <tr><td>坐标</td><td>全链路 GCJ-02。高德回调直接上报，不做 WGS-84 转换；显示也只按 GCJ-02 用</td></tr>
-    <tr><td>时区</td><td>日切按 <code>Asia/Shanghai</code>；线上时间戳一律 UTC 带 <code>Z</code></td></tr>
+    <tr><td>时区</td><td>日切按 <code>Asia/Shanghai</code>；请求时间戳统一发 UTC 带 <code>Z</code>，响应可能带任意偏移，按 ISO-8601 解析</td></tr>
+    <tr><td>时钟容限</td><td>采集时刻最多允许比服务端时间超前 10 分钟，超过报 <code>future_timestamp</code>；历史补传不设下限 <span class="tag later">待 004</span></td></tr>
+    <tr><td>直写边界</td><td>数据库强制的只有：四张数据表、<code>settings</code>、<code>presence</code> 全禁直写，<code>profiles</code> 只许改两列。<code>devices</code> 允许本人整行直写，这是约定上的例外，不是漏洞 <span class="tag later">待 004</span></td></tr>
     <tr><td>时长单位</td><td>一律毫秒，字段名带 <code>_ms</code></td></tr>
     <tr><td>电量</td><td>整数百分比 0–100</td></tr>
     <tr><td>精度</td><td>米，<code>accuracy</code> 越小越准；未知传 null</td></tr>
@@ -500,9 +572,14 @@ data class ReportLocationsResult(
 
 <ul>
   <li>不能直接 INSERT / UPDATE / DELETE 四张数据表。没有写策略，也没有表级写权限，会直接报 42501。</li>
+  <li>不能直接写 <code>settings</code> 或 <code>presence</code>。改开关走 set_sharing / set_collect_enabled，刷新信号由上报与设置函数维护 <span class="tag later">待 004</span>。</li>
+  <li>不能改 <code>profiles</code> 里 <code>nickname</code>、<code>avatar_url</code> 以外的列，别拿邮箱或创建时间当可写字段 <span class="tag later">待 004</span>。</li>
   <li>不能直接读对象的 <code>user_status</code>、<code>location_points</code>、<code>daily_usage</code>、<code>app_usage</code>。查出来是空集，不是报错。</li>
   <li>不能自己写 <code>couple_members</code> 或 <code>couples</code>。配对只走两个函数。</li>
-  <li>不能把 <code>captured_at</code> 设成未来时间。未来快照会长期占住版本号，后续真实快照全被当成旧的丢弃。</li>
+  <li>不能在 <code>report_usage</code> 里把 <code>p_apps</code> 传 <code>null</code> 当「不动明细」，现在会被拒；要不动就别调这个函数，要替换就发完整数组 <span class="tag later">待 004</span>。</li>
+  <li>不能把超过 20 条的应用拆成几包发。应用是整日替换，后一包会覆盖前一包，最后只剩最后一包 <span class="tag later">待 004</span>。</li>
+  <li>不能把 <code>captured_at</code> 设成未来时间。未来快照会长期占住版本号，后续真实快照全被当成旧的丢弃；超过 10 分钟会直接被拒。</li>
+  <li>不能假设时间字符串以 <code>Z</code> 结尾，也不要用字符串比较时间先后。</li>
   <li>不能把「恢复」当成「清空数据」。恢复只清 <code>paused_until</code> 并写 <code>resumed_at</code>，旧点还在库里，靠遮蔽不让看。</li>
   <li>不能把纯查看模式理解成「关采集就隐身」。要两步：关采集 + 关三类共享。</li>
 </ul>
@@ -512,12 +589,13 @@ data class ReportLocationsResult(
 <table>
   <thead><tr><th>日期</th><th>版本</th><th>改动</th></tr></thead>
   <tbody>
+    <tr><td class="num">2026-10-26</td><td class="num">0.2</td><td>按《契约 schema 审查意见》C01–C08 修订：<code>p_apps</code> 改必填（null 不再清空明细）、应用超限禁止拆包并新增 <code>apps_too_many</code>、<code>get_status.updated_at</code> 改述为刷新信号、可写范围区分「数据库强制」与「仅约定」、时间戳不再承诺 Z 后缀、<code>couples</code> 改对称唯一、新增 <code>future_timestamp</code> 与 SQLSTATE 说明、补完整 RPC 请求体示例。配套 004 修正脚本，本地 25/25 通过，线上待执行</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">0.1</td><td>首次冻结。按已部署的 001–003 反向写：11 张表、2 个读入口、8 个写入口、错误形状、Kotlin 线格式、坐标与时区口径、客户端禁区</td></tr>
   </tbody>
 </table>
 
 <footer>
-  情侣看看 契约 schema v0.1 · 冻结 · 依据 SQL 001–003 与规格 v1.5 · 2026-10-26
+  情侣看看 契约 schema v0.2 · 冻结 · 依据 SQL 001–004 与规格 v1.6 · 2026-10-26
 </footer>
 
 </div>
