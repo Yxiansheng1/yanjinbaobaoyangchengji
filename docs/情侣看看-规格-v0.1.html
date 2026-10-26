@@ -728,8 +728,8 @@ interface Clock {
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
     <tr><td>设计</td><td>规格 1.6 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001、002、003 均已执行；2026-10-26 校验查询七行全 <code>ok</code>。004 写好并在本地验过 25/25，<b>线上未执行</b></td><td>004 在线上跑一次，自检那段不报错</td></tr>
-    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25，线上七行校验全 <code>true</code>。行为层：线上 Realtime 与真实多连接未测</td><td>线上用两个真实 JWT 跑完 V16–V24，并抓一条真实消息</td></tr>
+    <tr><td>已部署</td><td>001、002、003、004 均已执行；2026-10-26 003 校验七行全 <code>ok</code>，004 末尾自检通过</td><td>已达成</td></tr>
+    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25；线上 003 七行全 <code>true</code>，004 七项权限与索引核对符合预期。行为层：线上 Realtime、真实多连接、V22–V24 的拒绝行为均未测</td><td>线上用两个真实 JWT 跑完 V16–V24，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -770,7 +770,7 @@ interface Clock {
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.6 · 设计冻结 · 003 已上线 · 004 待上线 · 2026-10-26
+  情侣看看 规格 v0.1.6 · 设计冻结 · 001–004 已上线 · 2026-10-26
 </footer>
 
 </div>
