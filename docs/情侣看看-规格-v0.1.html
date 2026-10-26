@@ -729,8 +729,8 @@ interface Clock {
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
     <tr><td>设计</td><td>规格 1.6 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001–004 均已执行；2026-10-26 003 校验七行全 <code>ok</code>，004 末尾自检通过。005 写好并在本地验过 17/17，<b>线上未执行</b></td><td>005 在线上跑一次，自检那段不报错</td></tr>
-    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25、<code>verify-005.mjs</code> 17/17；线上 003 七行全 <code>true</code>，004 七项权限与索引核对符合预期。行为层：线上 Realtime、真实多连接、V22–V25 的拒绝与刷新行为均未测</td><td>线上用两个真实 JWT 跑完 V16–V25，并抓一条真实消息</td></tr>
+    <tr><td>已部署</td><td>001–005 均已执行；2026-10-26 003 校验七行全 <code>ok</code>，004 权限与索引核对通过，005 自检通过（函数体已换）</td><td>已达成</td></tr>
+    <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25、<code>verify-005.mjs</code> 17/17；线上 003 七行全 <code>true</code>，004 七项权限与索引核对符合预期，005 自检通过（函数体含新校验）。行为层：线上 Realtime、真实多连接、V22–V25 的拒绝与刷新行为均未测</td><td>线上用两个真实 JWT 跑完 V16–V25，并抓一条真实消息</td></tr>
   </tbody>
 </table>
 
@@ -772,7 +772,7 @@ interface Clock {
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.7 · 设计冻结 · 001–004 已上线 · 005 待上线 · 2026-10-26
+  情侣看看 规格 v0.1.7 · 设计冻结 · 001–005 已上线 · 2026-10-26
 </footer>
 
 </div>
