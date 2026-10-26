@@ -1,0 +1,219 @@
+{
+  "environment": "PGlite 0.5.11",
+  "passed": 25,
+  "total": 25,
+  "results": [
+    {
+      "name": "C01 null 应用列表被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C01 拒绝后明细仍在",
+      "passed": true,
+      "detail": [
+        {
+          "package_name": "original.app"
+        }
+      ]
+    },
+    {
+      "name": "C01 空数组仍然清空",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "C02 21 条报 apps_too_many",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "apps_too_many"
+      }
+    },
+    {
+      "name": "C02 被拒后当天没有半截快照",
+      "passed": true,
+      "detail": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "C02 整体 20 条正常写入",
+      "passed": true,
+      "detail": [
+        {
+          "result": 20
+        }
+      ]
+    },
+    {
+      "name": "C06 负数用机被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 未来快照被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "future_timestamp"
+      }
+    },
+    {
+      "name": "C06 未来快照不再毒化版本",
+      "passed": true,
+      "detail": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "C06 缺 lng 报 invalid_payload",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 lat 字符串报 invalid_payload",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 坐标越界被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 电量越界被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 负精度被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "C06 未来位置点被拒",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "future_timestamp"
+      }
+    },
+    {
+      "name": "C06 合法点仍可写入",
+      "passed": true,
+      "detail": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "C05 settings 直写被拒",
+      "passed": true,
+      "detail": {
+        "code": "42501",
+        "message": "permission denied for table settings"
+      }
+    },
+    {
+      "name": "C05 presence 直写被拒",
+      "passed": true,
+      "detail": {
+        "code": "42501",
+        "message": "permission denied for table presence"
+      }
+    },
+    {
+      "name": "C05 profiles 昵称仍可改",
+      "passed": true,
+      "detail": [
+        {
+          "nickname": "小可"
+        }
+      ]
+    },
+    {
+      "name": "C05 profiles 邮箱不可改",
+      "passed": true,
+      "detail": {
+        "code": "42501",
+        "message": "permission denied for table profiles"
+      }
+    },
+    {
+      "name": "C03 authenticated 收回执行权",
+      "passed": true,
+      "detail": [
+        {
+          "v": false
+        }
+      ]
+    },
+    {
+      "name": "C03 anon 收回执行权",
+      "passed": true,
+      "detail": [
+        {
+          "v": false
+        }
+      ]
+    },
+    {
+      "name": "C03 内部时间函数也不外放",
+      "passed": true,
+      "detail": [
+        {
+          "v": false
+        }
+      ]
+    },
+    {
+      "name": "C07 同一对反向插入被拒",
+      "passed": true,
+      "detail": {
+        "code": "23505",
+        "message": "duplicate key value violates unique constraint \"couples_pair_active\""
+      }
+    },
+    {
+      "name": "回归 get_status 仍返回对象行",
+      "passed": true,
+      "detail": [
+        {
+          "user_id": "00000000-0000-0000-0000-000000000001",
+          "last_report_at": "2026-10-26T05:35:05.437Z",
+          "updated_at": "2026-10-26T05:35:05.451Z"
+        }
+      ]
+    }
+  ]
+}

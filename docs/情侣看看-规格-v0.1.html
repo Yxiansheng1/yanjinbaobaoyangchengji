@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -83,7 +83,7 @@
 <header class="doc">
   <h1>情侣看看 规格 v0.1</h1>
   <div class="meta">
-    <span><b>版本</b> 1.7</span>
+    <span><b>版本</b> 1.8</span>
     <span><b>日期</b> 2026-10-26</span>
     <span><b>状态</b> 设计冻结；003 已上线，行为校验待做</span>
     <span><b>范围</b> 安卓端 + Supabase 后端</span>
@@ -687,7 +687,7 @@ interface Clock {
     <tr><td class="num">V20</td><td>关闭采集</td><td>备用机 <code>set_collect_enabled(false)</code> 后，<code>report_locations</code> 与 <code>report_usage</code> 都返回 <code>collect_disabled</code>；三类共享仍开时，对方仍能读到旧位置与旧用机（这是设计，不是缺陷）；用普通 JWT 直写四张数据表报 42501；重开采集后恢复上报</td></tr>
     <tr><td class="num">V21</td><td>纯查看模式</td><td>一键进入时先关采集再关三类共享，两步都成功后对方调 <code>get_status</code> 拿到的坐标、电量全为 null，<code>get_usage</code> 返回空；第二步失败时界面显示「部分完成」，重试只补未完成的那一步；两步都幂等，重复执行不报错</td></tr>
     <tr><td class="num">V22</td><td>应用列表必填</td><td><code>p_apps</code> 传 <code>null</code> 报 <code>invalid_payload</code>，库里应用明细不变；传 <code>[]</code> 清空当天明细；传 21 条报 <code>apps_too_many</code>，客户端本地取 Top 20 后整体发送，服务端最终是完整的 20 行，不是最后一包</td></tr>
-    <tr><td class="num">V23</td><td>越界与未来时间</td><td>坐标超 ±90/±180、电量超 0–100 或为小数、精度或时长为负、整数列塞小数、超出目标类型容量、同批包名重复，一律报 <code>invalid_payload</code> 且整批不落库；<code>recorded_at</code> 或 <code>captured_at</code> 超服务端 +10 分钟报 <code>future_timestamp</code>；被拒之后当天正常快照仍能写入，不会被未来版本毒化</td></tr>
+    <tr><td class="num">V23</td><td>越界与未来时间</td><td>坐标超 ±90/±180、电量超 0–100、精度或时长为负、真小数塞进整数列（<code>66.5</code>）、超出目标类型容量、同批包名重复，一律报 <code>invalid_payload</code> 且整批不落库；<b>整数值写成小数形式</b>（<code>66.0</code>、<code>1000.0</code>）必须被接受并归一化成 66、1000，不得抛 <code>22P02</code>；<code>recorded_at</code> 或 <code>captured_at</code> 超服务端 +10 分钟报 <code>future_timestamp</code>；被拒之后当天正常快照仍能写入，不会被未来版本毒化</td></tr>
     <tr><td class="num">V24</td><td>受控表直写</td><td><code>settings</code>、<code>presence</code> 直写报 42501；<code>profiles</code> 改 <code>nickname</code> 成功、改 <code>email</code> 报 42501；<code>devices</code> 本人整行可写；<code>anon</code> 与普通 JWT 调 <code>purge_old_locations</code> 均被拒，任务身份仍可执行</td></tr>
     <tr><td class="num">V25</td><td>用机单独更新也能刷新</td><td>在没有新位置、没有改设置的前提下只上报用机快照，<code>presence.updated_at</code> 必须前进，<code>last_report_at</code> 不变，查看端能收到信号并重新读到新用机数据；被丢弃的旧快照（返回 -1）不得推进 <code>updated_at</code></td></tr>
   </tbody>
@@ -728,8 +728,8 @@ interface Clock {
 <table>
   <thead><tr><th>状态</th><th>目前是什么</th><th>怎么才算完成</th></tr></thead>
   <tbody>
-    <tr><td>设计</td><td>规格 1.6 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
-    <tr><td>已部署</td><td>001–005 均已执行；2026-10-26 003 校验七行全 <code>ok</code>，004 权限与索引核对通过，005 自检通过（函数体已换）</td><td>已达成</td></tr>
+    <tr><td>设计</td><td>规格 1.8 已冻结</td><td>本文与 PRD 口径一致，工单可派</td></tr>
+    <tr><td>已部署</td><td>001–005 均已执行；2026-10-26 003 校验七行全 <code>ok</code>，004 权限与索引核对通过，005 自检通过（函数体已换）。006 写好并在本地验过 15/15，<b>线上未执行</b></td><td>006 在线上跑一次，自检那段不报错</td></tr>
     <tr><td>已验证</td><td>结构层：本地 <code>verify-003.mjs</code> 37/37、<code>verify-004.mjs</code> 25/25、<code>verify-005.mjs</code> 17/17；线上 003 七行全 <code>true</code>，004 七项权限与索引核对符合预期，005 自检通过（函数体含新校验）。行为层：线上 Realtime、真实多连接、V22–V25 的拒绝与刷新行为均未测</td><td>线上用两个真实 JWT 跑完 V16–V25，并抓一条真实消息</td></tr>
   </tbody>
 </table>
@@ -765,6 +765,7 @@ interface Clock {
     <tr><td class="num">2026-10-26</td><td class="num">1.2</td><td>R04 定案：v0.1 两台安卓，备用机只作查看端且关闭自身共享；iOS 排 v0.2</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.3</td><td>按 N01–N09 加固：身份判断改 NULL 安全写法；对象对四张原表一律不可读，新增 get_usage；历史电量随原表关闭；成员表只允许函数写入；快照版本比较并入 UPSERT；恢复后旧点由 resumed_at 与 paused_until 遮蔽；发布集合只剩 presence；新增 collect_enabled 纯查看模式；补算法单测向量与排名容差；验收扩到 V20；修正留存与版本号事实</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.4</td><td>补两处复核未编号项：成员表回填遇到不一致时列出明细并报错，不再静默跳过；四张数据表收回直写权限，客户端只能走上报函数，纯查看与快照版本无法绕过。校验查询增到七行，验证脚本扩到 31 项断言</td></tr>
+    <tr><td class="num">2026-10-26</td><td class="num">1.8</td><td>按《契约 schema 第三轮定稿复核》E01 改：整数性检查通过后统一走 <code>numeric::目标类型</code> 转换，整数值写成 <code>66.0</code> 这种形式不再漏 <code>22P02</code>；V23 补这条口径；同步第二轮处置说明的旧状态与复核等级说法</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.7</td><td>按《契约 schema 第二轮复核》D01–D06 改：补齐小数、整数溢出与重复包名的服务端校验，验收扩到 V25（用机单独更新也能刷新）；<code>presence</code> 与 <code>settings</code> 的可写性改为「已收回」；<code>profiles</code> 明确只开放两列；<code>Instant.parse</code> 的说法按 JDK 17 实测更正；对称索引的作用改为「防同一对正反向重复」，不再说它能单独保证一人一段</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.6</td><td>按《契约 schema 审查意见》C01–C08 改：<code>p_apps</code> 改必填、整日替换且禁止拆包（D17）；新增时钟容限 +10 分钟（D16）；越界与非负数校验进服务端；<code>settings</code> 与 <code>presence</code> 收回直写，<code>profiles</code> 改列级授权；<code>couples</code> 改对称唯一；<code>get_status.updated_at</code> 明确为刷新信号时刻；时间戳不再承诺 Z 后缀；验收扩到 V22–V24</td></tr>
     <tr><td class="num">2026-10-26</td><td class="num">1.5</td><td>按三次复核 T01–T04 改：V20 拆成「关闭采集」与「纯查看模式」两条，写明一键操作的顺序、部分失败与重试；R04 同步说明为什么分两步；V13 注明本机只覆盖顺序复用、并发在线上验；V14 补两种初始状态的并发；修正第 4 节 user_status 标题与 README 部署状态；确认备用机系统不低于 Android 9，minSdk 28 不变</td></tr>
@@ -772,7 +773,7 @@ interface Clock {
 </table>
 
 <footer>
-  情侣看看 规格 v0.1.7 · 设计冻结 · 001–005 已上线 · 2026-10-26
+  情侣看看 规格 v0.1.7 · 设计冻结 · 001–005 已上线 · 006 待上线 · 2026-10-26
 </footer>
 
 </div>

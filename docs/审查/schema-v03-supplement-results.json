@@ -1,0 +1,115 @@
+{
+  "environment": "PGlite 0.5.11; synthetic Auth; raw JSON inputs; no live HTTP",
+  "passed": 10,
+  "total": 13,
+  "results": [
+    {
+      "name": "E01 integral decimal battery 66.0 accepted",
+      "passed": false,
+      "detail": {
+        "code": "22P02",
+        "message": "invalid input syntax for type smallint: \"66.0\""
+      }
+    },
+    {
+      "name": "E01 integral decimal foreground_ms 1000.0 accepted",
+      "passed": false,
+      "detail": {
+        "code": "22P02",
+        "message": "invalid input syntax for type bigint: \"1000.0\""
+      }
+    },
+    {
+      "name": "E01 integral decimal launch_count 3.0 accepted",
+      "passed": false,
+      "detail": {
+        "code": "22P02",
+        "message": "invalid input syntax for type integer: \"3.0\""
+      }
+    },
+    {
+      "name": "control decimal-form integer daily values accepted",
+      "passed": true,
+      "detail": [
+        {
+          "result": 0
+        }
+      ]
+    },
+    {
+      "name": "control failed fractional snapshot leaves no summary",
+      "passed": true,
+      "detail": [
+        {
+          "n": 0
+        }
+      ]
+    },
+    {
+      "name": "control ordinary integer battery accepted",
+      "passed": true,
+      "detail": [
+        {
+          "result": {
+            "inserted": 1,
+            "received": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "control fractional application time rejected",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "control application count beyond int rejected",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "control application bigint maximum accepted",
+      "passed": true,
+      "detail": [
+        {
+          "result": 1
+        }
+      ]
+    },
+    {
+      "name": "control application bigint overflow rejected",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "invalid_payload"
+      }
+    },
+    {
+      "name": "control unauthorized absent target rejected",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "not_allowed"
+      }
+    },
+    {
+      "name": "control unpaired default returns no rows",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "control normal pairing rejects cross relationship",
+      "passed": true,
+      "detail": {
+        "code": "P0001",
+        "message": "partner_already_paired"
+      }
+    }
+  ]
+}
